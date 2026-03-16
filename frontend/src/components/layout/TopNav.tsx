@@ -1,7 +1,9 @@
 "use client";
 
+import { LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { NavTab } from "@/lib/types";
+import { useAuth } from "@/hooks/useAuth";
 
 interface TopNavProps {
   tabs: NavTab[];
@@ -12,8 +14,11 @@ interface TopNavProps {
 /**
  * 상단 GNB — K-SENS II 스타일 수평 탭 네비게이션
  * 활성 탭: 주황색 텍스트 + 하단 도트 인디케이터
+ * 우측: 사용자 정보 + 로그아웃 버튼
  */
 export default function TopNav({ tabs, activeTab, onTabChange }: TopNavProps) {
+  const { user, logout } = useAuth();
+
   return (
     <header className="topnav">
       <div className="topnav-logo">
@@ -38,6 +43,27 @@ export default function TopNav({ tabs, activeTab, onTabChange }: TopNavProps) {
           );
         })}
       </nav>
+
+      <div className="topnav-user">
+        {user && (
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/10 text-white/80 text-xs">
+              <User size={14} />
+              <span>{user.name}</span>
+              <span className="opacity-60">({user.team})</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-white/70 hover:text-white hover:bg-white/10 text-xs h-7 px-2"
+              onClick={logout}
+            >
+              <LogOut size={14} className="mr-1" />
+              로그아웃
+            </Button>
+          </div>
+        )}
+      </div>
     </header>
   );
 }

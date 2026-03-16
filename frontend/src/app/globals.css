@@ -134,6 +134,14 @@
   align-items: center;
   gap: 0;
   height: 100%;
+  flex: 1;
+}
+
+.topnav-user {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .topnav-tab {
