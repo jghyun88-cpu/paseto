@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { NavTab } from "@/lib/types";
 import { useAuth } from "@/hooks/useAuth";
+import api from "@/lib/api";
 
 interface TopNavProps {
   tabs: NavTab[];
@@ -11,13 +13,40 @@ interface TopNavProps {
   onTabChange: (tabId: string) => void;
 }
 
-/**
- * 상단 GNB — K-SENS II 스타일 수평 탭 네비게이션
- * 활성 탭: 주황색 텍스트 + 하단 도트 인디케이터
- * 우측: 사용자 정보 + 로그아웃 버튼
- */
+interface UserInfo {
+  name: string;
+  team: string;
+}
+
 export default function TopNav({ tabs, activeTab, onTabChange }: TopNavProps) {
   const { user, logout } = useAuth();
+  const [localUser, setLocalUser] = useState<UserInfo | null>(null);
+
+  // zustand user가 없으면 API로 직접 조회
+  useEffect(() => {
+    if (user) {
+      setLocalUser({ name: user.name, team: user.team });
+      return;
+    }
+    if (typeof window === "undefined") return;
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      api.get<UserInfo>("/auth/me")
+        .then((res) => setLocalUser({ name: res.data.name, team: res.data.team }))
+        .catch(() => setLocalUser(null));
+    }
+  }, [user]);
+
+  const handleLogout = () => {
+    if (logout) {
+      logout();
+    } else {
+      localStorage.removeItem("access_token");
+      window.location.href = "/login";
+    }
+  };
+
+  const displayUser = user ?? localUser;
 
   return (
     <header className="topnav">
@@ -45,24 +74,20 @@ export default function TopNav({ tabs, activeTab, onTabChange }: TopNavProps) {
       </nav>
 
       <div className="topnav-user">
-        {user && (
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-100 text-slate-600 text-xs">
-              <User size={14} />
-              <span className="font-medium text-slate-800">{user.name}</span>
-              <span className="text-slate-400">({user.team})</span>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-slate-500 hover:text-red-600 hover:bg-red-50 text-xs h-7 px-2"
-              onClick={logout}
-            >
-              <LogOut size={14} className="mr-1" />
-              로그아웃
-            </Button>
+        {displayUser && (
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-100 text-xs mr-2">
+            <User size={14} className="text-slate-500" />
+            <span className="font-medium text-slate-800">{displayUser.name}</span>
+            <span className="text-slate-400">({displayUser.team})</span>
           </div>
         )}
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-1 px-2 py-1 rounded-md text-xs text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+        >
+          <LogOut size={14} />
+          <span>로그아웃</span>
+        </button>
       </div>
     </header>
   );
