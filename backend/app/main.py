@@ -23,6 +23,9 @@ from app.routers import poc_projects as poc_projects_router
 from app.routers import follow_on_investments as follow_on_router
 from app.routers import exit_records as exit_records_router
 from app.routers import government_programs as gov_programs_router
+from app.routers import meetings as meetings_router
+from app.routers import notifications as notifications_router
+from app.routers import dashboard as dashboard_router
 
 app = FastAPI(
     title="eLSA — 딥테크 액셀러레이터 운영시스템",
@@ -62,6 +65,9 @@ app.include_router(poc_projects_router.router, prefix="/api/v1/poc-projects", ta
 app.include_router(follow_on_router.router, prefix="/api/v1/follow-on-investments", tags=["후속투자"])
 app.include_router(exit_records_router.router, prefix="/api/v1/exit-records", tags=["회수"])
 app.include_router(gov_programs_router.router, prefix="/api/v1/government-programs", tags=["정부사업"])
+app.include_router(meetings_router.router, prefix="/api/v1/meetings", tags=["회의"])
+app.include_router(notifications_router.router, prefix="/api/v1/notifications", tags=["알림"])
+app.include_router(dashboard_router.router, prefix="/api/v1/dashboard", tags=["대시보드"])
 
 
 @app.get("/health")

@@ -38,6 +38,7 @@ from app.models.poc_project import PoCProject
 from app.models.follow_on_investment import FollowOnInvestment
 from app.models.exit_record import ExitRecord
 from app.models.government_program import GovernmentProgram
+from app.models.meeting import Meeting
 
 __all__ = [
     "Base",
@@ -67,4 +68,5 @@ __all__ = [
     "FollowOnInvestment",
     "ExitRecord",
     "GovernmentProgram",
+    "Meeting",
 ]

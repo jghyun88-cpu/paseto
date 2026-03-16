@@ -336,3 +336,48 @@ export interface GovProgramItem {
   period_end: string | null;
   created_at: string;
 }
+
+/** ─── Phase 7 (팀간 연결 + 고도화) 타입 ─── */
+
+export type MeetingTypeValue =
+  | "weekly_deal" | "weekly_portfolio" | "monthly_ops" | "ic"
+  | "mentoring" | "partner_review" | "risk_review" | "program_ops";
+
+export type NotificationTypeValue =
+  | "handover_request" | "deadline_alert" | "ic_schedule"
+  | "kpi_warning" | "report_deadline" | "crisis_alert"
+  | "escalation" | "contract_overdue";
+
+export interface MeetingItem {
+  id: string;
+  meeting_type: MeetingTypeValue;
+  title: string;
+  scheduled_at: string;
+  duration_minutes: number | null;
+  attendees: { user_id: string; team: string; role: string }[];
+  agenda_items: { item: string; priority: string }[];
+  minutes: string | null;
+  action_items: { item: string; assignee_id: string; deadline: string; status: string }[] | null;
+  created_by: string;
+  created_at: string;
+}
+
+export interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  notification_type: NotificationTypeValue;
+  related_entity_type: string | null;
+  related_entity_id: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface DashboardData {
+  deal_pipeline: { total: number; in_screening: number; in_contract: number; portfolio: number };
+  portfolio_metrics: { total_startups: number; grade_a_ratio: number; follow_on_rate: number };
+  crisis_alerts: { startup_id: string; company_name: string; crisis_type: string; severity: string }[];
+  unacknowledged_handovers: number;
+  upcoming_meetings: MeetingItem[];
+  recent_handovers: { id: string; from_team: string; to_team: string; acknowledged_by: string | null }[];
+}

@@ -212,3 +212,20 @@ def government_program_not_found() -> HTTPException:
         status_code=status.HTTP_404_NOT_FOUND,
         detail="해당 정부사업을 찾을 수 없습니다.",
     )
+
+
+# --- Phase 7 (팀간 연결 + 고도화) ---
+
+
+def meeting_not_found() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="해당 회의를 찾을 수 없습니다.",
+    )
+
+
+def notification_not_found() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="해당 알림을 찾을 수 없습니다.",
+    )
