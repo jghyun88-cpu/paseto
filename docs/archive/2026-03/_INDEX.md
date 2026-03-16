@@ -9,3 +9,4 @@
 | oi | 100% | 2026-03-17 | plan, design, report |
 | phase7-integration | 100% | 2026-03-17 | plan, design, report |
 | kpi-dashboard | 100% | 2026-03-17 | plan, design, report |
+| sop-jd | 100% | 2026-03-17 | plan, design, report |
