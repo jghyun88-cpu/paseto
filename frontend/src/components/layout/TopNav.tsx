@@ -47,15 +47,15 @@ export default function TopNav({ tabs, activeTab, onTabChange }: TopNavProps) {
       <div className="topnav-user">
         {user && (
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/10 text-white/80 text-xs">
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-100 text-slate-600 text-xs">
               <User size={14} />
-              <span>{user.name}</span>
-              <span className="opacity-60">({user.team})</span>
+              <span className="font-medium text-slate-800">{user.name}</span>
+              <span className="text-slate-400">({user.team})</span>
             </div>
             <Button
               variant="ghost"
               size="sm"
-              className="text-white/70 hover:text-white hover:bg-white/10 text-xs h-7 px-2"
+              className="text-slate-500 hover:text-red-600 hover:bg-red-50 text-xs h-7 px-2"
               onClick={logout}
             >
               <LogOut size={14} className="mr-1" />
