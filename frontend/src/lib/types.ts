@@ -426,3 +426,57 @@ export interface ExecutiveKPIData {
   teams: Record<string, TeamKPISummary>;
   overall_health: KPIStatus;
 }
+
+/** ─── Phase 9 (SOP + 양식 + JD) 타입 ─── */
+
+export interface SOPTemplateItem {
+  id: string;
+  document_number: string;
+  title: string;
+  owning_team: string;
+  steps: { step: number; name: string; forms?: string[] }[];
+  required_forms: string[];
+  is_active: boolean;
+}
+
+export interface SOPExecutionItem {
+  id: string;
+  sop_template_id: string;
+  startup_id: string | null;
+  current_step: number;
+  step_statuses: Record<string, string>;
+  started_at: string;
+  completed_at: string | null;
+}
+
+export interface FormTemplateItem {
+  id: string;
+  form_code: string;
+  title: string;
+  owning_team: string;
+  fields: { name: string; type: string; required: boolean }[];
+  is_active: boolean;
+}
+
+export interface FormSubmissionItem {
+  id: string;
+  form_template_id: string;
+  startup_id: string | null;
+  submitted_by: string;
+  data: Record<string, unknown>;
+  status: string;
+  submitted_at: string;
+}
+
+export interface JDItem {
+  id: string;
+  jd_code: string;
+  title: string;
+  team: string;
+  reports_to: string;
+  purpose: string;
+  core_responsibilities: string[];
+  authority_scope: string[];
+  approval_required: string[];
+  is_active: boolean;
+}

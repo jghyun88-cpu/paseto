@@ -40,6 +40,11 @@ from app.models.exit_record import ExitRecord
 from app.models.government_program import GovernmentProgram
 from app.models.meeting import Meeting
 from app.models.team_kpi import TeamKPI
+from app.models.sop_template import SOPTemplate
+from app.models.sop_execution import SOPExecution
+from app.models.form_template import FormTemplate
+from app.models.form_submission import FormSubmission
+from app.models.job_description import JobDescription
 
 __all__ = [
     "Base",
@@ -71,4 +76,9 @@ __all__ = [
     "GovernmentProgram",
     "Meeting",
     "TeamKPI",
+    "SOPTemplate",
+    "SOPExecution",
+    "FormTemplate",
+    "FormSubmission",
+    "JobDescription",
 ]

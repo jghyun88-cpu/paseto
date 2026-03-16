@@ -27,6 +27,9 @@ from app.routers import meetings as meetings_router
 from app.routers import notifications as notifications_router
 from app.routers import dashboard as dashboard_router
 from app.routers import team_kpis as team_kpis_router
+from app.routers import sop_templates as sop_router
+from app.routers import forms as forms_router
+from app.routers import job_descriptions as jd_router
 
 app = FastAPI(
     title="eLSA — 딥테크 액셀러레이터 운영시스템",
@@ -70,6 +73,9 @@ app.include_router(meetings_router.router, prefix="/api/v1/meetings", tags=["회
 app.include_router(notifications_router.router, prefix="/api/v1/notifications", tags=["알림"])
 app.include_router(dashboard_router.router, prefix="/api/v1/dashboard", tags=["대시보드"])
 app.include_router(team_kpis_router.router, prefix="/api/v1/team-kpis", tags=["팀KPI"])
+app.include_router(sop_router.router, prefix="/api/v1/sop", tags=["SOP"])
+app.include_router(forms_router.router, prefix="/api/v1/forms", tags=["양식"])
+app.include_router(jd_router.router, prefix="/api/v1/jd", tags=["직무기술서"])
 
 
 @app.get("/health")

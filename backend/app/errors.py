@@ -246,3 +246,26 @@ def team_kpi_duplicate() -> HTTPException:
         status_code=status.HTTP_409_CONFLICT,
         detail="해당 팀/기간/지표의 KPI가 이미 존재합니다.",
     )
+
+
+# --- Phase 9 (SOP + 양식 + JD) ---
+
+
+def sop_template_not_found() -> HTTPException:
+    return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="해당 SOP 템플릿을 찾을 수 없습니다.")
+
+
+def sop_execution_not_found() -> HTTPException:
+    return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="해당 SOP 실행을 찾을 수 없습니다.")
+
+
+def form_template_not_found() -> HTTPException:
+    return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="해당 양식 템플릿을 찾을 수 없습니다.")
+
+
+def form_submission_not_found() -> HTTPException:
+    return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="해당 양식 제출을 찾을 수 없습니다.")
+
+
+def jd_not_found() -> HTTPException:
+    return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="해당 직무기술서를 찾을 수 없습니다.")
