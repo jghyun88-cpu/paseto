@@ -174,3 +174,41 @@ def grade_change_not_authorized() -> HTTPException:
         status_code=status.HTTP_403_FORBIDDEN,
         detail="포트폴리오 등급 변경은 PM 또는 Partner만 가능합니다.",
     )
+
+
+# --- 오픈이노베이션팀 (Phase 6) ---
+
+
+def partner_demand_not_found() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="해당 파트너 수요를 찾을 수 없습니다.",
+    )
+
+
+def poc_project_not_found() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="해당 PoC 프로젝트를 찾을 수 없습니다.",
+    )
+
+
+def follow_on_not_found() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="해당 후속투자 기록을 찾을 수 없습니다.",
+    )
+
+
+def exit_record_not_found() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="해당 회수 기록을 찾을 수 없습니다.",
+    )
+
+
+def government_program_not_found() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="해당 정부사업을 찾을 수 없습니다.",
+    )

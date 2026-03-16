@@ -33,6 +33,11 @@ from app.models.mentoring_session import MentoringSession
 from app.models.kpi_record import KPIRecord
 from app.models.demo_day import DemoDay
 from app.models.investor_meeting import InvestorMeeting
+from app.models.partner_demand import PartnerDemand
+from app.models.poc_project import PoCProject
+from app.models.follow_on_investment import FollowOnInvestment
+from app.models.exit_record import ExitRecord
+from app.models.government_program import GovernmentProgram
 
 __all__ = [
     "Base",
@@ -57,4 +62,9 @@ __all__ = [
     "KPIRecord",
     "DemoDay",
     "InvestorMeeting",
+    "PartnerDemand",
+    "PoCProject",
+    "FollowOnInvestment",
+    "ExitRecord",
+    "GovernmentProgram",
 ]

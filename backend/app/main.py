@@ -18,6 +18,11 @@ from app.routers import kpi_records as kpi_records_router
 from app.routers import demo_days as demo_days_router
 from app.routers import investor_meetings as investor_meetings_router
 from app.routers import mentors as mentors_router
+from app.routers import partner_demands as partner_demands_router
+from app.routers import poc_projects as poc_projects_router
+from app.routers import follow_on_investments as follow_on_router
+from app.routers import exit_records as exit_records_router
+from app.routers import government_programs as gov_programs_router
 
 app = FastAPI(
     title="eLSA — 딥테크 액셀러레이터 운영시스템",
@@ -52,6 +57,11 @@ app.include_router(kpi_records_router.router, prefix="/api/v1/kpi-records", tags
 app.include_router(demo_days_router.router, prefix="/api/v1/demo-days", tags=["데모데이"])
 app.include_router(investor_meetings_router.router, prefix="/api/v1/investor-meetings", tags=["투자자미팅"])
 app.include_router(mentors_router.router, prefix="/api/v1/mentors", tags=["멘토"])
+app.include_router(partner_demands_router.router, prefix="/api/v1/partner-demands", tags=["파트너수요"])
+app.include_router(poc_projects_router.router, prefix="/api/v1/poc-projects", tags=["PoC"])
+app.include_router(follow_on_router.router, prefix="/api/v1/follow-on-investments", tags=["후속투자"])
+app.include_router(exit_records_router.router, prefix="/api/v1/exit-records", tags=["회수"])
+app.include_router(gov_programs_router.router, prefix="/api/v1/government-programs", tags=["정부사업"])
 
 
 @app.get("/health")

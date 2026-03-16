@@ -250,3 +250,89 @@ export interface MentorItem {
   is_active: boolean;
   engagement_count: number;
 }
+
+/** ─── 오픈이노베이션팀 모듈 타입 ─── */
+
+export type DemandType =
+  | "tech_adoption" | "joint_dev" | "vendor" | "new_biz" | "strategic_invest";
+
+export type PoCStatusType =
+  | "demand_identified" | "matching" | "planning" | "kickoff"
+  | "in_progress" | "mid_review" | "completed"
+  | "commercial_contract" | "joint_development"
+  | "strategic_investment" | "retry" | "terminated";
+
+export type ExitTypeValue =
+  | "secondary_sale" | "ma" | "strategic_sale" | "ipo"
+  | "secondary_market" | "tech_transfer" | "jv" | "writeoff";
+
+export type GovProgramType =
+  | "tips" | "pre_tips" | "rnd" | "sandbox" | "pilot_support" | "overseas_voucher";
+
+export type FollowOnStatus =
+  | "planning" | "ir_active" | "termsheet" | "closing" | "completed";
+
+export interface PartnerDemandItem {
+  id: string;
+  partner_company: string;
+  department: string | null;
+  demand_type: DemandType;
+  description: string;
+  status: string;
+  nda_required: boolean;
+  candidate_startups: { startup_id: string; fit_reason: string }[] | null;
+  created_at: string;
+}
+
+export interface PoCProjectItem {
+  id: string;
+  startup_id: string;
+  partner_demand_id: string;
+  project_name: string;
+  status: PoCStatusType;
+  duration_weeks: number;
+  conversion_likelihood: string | null;
+  result_summary: string | null;
+  created_at: string;
+}
+
+export interface FollowOnItem {
+  id: string;
+  startup_id: string;
+  round_type: string;
+  target_amount: number | null;
+  lead_investor: string | null;
+  ir_meetings_count: number;
+  status: FollowOnStatus;
+  created_at: string;
+}
+
+export interface ExitRecordItem {
+  id: string;
+  startup_id: string;
+  exit_type: ExitTypeValue;
+  exit_amount: number | null;
+  multiple: number | null;
+  cap_table_clean: boolean;
+  preferred_terms_reviewed: boolean;
+  drag_tag_reviewed: boolean;
+  ip_ownership_clean: boolean;
+  accounting_transparent: boolean;
+  customer_contracts_stable: boolean;
+  management_issue_clear: boolean;
+  exit_date: string | null;
+  created_at: string;
+}
+
+export interface GovProgramItem {
+  id: string;
+  startup_id: string;
+  program_type: GovProgramType;
+  program_name: string;
+  managing_agency: string;
+  status: string;
+  amount: number | null;
+  period_start: string | null;
+  period_end: string | null;
+  created_at: string;
+}
