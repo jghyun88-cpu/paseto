@@ -39,6 +39,7 @@ from app.models.follow_on_investment import FollowOnInvestment
 from app.models.exit_record import ExitRecord
 from app.models.government_program import GovernmentProgram
 from app.models.meeting import Meeting
+from app.models.team_kpi import TeamKPI
 
 __all__ = [
     "Base",
@@ -69,4 +70,5 @@ __all__ = [
     "ExitRecord",
     "GovernmentProgram",
     "Meeting",
+    "TeamKPI",
 ]

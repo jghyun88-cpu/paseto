@@ -26,6 +26,7 @@ from app.routers import government_programs as gov_programs_router
 from app.routers import meetings as meetings_router
 from app.routers import notifications as notifications_router
 from app.routers import dashboard as dashboard_router
+from app.routers import team_kpis as team_kpis_router
 
 app = FastAPI(
     title="eLSA — 딥테크 액셀러레이터 운영시스템",
@@ -68,6 +69,7 @@ app.include_router(gov_programs_router.router, prefix="/api/v1/government-progra
 app.include_router(meetings_router.router, prefix="/api/v1/meetings", tags=["회의"])
 app.include_router(notifications_router.router, prefix="/api/v1/notifications", tags=["알림"])
 app.include_router(dashboard_router.router, prefix="/api/v1/dashboard", tags=["대시보드"])
+app.include_router(team_kpis_router.router, prefix="/api/v1/team-kpis", tags=["팀KPI"])
 
 
 @app.get("/health")

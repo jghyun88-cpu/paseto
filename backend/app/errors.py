@@ -229,3 +229,20 @@ def notification_not_found() -> HTTPException:
         status_code=status.HTTP_404_NOT_FOUND,
         detail="해당 알림을 찾을 수 없습니다.",
     )
+
+
+# --- Phase 8 (KPI 대시보드) ---
+
+
+def team_kpi_not_found() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="해당 팀 KPI를 찾을 수 없습니다.",
+    )
+
+
+def team_kpi_duplicate() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail="해당 팀/기간/지표의 KPI가 이미 존재합니다.",
+    )

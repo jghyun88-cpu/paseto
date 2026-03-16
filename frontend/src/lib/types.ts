@@ -381,3 +381,48 @@ export interface DashboardData {
   upcoming_meetings: MeetingItem[];
   recent_handovers: { id: string; from_team: string; to_team: string; acknowledged_by: string | null }[];
 }
+
+/** ─── Phase 8 (KPI 대시보드) 타입 ─── */
+
+export type KPILayer = "input" | "process" | "output" | "outcome";
+export type KPIStatus = "양호" | "보완필요" | "개선필요" | "데이터없음";
+
+export interface TeamKPIItem {
+  id: string;
+  team: string;
+  period: string;
+  kpi_layer: KPILayer;
+  kpi_name: string;
+  kpi_definition: string;
+  target_value: number;
+  actual_value: number | null;
+  achievement_rate: number | null;
+  mom_change: string | null;
+  notes: string | null;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KPIHighlight {
+  kpi_name: string;
+  kpi_layer: KPILayer;
+  target_value: number;
+  actual_value: number | null;
+  achievement_rate: number | null;
+  status: KPIStatus;
+}
+
+export interface TeamKPISummary {
+  team: string;
+  total_kpis: number;
+  achieved: number;
+  needs_improvement: number;
+  highlight_kpis: KPIHighlight[];
+}
+
+export interface ExecutiveKPIData {
+  period: string;
+  teams: Record<string, TeamKPISummary>;
+  overall_health: KPIStatus;
+}
