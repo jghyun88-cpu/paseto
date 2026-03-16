@@ -1,22 +1,30 @@
-# Dependencies
-node_modules/
-.pnp
-.pnp.js
-
-# Build outputs
-dist/
-build/
-out/
-.next/
-.nuxt/
-.vite/
-
-# Environment variables
+# 환경변수
 .env
 .env.local
+.env.production
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+
+# Node.js
+node_modules/
+.pnp
+.pnp.js
+.next/
+out/
+dist/
+build/
 
 # Logs
 logs/
@@ -26,12 +34,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# OS files
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Editor directories and files
+# IDE
 .vscode/
 .idea/
 *.suo
@@ -39,6 +42,13 @@ desktop.ini
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
 
 # Cache
 .cache/
@@ -46,9 +56,21 @@ desktop.ini
 .eslintcache
 .stylelintcache
 
-# Test coverage
+# Test/Coverage
 coverage/
 .nyc_output/
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Docker
+docker-compose.override.yml
+
+# Uploads
+uploads/
+
+# bkit
+.bkit/
 
 # Temporary files
 *.tmp

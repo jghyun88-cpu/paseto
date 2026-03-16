@@ -1,0 +1,670 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+
+    /* K-SENS II 컬러 팔레트 */
+    --ks-header-bg: #ffffff;
+    --ks-header-border: #c8d3e0;
+    --ks-tab-text: #333333;
+    --ks-tab-active: #d35400;
+    --ks-tab-dot: #2980b9;
+    --ks-sidebar-bg-start: #d5dfe9;
+    --ks-sidebar-bg-end: #92a8c4;
+    --ks-panel-bg: #ffffff;
+    --ks-panel-border: #c8d3e0;
+    --ks-folder-icon: #4a7eb8;
+    --ks-page-icon: #5a8dbe;
+    --ks-tree-text: #333333;
+    --ks-tree-link: #2c5aa0;
+    --ks-tree-hover: #eef3f8;
+    --ks-bottom-bg: #e8eef4;
+    --ks-go-bg: #f5a623;
+    --ks-go-text: #ffffff;
+    --ks-search-btn-bg: #3b7dd8;
+    --ks-search-btn-text: #ffffff;
+    --ks-logo-accent: #e8a300;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family:
+      "Pretendard Variable",
+      -apple-system,
+      BlinkMacSystemFont,
+      system-ui,
+      sans-serif;
+    margin: 0;
+    overflow: hidden;
+  }
+}
+
+/* ============================================
+   전체 레이아웃
+   ============================================ */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.dashboard-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.dashboard-content {
+  flex: 1;
+  overflow-y: auto;
+  background: #f4f6f9;
+  padding: 24px;
+}
+
+/* ============================================
+   상단 GNB — TopNav
+   ============================================ */
+.topnav {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  background: var(--ks-header-bg);
+  border-bottom: 1px solid var(--ks-header-border);
+  padding: 0 16px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.topnav-logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 32px;
+  flex-shrink: 0;
+}
+
+.topnav-logo-icon {
+  color: var(--ks-logo-accent);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.topnav-logo-text {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1a365d;
+  letter-spacing: -0.5px;
+}
+
+.topnav-logo-sub {
+  font-size: 11px;
+  color: #718096;
+  white-space: nowrap;
+}
+
+.topnav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 100%;
+}
+
+.topnav-tab {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ks-tab-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.topnav-tab:hover {
+  color: var(--ks-tab-active);
+}
+
+.topnav-tab--active {
+  color: var(--ks-tab-active);
+  font-weight: 700;
+}
+
+.topnav-tab-dot {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ks-tab-dot);
+}
+
+/* ============================================
+   좌측 도구 사이드바 — LeftToolbar
+   ============================================ */
+.left-toolbar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 56px;
+  flex-shrink: 0;
+  background: linear-gradient(
+    180deg,
+    var(--ks-sidebar-bg-start) 0%,
+    var(--ks-sidebar-bg-end) 100%
+  );
+  padding: 8px 0;
+  border-right: 1px solid var(--ks-panel-border);
+}
+
+.left-toolbar-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.left-toolbar-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.left-toolbar-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  gap: 2px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  color: #4a5568;
+  font-size: 10px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.left-toolbar-btn:hover {
+  background: rgba(255, 255, 255, 0.5);
+  color: #1a365d;
+}
+
+.left-toolbar-btn--active {
+  background: rgba(255, 255, 255, 0.85);
+  color: #1a365d;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   트리 메뉴 패널 — TreeMenu 영역
+   ============================================ */
+.dashboard-panel {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--ks-panel-bg);
+  border-right: 1px solid var(--ks-panel-border);
+  overflow: hidden;
+}
+
+.dashboard-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.dashboard-panel-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: #718096;
+  font-size: 12px;
+}
+
+/* ============================================
+   트리 메뉴 — TreeMenu
+   ============================================ */
+.tree-menu {
+  user-select: none;
+}
+
+.tree-root {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e8eef4;
+}
+
+.tree-root-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a365d;
+}
+
+.tree-root-star {
+  color: var(--ks-logo-accent);
+  fill: var(--ks-logo-accent);
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.tree-children {
+  /* 자연스러운 들여쓰기 */
+}
+
+.tree-node {
+  /* 폴더 노드 래퍼 */
+}
+
+.tree-node-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 5px 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--ks-tree-text);
+  text-align: left;
+  transition: background 0.1s;
+}
+
+.tree-node-header:hover {
+  background: var(--ks-tree-hover);
+}
+
+.tree-node-label {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.tree-node-leaf {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  text-align: left;
+  transition: background 0.1s;
+}
+
+.tree-node-leaf:hover {
+  background: var(--ks-tree-hover);
+}
+
+.tree-leaf-label {
+  color: var(--ks-tree-link);
+}
+
+.tree-leaf-label:hover {
+  text-decoration: underline;
+}
+
+.tree-chevron {
+  flex-shrink: 0;
+  color: #718096;
+}
+
+.tree-icon {
+  flex-shrink: 0;
+}
+
+.tree-icon--folder {
+  color: var(--ks-folder-icon);
+}
+
+.tree-icon--page {
+  color: var(--ks-page-icon);
+}
+
+/* ============================================
+   하단 검색 바 — BottomBar
+   ============================================ */
+.bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  padding: 0 8px;
+  background: var(--ks-bottom-bg);
+  border-top: 1px solid var(--ks-panel-border);
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.bottom-bar-search {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.bottom-bar-input {
+  width: 80px;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid #b0bec5;
+  border-radius: 2px;
+  font-size: 11px;
+  outline: none;
+  background: #fff;
+}
+
+.bottom-bar-input:focus {
+  border-color: var(--ks-search-btn-bg);
+}
+
+.bottom-bar-go {
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid #c0a040;
+  border-radius: 2px;
+  background: var(--ks-go-bg);
+  color: var(--ks-go-text);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bottom-bar-go:hover {
+  background: #e09500;
+}
+
+.bottom-bar-menu-search {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 22px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 2px;
+  background: var(--ks-search-btn-bg);
+  color: var(--ks-search-btn-text);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bottom-bar-menu-search:hover {
+  background: #2c6fc0;
+}
+
+.bottom-bar-icons {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.bottom-bar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 22px;
+  border: 1px solid #b0bec5;
+  background: #fff;
+  cursor: pointer;
+  color: #546e7a;
+  border-radius: 0;
+}
+
+.bottom-bar-icon:first-child {
+  border-radius: 2px 0 0 2px;
+}
+
+.bottom-bar-icon:last-child {
+  border-radius: 0 2px 2px 0;
+}
+
+.bottom-bar-icon:hover {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+/* ============================================
+   스크롤바 커스텀
+   ============================================ */
+.dashboard-panel-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard-panel-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-panel-content::-webkit-scrollbar-thumb {
+  background: #b0bec5;
+  border-radius: 3px;
+}
+
+.dashboard-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dashboard-content::-webkit-scrollbar-track {
+  background: #e8eef4;
+}
+
+.dashboard-content::-webkit-scrollbar-thumb {
+  background: #90a4ae;
+  border-radius: 4px;
+}
+
+/* ============================================
+   로그인 페이지
+   ============================================ */
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a365d 0%, #2c5282 50%, #2b6cb0 100%);
+}
+
+.login-card {
+  width: 400px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px 36px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-logo {
+  display: inline-block;
+  color: var(--ks-logo-accent);
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+.login-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1a365d;
+  letter-spacing: -1px;
+  margin: 4px 0;
+}
+
+.login-subtitle {
+  font-size: 13px;
+  color: #718096;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.login-input {
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.login-input:focus {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsla(var(--primary), 0.15);
+}
+
+.login-error {
+  color: hsl(var(--destructive));
+  font-size: 13px;
+  text-align: center;
+  margin: 0;
+}
+
+.login-btn {
+  height: 42px;
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 4px;
+  width: 100%;
+}
+
+/* ============================================
+   칸반보드
+   ============================================ */
+.kanban-board {
+  display: flex;
+  gap: 12px;
+  height: calc(100vh - 120px);
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.kanban-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+  max-width: 320px;
+  flex: 1;
+  background: #f1f5f9;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.kanban-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #e2e8f0;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.kanban-column-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.kanban-column-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #94a3b8;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.kanban-column-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 80px;
+}
+
+.kanban-column-body--over {
+  background: #dbeafe;
+}
+
+.kanban-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+
+.kanban-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: #93c5fd;
+}
+
+.kanban-card--dragging {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-color: #3b82f6;
+}
