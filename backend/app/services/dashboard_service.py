@@ -97,12 +97,11 @@ async def get_executive_dashboard(db: AsyncSession) -> ExecutiveDashboardRespons
     unack = (await db.execute(
         select(func.count()).where(
             HandoverDocument.acknowledged_by.is_(None),
-            HandoverDocument.is_deleted == False,  # noqa: E712
         )
     )).scalar_one()
 
     # 5. 예정 회의 (향후 7일)
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     meetings_result = await db.execute(
         select(Meeting)
         .where(Meeting.scheduled_at >= now, Meeting.is_deleted == False)  # noqa: E712
@@ -114,7 +113,6 @@ async def get_executive_dashboard(db: AsyncSession) -> ExecutiveDashboardRespons
     # 6. 최근 인계
     handovers_result = await db.execute(
         select(HandoverDocument)
-        .where(HandoverDocument.is_deleted == False)  # noqa: E712
         .order_by(HandoverDocument.created_at.desc())
         .limit(5)
     )
