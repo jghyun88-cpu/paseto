@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, LineChart, Line, Legend,
+} from "recharts";
 import api from "@/lib/api";
 
 const CHANNEL_LABEL: Record<string, string> = {
@@ -29,11 +32,36 @@ interface StartupItem {
   sourcing_channel: string;
   current_deal_stage: string;
   industry: string;
+  created_at: string;
+  screening_score?: number;
 }
+
+const GRADE_LABEL: Record<string, string> = {
+  pass: "A (Pass)",
+  review: "B (Review)",
+  reject: "C/D (Reject)",
+  unscreened: "미평가",
+};
+
+function getGrade(score: number | undefined | null): string {
+  if (score == null) return "unscreened";
+  if (score >= 30) return "pass";
+  if (score >= 20) return "review";
+  return "reject";
+}
+
+const GRADE_COLORS: Record<string, string> = {
+  pass: "#10b981",
+  review: "#f59e0b",
+  reject: "#ef4444",
+  unscreened: "#94a3b8",
+};
 
 export default function SourcingReportsPage() {
   const [channelData, setChannelData] = useState<{ name: string; count: number }[]>([]);
   const [stageData, setStageData] = useState<{ name: string; value: number }[]>([]);
+  const [monthlyData, setMonthlyData] = useState<{ month: string; count: number }[]>([]);
+  const [gradeData, setGradeData] = useState<{ name: string; value: number; fill: string }[]>([]);
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
@@ -66,6 +94,32 @@ export default function SourcingReportsPage() {
             value: v,
           })),
         );
+
+        // 월간 딜플로우 집계
+        const monthMap: Record<string, number> = {};
+        for (const s of startups) {
+          const month = s.created_at?.slice(0, 7) ?? "unknown";
+          monthMap[month] = (monthMap[month] ?? 0) + 1;
+        }
+        setMonthlyData(
+          Object.entries(monthMap)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([k, v]) => ({ month: k, count: v })),
+        );
+
+        // 등급별 분포 집계
+        const gradeMap: Record<string, number> = {};
+        for (const s of startups) {
+          const grade = getGrade(s.screening_score);
+          gradeMap[grade] = (gradeMap[grade] ?? 0) + 1;
+        }
+        setGradeData(
+          Object.entries(gradeMap).map(([k, v]) => ({
+            name: GRADE_LABEL[k] ?? k,
+            value: v,
+            fill: GRADE_COLORS[k] ?? "#94a3b8",
+          })),
+        );
       })
       .catch(() => {});
   }, []);
@@ -95,7 +149,48 @@ export default function SourcingReportsPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* 단계별 분포 */}
+        {/* 등급별 분포 */}
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+          <h3 className="text-sm font-bold text-slate-700 mb-3">스크리닝 등급별 분포</h3>
+          <ResponsiveContainer width="100%" height={280}>
+            <PieChart>
+              <Pie
+                data={gradeData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                label={({ name, value }) => `${name} (${value})`}
+              >
+                {gradeData.map((entry, i) => (
+                  <Cell key={i} fill={entry.fill} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* 하단 차트 행 */}
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        {/* 월간 딜플로우 추이 */}
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+          <h3 className="text-sm font-bold text-slate-700 mb-3">월간 딜플로우 추이</h3>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={monthlyData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="count" name="딜 수" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* 딜 단계별 분포 (기존) */}
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
           <h3 className="text-sm font-bold text-slate-700 mb-3">딜 단계별 분포</h3>
           <ResponsiveContainer width="100%" height={280}>

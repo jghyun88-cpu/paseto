@@ -12,3 +12,4 @@
 | sop-jd | 100% | 2026-03-17 | plan, design, report |
 | backend | 100% | 2026-03-17 | analysis, report |
 | lsa-integration | 96.9% | 2026-03-20 | plan, design, analysis, report |
+| sourcing | ~98% | 2026-03-21 | plan, design, analysis, report |

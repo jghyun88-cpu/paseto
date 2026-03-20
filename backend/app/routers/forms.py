@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
+from app.errors import form_template_not_found, form_submission_not_found
 from app.middleware.auth import get_current_active_user
 from app.models.user import User
 from app.schemas.form import (FormSubmissionCreate, FormSubmissionListResponse, FormSubmissionResponse,
@@ -21,11 +22,17 @@ async def list_templates(db: Annotated[AsyncSession, Depends(get_db)], _user: An
     items, total = await form_service.get_templates(db, page, page_size)
     return FormTemplateListResponse(data=[FormTemplateResponse.model_validate(t) for t in items], total=total, page=page, page_size=page_size)
 
+@router.get("/templates/by-code/{form_code}", response_model=FormTemplateResponse)
+async def get_template_by_code(form_code: str, db: Annotated[AsyncSession, Depends(get_db)], _user: Annotated[User, Depends(get_current_active_user)]) -> FormTemplateResponse:
+    tmpl = await form_service.get_template_by_code(db, form_code)
+    if not tmpl:
+        raise form_template_not_found()
+    return FormTemplateResponse.model_validate(tmpl)
+
 @router.get("/templates/{template_id}", response_model=FormTemplateResponse)
 async def get_template(template_id: uuid.UUID, db: Annotated[AsyncSession, Depends(get_db)], _user: Annotated[User, Depends(get_current_active_user)]) -> FormTemplateResponse:
     tmpl = await form_service.get_template_by_id(db, template_id)
     if not tmpl:
-        from app.errors import form_template_not_found
         raise form_template_not_found()
     return FormTemplateResponse.model_validate(tmpl)
 
@@ -47,7 +54,6 @@ async def list_submissions(db: Annotated[AsyncSession, Depends(get_db)], _user: 
 async def get_submission(sub_id: uuid.UUID, db: Annotated[AsyncSession, Depends(get_db)], _user: Annotated[User, Depends(get_current_active_user)]) -> FormSubmissionResponse:
     sub = await form_service.get_submission_by_id(db, sub_id)
     if not sub:
-        from app.errors import form_submission_not_found
         raise form_submission_not_found()
     return FormSubmissionResponse.model_validate(sub)
 

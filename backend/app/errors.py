@@ -75,6 +75,13 @@ def handover_already_acknowledged() -> HTTPException:
     )
 
 
+def invalid_deal_stage_transition(from_stage: str, to_stage: str) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail=f"유효하지 않은 단계 전환입니다: {from_stage} → {to_stage}",
+    )
+
+
 def review_not_found() -> HTTPException:
     return HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,

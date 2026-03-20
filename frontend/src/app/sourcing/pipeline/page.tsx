@@ -21,6 +21,8 @@ interface StartupItem {
   stage: string;
   current_deal_stage: string;
   created_at: string;
+  screening_score?: number;
+  assigned_manager_name?: string;
 }
 
 export default function SourcingPipelinePage() {
@@ -46,6 +48,8 @@ export default function SourcingPipelinePage() {
           industry: s.industry,
           stage: s.stage,
           created_at: s.created_at,
+          screening_score: s.screening_score,
+          assigned_manager_name: s.assigned_manager_name,
         });
       }
       setCards(grouped);

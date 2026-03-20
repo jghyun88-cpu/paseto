@@ -6,10 +6,31 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import DealStage
+from app.errors import invalid_deal_stage_transition
 from app.models.deal_flow import DealFlow
 from app.models.startup import Startup
 from app.models.user import User
 from app.services import activity_log_service
+
+# 허용된 단계 전환 맵 (현재 단계 → 이동 가능한 단계들)
+VALID_TRANSITIONS: dict[DealStage, set[DealStage]] = {
+    DealStage.INBOUND: {DealStage.FIRST_SCREENING, DealStage.REJECTED},
+    DealStage.FIRST_SCREENING: {DealStage.DEEP_REVIEW, DealStage.INBOUND, DealStage.REJECTED},
+    DealStage.DEEP_REVIEW: {DealStage.INTERVIEW, DealStage.FIRST_SCREENING, DealStage.REJECTED},
+    DealStage.INTERVIEW: {DealStage.DUE_DILIGENCE, DealStage.DEEP_REVIEW, DealStage.REJECTED},
+    DealStage.DUE_DILIGENCE: {DealStage.IC_PENDING, DealStage.INTERVIEW, DealStage.REJECTED},
+    DealStage.IC_PENDING: {DealStage.IC_REVIEW},
+    DealStage.IC_REVIEW: {
+        DealStage.APPROVED, DealStage.CONDITIONAL,
+        DealStage.ON_HOLD, DealStage.INCUBATION_FIRST, DealStage.REJECTED,
+    },
+    DealStage.APPROVED: {DealStage.CONTRACT},
+    DealStage.CONDITIONAL: {DealStage.CONTRACT, DealStage.REJECTED},
+    DealStage.ON_HOLD: {DealStage.IC_REVIEW, DealStage.REJECTED},
+    DealStage.INCUBATION_FIRST: {DealStage.IC_REVIEW, DealStage.PORTFOLIO},
+    DealStage.CONTRACT: {DealStage.CLOSED},
+    DealStage.CLOSED: {DealStage.PORTFOLIO},
+}
 
 
 async def get_by_startup(
@@ -33,6 +54,15 @@ async def move_stage(
 ) -> DealFlow:
     """칸반 단계 이동 → DealFlow 기록 + Startup.current_deal_stage 동기화"""
     old_stage = startup.current_deal_stage
+
+    # 단계 전환 유효성 검증
+    if old_stage and old_stage in VALID_TRANSITIONS:
+        allowed = VALID_TRANSITIONS[old_stage]
+        if to_stage not in allowed:
+            raise invalid_deal_stage_transition(
+                old_stage.value if old_stage else "none",
+                to_stage.value,
+            )
 
     # DealFlow 레코드 생성
     deal_flow = DealFlow(
