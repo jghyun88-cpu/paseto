@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.config import settings
+
 from app.routers import auth as auth_router
 from app.routers import startups as startups_router
 from app.routers import deal_flows as deal_flows_router
@@ -39,10 +41,10 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# CORS 설정
+# CORS 설정 — CORS_ORIGINS 환경변수로 관리 (쉼표 구분)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
