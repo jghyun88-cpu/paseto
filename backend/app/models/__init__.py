@@ -45,6 +45,8 @@ from app.models.sop_execution import SOPExecution
 from app.models.form_template import FormTemplate
 from app.models.form_submission import FormSubmission
 from app.models.job_description import JobDescription
+from app.models.ai_analysis import AIAnalysis
+from app.models.portfolio_issue import PortfolioIssue
 
 __all__ = [
     "Base",
@@ -81,4 +83,6 @@ __all__ = [
     "FormTemplate",
     "FormSubmission",
     "JobDescription",
+    "AIAnalysis",
+    "PortfolioIssue",
 ]

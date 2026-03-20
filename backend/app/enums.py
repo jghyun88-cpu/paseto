@@ -129,3 +129,40 @@ class NotificationType(str, Enum):
     CRISIS_ALERT = "crisis_alert"
     ESCALATION = "escalation"
     CONTRACT_OVERDUE = "contract_overdue"
+
+
+# --- AI 분석 유형 ---
+class AnalysisType(str, Enum):
+    SCREENING = "screening"
+    IR_ANALYSIS = "ir_analysis"
+    RISK_ALERT = "risk_alert"
+    MARKET_SCAN = "market_scan"
+    INVESTMENT_MEMO = "investment_memo"
+    PORTFOLIO_REPORT = "portfolio_report"
+
+
+# --- 리스크 수준 ---
+class RiskLevel(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+# --- AI 분석 판정 ---
+class AnalysisRecommendation(str, Enum):
+    PASS = "pass"
+    CONDITIONAL = "conditional"
+    HOLD = "hold"
+    DECLINE = "decline"
+
+
+# --- 포트폴리오 이슈 유형 ---
+class IssueType(str, Enum):
+    CASH_RUNWAY = "cash_runway"
+    KEY_PERSON = "key_person"
+    CUSTOMER_CHURN = "customer_churn"
+    DEV_DELAY = "dev_delay"
+    LEGAL = "legal"
+    REGULATORY = "regulatory"
+    OTHER = "other"

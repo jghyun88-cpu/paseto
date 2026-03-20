@@ -9,7 +9,6 @@ import {
   FileText,
   Star,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import type { MenuNode } from "@/lib/types";
 
 interface TreeMenuProps {
@@ -45,6 +44,11 @@ interface TreeNodeProps {
   onNavigate: (href: string) => void;
 }
 
+/** 들여쓰기 기준값 (px) */
+const INDENT = 16;
+/** 체브론 영역 너비: 아이콘(12px) + 간격(4px) = 16px */
+const CHEVRON_AREA = 16;
+
 function TreeNode({ node, depth, onNavigate }: TreeNodeProps) {
   const [expanded, setExpanded] = useState(true);
 
@@ -58,15 +62,18 @@ function TreeNode({ node, depth, onNavigate }: TreeNodeProps) {
     }
   }, [node, onNavigate]);
 
-  const paddingLeft = depth * 20;
+  /** 폴더: depth 기반 들여쓰기 */
+  const folderIndent = depth * INDENT;
+  /** 리프: 폴더 들여쓰기 + 체브론 영역만큼 추가 → 아이콘이 폴더 아이콘과 정렬 */
+  const leafIndent = depth * INDENT + CHEVRON_AREA;
 
   if (node.type === "folder") {
     return (
       <div className="tree-node">
-        <Button
-          variant="ghost"
+        <button
+          type="button"
           className="tree-node-header"
-          style={{ paddingLeft }}
+          style={{ paddingLeft: folderIndent }}
           onClick={handleToggle}
         >
           {expanded ? (
@@ -80,7 +87,7 @@ function TreeNode({ node, depth, onNavigate }: TreeNodeProps) {
             <Folder size={16} className="tree-icon tree-icon--folder" />
           )}
           <span className="tree-node-label">{node.label}</span>
-        </Button>
+        </button>
         {expanded && node.children && (
           <div className="tree-children">
             {node.children.map((child) => (
@@ -98,14 +105,14 @@ function TreeNode({ node, depth, onNavigate }: TreeNodeProps) {
   }
 
   return (
-    <Button
-      variant="ghost"
+    <button
+      type="button"
       className="tree-node-leaf"
-      style={{ paddingLeft: paddingLeft + 14 }}
+      style={{ paddingLeft: leafIndent }}
       onClick={handleClick}
     >
       <FileText size={14} className="tree-icon tree-icon--page" />
       <span className="tree-leaf-label">{node.label}</span>
-    </Button>
+    </button>
   );
 }

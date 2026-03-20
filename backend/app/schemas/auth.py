@@ -10,6 +10,12 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class ServiceTokenRequest(BaseModel):
+    email: EmailStr
+    password: str
+    service_key: str
+
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"

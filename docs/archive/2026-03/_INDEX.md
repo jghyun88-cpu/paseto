@@ -10,3 +10,5 @@
 | phase7-integration | 100% | 2026-03-17 | plan, design, report |
 | kpi-dashboard | 100% | 2026-03-17 | plan, design, report |
 | sop-jd | 100% | 2026-03-17 | plan, design, report |
+| backend | 100% | 2026-03-17 | analysis, report |
+| lsa-integration | 96.9% | 2026-03-20 | plan, design, analysis, report |

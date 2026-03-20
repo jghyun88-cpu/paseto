@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: str = "redis://redis:6379/0"
     CELERY_RESULT_BACKEND: str = "redis://redis:6379/1"
 
+    # AI Agent (elsa-mcp 서비스 계정)
+    SERVICE_KEY: str = ""
+    SERVICE_TOKEN_EXPIRATION_HOURS: int = 720  # 30일
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
 

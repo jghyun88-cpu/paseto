@@ -176,7 +176,7 @@ export const NAV_TABS: NavTab[] = [
         label: "IR/DemoDay",
         type: "folder",
         children: [
-          { id: "inc-demo-prep", label: "Demo Day 준비", type: "page", href: "/incubation/demo-day" },
+          { id: "inc-demo-prep", label: "Demo Day 준비", type: "page", href: "/incubation/demo-days" },
           { id: "inc-investor-meet", label: "투자자 미팅", type: "page", href: "/incubation/investor-meetings" },
         ],
       },
@@ -329,26 +329,6 @@ export const NAV_TABS: NavTab[] = [
         type: "folder",
         children: [
           { id: "adm-jd-list", label: "직무기술서", type: "page", href: "/admin/jd" },
-        ],
-      },
-      {
-        id: "adm-company",
-        label: "기업정보관리",
-        type: "folder",
-        children: [
-          { id: "adm-company-list", label: "기업 목록", type: "page", href: "/admin/companies" },
-          { id: "adm-company-new", label: "기업 등록", type: "page", href: "/admin/companies/new" },
-          { id: "adm-company-industry", label: "산업분류 관리", type: "page", href: "/admin/companies/industry" },
-        ],
-      },
-      {
-        id: "adm-fund-mgmt",
-        label: "조합정보관리",
-        type: "folder",
-        children: [
-          { id: "adm-fund-list", label: "조합 목록", type: "page", href: "/admin/funds" },
-          { id: "adm-fund-new", label: "조합 등록", type: "page", href: "/admin/funds/new" },
-          { id: "adm-fund-lp-mgmt", label: "LP 정보관리", type: "page", href: "/admin/funds/lp" },
         ],
       },
       {

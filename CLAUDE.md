@@ -507,5 +507,5 @@ backoffice, form, sop, kpi, common
 ## 배포 환경
 
 - 로컬 개발: `C:\Users\jghyu\elsa`
-- 외부 접근: Cloudflare Tunnel (`jghyun.cloudflareaccess.com`)
+- 외부 접근: Cloudflare Tunnel (`winlsa.com`)
 - 다중 사용자 동시 접속 지원 필수

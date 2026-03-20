@@ -1,0 +1,84 @@
+{
+  "mcpServers": {
+
+    "elsa": {
+      "command": "node",
+      "args": ["mcp-servers/elsa-mcp/dist/index.js"],
+      "env": {
+        "ELSA_API_URL": "http://localhost:8000",
+        "ELSA_SERVICE_TOKEN": "${ELSA_SERVICE_TOKEN}"
+      },
+      "description": "eLSA 운영플랫폼 연동 — 스타트업/심사/딜/포트폴리오/AI분석 데이터 조회 및 저장"
+    },
+
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-server-filesystem", "./ai-agent/data", "./ai-agent/reports"],
+      "description": "로컬 AI 에이전트 데이터 및 보고서 파일 접근"
+    },
+
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${NOTION_API_KEY}"
+      },
+      "description": "Notion 워크스페이스 연동 — 지원서 접수, 포트폴리오 DB, 프로세스 관리"
+    },
+
+    "google-sheets": {
+      "command": "npx",
+      "args": ["-y", "google-sheets-mcp-server"],
+      "env": {
+        "GOOGLE_SERVICE_ACCOUNT_KEY": "${GOOGLE_CREDENTIALS}"
+      },
+      "description": "Google Sheets 연동 — KPI 데이터 수집, 재무 데이터 동기화"
+    },
+
+    "slack": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/slack-mcp-server"],
+      "env": {
+        "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}"
+      },
+      "description": "Slack 연동 — 리스크 경보 알림, 보고서 완성 알림"
+    },
+
+    "database": {
+      "command": "npx",
+      "args": ["-y", "@bytebase/dbhub", "--dsn", "${DB_CONNECTION_STRING}"],
+      "description": "데이터베이스 연동 — 포트폴리오 기업 데이터, 투자 이력 쿼리"
+    },
+
+    "hubspot-crm": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/hubspot-mcp-server"],
+      "env": {
+        "HUBSPOT_ACCESS_TOKEN": "${HUBSPOT_ACCESS_TOKEN}"
+      },
+      "description": "HubSpot CRM 연동 — 딜 파이프라인 관리, 스타트업/LP 연락처"
+    },
+
+    "email": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-imap"],
+      "env": {
+        "IMAP_HOST": "${IMAP_HOST}",
+        "IMAP_PORT": "${IMAP_PORT}",
+        "IMAP_USER": "${IMAP_USER}",
+        "IMAP_PASSWORD": "${IMAP_PASSWORD}"
+      },
+      "description": "이메일(IMAP) 연동 — 지원서 이메일 접수, LP 커뮤니케이션"
+    },
+
+    "google-calendar": {
+      "command": "npx",
+      "args": ["-y", "google-calendar-mcp-server"],
+      "env": {
+        "GOOGLE_SERVICE_ACCOUNT_KEY": "${GOOGLE_CREDENTIALS}"
+      },
+      "description": "Google Calendar 연동 — 투심위 일정, 멘토링 세션, 데모데이"
+    }
+
+  }
+}

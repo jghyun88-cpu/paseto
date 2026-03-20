@@ -1,0 +1,76 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/audit-log.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/validate-report.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/audit-log.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -Command \"Add-Type -AssemblyName System.Windows.Forms; (New-Object Media.SoundPlayer 'C:\\Windows\\Media\\chimes.wav').PlaySync(); [System.Windows.Forms.MessageBox]::Show('Claude가 입력을 기다리고 있습니다.', 'Claude Code - 작업 완료')\""
+          }
+        ]
+      },
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -Command \"Add-Type -AssemblyName System.Windows.Forms; (New-Object Media.SoundPlayer 'C:\\Windows\\Media\\chimes.wav').PlaySync(); [System.Windows.Forms.MessageBox]::Show('Claude가 승인을 요청합니다. 창으로 돌아와 확인해 주세요.', 'Claude Code - 권한 요청')\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-log.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "WebSearch",
+      "WebFetch",
+      "Skill(screen-application)",
+      "Skill(analyze-ir)",
+      "Skill(portfolio-report)",
+      "Skill(lp-report)",
+      "Skill(investment-memo)",
+      "Skill(market-scan)",
+      "Skill(risk-alert)",
+      "Skill(mentor-match)",
+      "Skill(deal-review)"
+    ]
+  }
+}
