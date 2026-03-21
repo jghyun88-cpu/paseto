@@ -28,32 +28,19 @@
 
 ## 2. 마스터 스펙 참조
 
-**모든 구현은 반드시 아래 파일을 기반으로 해야 한다:**
+**변경/확장 시 아래 파일을 참조:**
 `CLAUDE_CODE_MASTER_PROMPT_v6.1_FINAL.md` (프로젝트 루트)
 
 | 필요 정보 | 마스터 섹션 |
 |-----------|------------|
 | Enum 정의 (13종) | §3-2 |
-| 테이블 설계 (37개 모델) | §3-3, §24, §25, §26, §31, §32 |
-| 팀별 모듈 기능 명세 | §4-1~4-5 |
-| 인계 흐름 6가지 | §5 |
+| 테이블 설계 (37개 모델) | §3-3 |
 | RBAC 권한 매트릭스 | §7 |
-| API 라우터 전체 목록 | §9 |
-| 프로젝트 디렉토리 구조 | §10 |
-| 구현 Phase 순서 | §11 |
-| SOP 6개 워크플로우 | §14 |
-| 양식 14개 필드 스키마 | §15 |
-| KPI 대시보드 (5팀) | §16 |
 | 10개 핵심 자동화 로직 | §18 |
-| KPI 자동 집계 수식 | §19 |
-| Docker Compose | §20 |
-| 시드 데이터 | §21 |
-| .env 템플릿 | §29 |
-| 마이그레이션 순서 | §30 |
-| 기업 프로필 탭 구조 | §28 |
-| Phase 1 퀵스타트 | §35 |
-| Dockerfile | §41 |
-| DealStage 상태 머신 | §44 (있으면) |
+| 양식 14개 필드 스키마 | §15 |
+| DealStage 상태 머신 | §44 |
+
+> 그 외 상세 (팀별 기능 §4, API 목록 §9, SOP §14, KPI §16, Docker §20, .env §29, 마이그레이션 §30 등)는 마스터 원문 참조
 
 ---
 
@@ -68,12 +55,12 @@
 | Task Queue | **Celery** | 비동기 작업 (알림, KPI 집계, 보고서) |
 | ORM | **SQLAlchemy 2.0** | async session |
 | Auth | **JWT** + RBAC | 팀별 권한 분리 |
-| Deploy | **Docker Compose** | 로컬 + Cloudflare Tunnel |
+| Deploy | **Docker Compose** | 로컬 + Cloudflare Tunnel (`winlsa.com`) |
 | 파일저장 | 로컬 volume (초기) | → S3 호환 (확장 시) |
 | Migration | **Alembic** | DB 스키마 버전 관리 |
 | Charts | **Recharts** | KPI 차트, 대시보드 |
-| DnD | **@hello-pangea/dnd** | 칸반보드 드래그앤드롭 |
 | State | **zustand** | 프론트엔드 상태 관리 |
+| AI Agent | **MCP 서버** (elsa-mcp) | 스크리닝·분석·포트폴리오 AI 에이전트 |
 
 ---
 
@@ -92,10 +79,10 @@ elsa/
 │   │   ├── config.py                  # 설정 (Pydantic BaseSettings)
 │   │   ├── database.py                # SQLAlchemy async session
 │   │   ├── enums.py                   # 모든 Enum 정의 (중앙)
-│   │   ├── errors.py                  # ErrorCode 패턴
+│   │   ├── errors.py                  # 에러 팩토리 함수 (예: form_template_not_found())
 │   │   ├── models/                    # SQLAlchemy 모델 (37개)
 │   │   ├── schemas/                   # Pydantic v2 스키마
-│   │   ├── routers/                   # API 라우터
+│   │   ├── routers/                   # API 라우터 (33개)
 │   │   ├── services/                  # 비즈니스 로직
 │   │   ├── tasks/                     # Celery 비동기 작업
 │   │   └── middleware/                # auth.py, rbac.py
@@ -114,12 +101,17 @@ elsa/
 │   │   │   ├── oi/                   # 오픈이노베이션 모듈
 │   │   │   ├── backoffice/           # 백오피스 모듈
 │   │   │   ├── startup/[id]/         # 기업 통합 프로필 (13탭)
-│   │   │   ├── admin/                # 관리 페이지
+│   │   │   ├── admin/                # 관리 (사용자, 양식)
+│   │   │   ├── dashboard/            # 전사 대시보드
+│   │   │   ├── forms/[formCode]/     # 동적 양식 페이지
+│   │   │   ├── handover/             # 인계 관리
+│   │   │   ├── meetings/             # 회의 관리
+│   │   │   ├── notifications/        # 알림
 │   │   │   └── kpi/                  # KPI 대시보드
 │   │   ├── components/
 │   │   │   ├── ui/                    # shadcn/ui
 │   │   │   ├── kanban/               # 칸반보드
-│   │   │   ├── forms/                # 도메인 폼 컴포넌트
+│   │   │   ├── forms/                # DynamicFormRenderer + 도메인 폼
 │   │   │   ├── charts/               # 차트 컴포넌트
 │   │   │   └── layout/               # Sidebar, Header, AuthGuard
 │   │   ├── lib/                       # api.ts, auth.ts, types.ts
@@ -127,38 +119,27 @@ elsa/
 │   ├── package.json
 │   └── Dockerfile
 │
+├── ai-agent/                          # AI 에이전트 데이터 + 보고서
+│   ├── data/applications/             # 배치별 지원서
+│   ├── data/portfolio/                # 포트폴리오 기업 KPI
+│   └── reports/                       # 스크리닝, 분석, 투심위 보고서
+│
+├── mcp-servers/elsa-mcp/              # MCP 서버 (AI 에이전트 도구)
+│
+├── lsa/                               # 별도 용도 (삭제 금지)
+│
 └── nginx/nginx.conf
 ```
-→ 전체 파일 목록은 마스터 §10 참조
 
 ---
 
 ## 5. Backend 컨벤션 (Python/FastAPI)
 
 ### 아키텍처 패턴: Router → Service → Model
-```python
-# routers/startups.py — HTTP 관심사만 처리
-@router.post("/", response_model=StartupResponse)
-async def create_startup(
-    data: StartupCreate,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    return await startup_service.create(db, data, current_user)
-
-# services/startup_service.py — 비즈니스 로직
-async def create(db: AsyncSession, data: StartupCreate, user: User) -> Startup:
-    startup = Startup(**data.model_dump(), assigned_manager_id=user.id)
-    db.add(startup)
-    await db.flush()
-    # DealFlow 자동 생성
-    await pipeline_service.create_initial_flow(db, startup.id, user.id)
-    # ActivityLog 기록
-    await activity_log_service.log(db, user.id, startup.id, "create", {"entity": "startup"})
-    await db.commit()
-    await db.refresh(startup)
-    return startup
-```
+- **Router**: HTTP 관심사만 처리 (요청 파싱, 응답 직렬화)
+- **Service**: 비즈니스 로직 (트랜잭션, 자동화 트리거, ActivityLog 기록)
+- **Model**: 데이터 구조 (SQLAlchemy ORM)
+- 참고: `routers/startups.py`, `services/startup_service.py` 패턴
 
 ### 타입 힌트
 - Python 3.11+ 타입 힌트 **필수**
@@ -170,14 +151,7 @@ async def create(db: AsyncSession, data: StartupCreate, user: User) -> Startup:
 - 새 Enum 추가 시 반드시 `enums.py`에만 추가
 
 ### 에러 처리
-```python
-from fastapi import HTTPException, status
-
-raise HTTPException(
-    status_code=status.HTTP_404_NOT_FOUND,
-    detail="해당 스타트업을 찾을 수 없습니다."
-)
-```
+- `errors.py`에 에러 팩토리 함수 정의: `startup_not_found()`, `form_template_not_found()` 등
 - 에러 메시지는 **한글**로 작성
 - 금액은 **Decimal** 타입 사용 (int/float 금지)
 - 모든 timestamp는 **Asia/Seoul** (KST)
@@ -201,37 +175,12 @@ raise HTTPException(
 - 한글 UI, 날짜 형식: `YYYY.MM.DD`
 
 ### API 호출 패턴
-```typescript
-// lib/api.ts
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-export default api;
-```
+- `lib/api.ts` — axios 인스턴스 + JWT 인터셉터 (참조)
+- 모든 API 호출은 이 인스턴스를 통해 수행
 
 ### 상태 관리
-```typescript
-// hooks/useAuth.ts — zustand 사용
-import { create } from 'zustand';
-
-interface AuthState {
-  user: User | null;
-  token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-}
-```
+- `hooks/useAuth.ts` — zustand 기반 인증 상태 (참조)
+- 전역 상태는 zustand store로 관리
 
 ### Backend Enum 미러링
 - `lib/types.ts`에 Backend Enum 값을 TypeScript로 미러링
@@ -260,28 +209,12 @@ Mentor, Batch
 → 각 모델의 필드 정의는 마스터 §3-3 ~ §32 참조
 
 ### Base 모델 패턴
-```python
-import uuid
-from datetime import datetime
-from sqlalchemy import func
-from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
-
-class Base(DeclarativeBase):
-    pass
-
-class BaseMixin:
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
-```
+- `models/base.py` 참조 — `Base` + `BaseMixin` (id: UUID, created_at, updated_at)
+- 모든 모델은 `BaseMixin`을 상속
 
 ### Soft Delete 패턴
-```python
-is_deleted: Mapped[bool] = mapped_column(default=False)
-
-# 조회 시 항상 필터
-query = select(Startup).where(Startup.is_deleted == False)
-```
+- `is_deleted: Mapped[bool]` 필드 사용
+- 조회 시 항상 `.where(Model.is_deleted == False)` 필터 적용
 
 ### 테이블 네이밍
 - 테이블명: snake_case 복수형 (예: `startups`, `deal_flows`)
@@ -408,6 +341,7 @@ TZ=Asia/Seoul
 UPLOAD_DIR, MAX_FILE_SIZE_MB
 CELERY_BROKER_URL, CELERY_RESULT_BACKEND
 NEXT_PUBLIC_API_URL
+CORS_ORIGINS                           # 콤마 구분, 예: http://localhost:3000,https://winlsa.com
 ```
 → 전체 .env 템플릿: 마스터 §29
 
@@ -451,15 +385,24 @@ celery_worker | celery_beat | frontend (Next.js)
 
 | Phase | 상태 | 최종 업데이트 |
 |-------|------|-------------|
-| Phase 1 | 🔄 진행 중 | 2026-03-16 |
-| Phase 2~9 | ⏳ 대기 | - |
+| Phase 1 (기반 인프라 + 인증) | ✅ 완료 | 2026-03-16 |
+| Phase 2 (Sourcing팀) | ✅ 완료 | 2026-03-17 |
+| Phase 2.5 (양식 엔진) | ✅ 완료 | 2026-03-21 |
+| Phase 3 (심사팀) | ✅ 완료 | 2026-03-16 |
+| Phase 4 (백오피스팀) | ✅ 완료 | 2026-03-17 |
+| Phase 5 (보육팀) | ✅ 완료 | 2026-03-17 |
+| Phase 6 (오픈이노베이션팀) | ✅ 완료 | 2026-03-17 |
+| Phase 7 (팀간 연결 + 고도화) | ✅ 완료 | 2026-03-17 |
+| Phase 8 (KPI 대시보드) | ✅ 완료 | 2026-03-17 |
+| Phase 9 (SOP + JD) | ✅ 완료 | 2026-03-17 |
 
-### Phase 1 세부 진행
-- [x] CLAUDE.md 생성
-- [ ] Docker 인프라 + 프로젝트 스켈레톤
-- [ ] DB 스키마 + Enum + 핵심 모델
-- [ ] 인증 + RBAC + 사용자 API
-- [ ] Startup CRUD + 프론트엔드
+### 아카이브 현황 (12개 피처)
+→ `docs/archive/2026-03/_INDEX.md` 참조
+
+### 현재 작업 방향
+- Phase 1~9 전체 구현 완료
+- 고도화/버그 수정/UX 개선 단계
+- AI 에이전트 연동 (스크리닝, IR 분석, 포트폴리오 보고) 활성
 
 ---
 
@@ -480,21 +423,26 @@ celery_worker | celery_beat | frontend (Next.js)
 
 ## 15. 커밋 컨벤션
 
-### 형식
+### 형식 (Conventional Commits)
 ```
-[모듈] 설명
+<type>: <설명>
 
 예시:
-[infra] Docker Compose + Dockerfile 설정
-[auth] JWT 인증 + RBAC 미들웨어 구현
-[startup] 스타트업 CRUD API 구현
-[sourcing] 딜플로우 칸반보드 구현
+feat: 양식 엔진 DynamicFormRenderer 구현
+fix: CORS 하드코딩 → 환경변수로 분리
+docs: form-engine PDCA 아카이브 완료
+refactor: startup_service 트랜잭션 정리
 ```
 
-### 모듈 태그
+### Type
+```
+feat, fix, refactor, docs, test, chore, perf, style, ci
+```
+
+### 스코프 (선택)
 ```
 infra, auth, startup, sourcing, review, incubation, oi,
-backoffice, form, sop, kpi, common
+backoffice, form, sop, kpi, common, ai-agent
 ```
 
 ### 주석
@@ -504,8 +452,9 @@ backoffice, form, sop, kpi, common
 
 ---
 
-## 배포 환경
+## 16. 배포 환경
 
 - 로컬 개발: `C:\Users\jghyu\elsa`
 - 외부 접근: Cloudflare Tunnel (`winlsa.com`)
 - 다중 사용자 동시 접속 지원 필수
+- CORS: `CORS_ORIGINS` 환경변수로 허용 도메인 관리
