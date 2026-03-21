@@ -38,6 +38,7 @@ services:
       TZ: ${TZ}
       UPLOAD_DIR: ${UPLOAD_DIR}
       MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
     ports:
       - "8000:8000"
     depends_on:
