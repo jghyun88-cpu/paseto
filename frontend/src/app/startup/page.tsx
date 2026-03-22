@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Search, Building2 } from "lucide-react";
 import api from "@/lib/api";
 import { fmtCorporateNumber, fmtBRN, fmtIndustry, fmtLocation, fmtDate } from "@/lib/formatters";
+import { showError } from "@/lib/toast";
 
 interface StartupItem {
   id: string;
@@ -45,6 +46,7 @@ export default function StartupListPage() {
       setItems(res.data.data);
       setTotal(res.data.total);
     } catch {
+      showError("데이터를 불러오는 데 실패했습니다.");
       setItems([]);
     } finally {
       setLoading(false);

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface HandoverItem {
   id: string; from_team: string; to_team: string; handover_type: string;
@@ -26,7 +27,7 @@ export default function HandoverHubPage() {
       if (filterType) url += `&from_team=${filterType.split("_to_")[0]}`;
       const res = await api.get<HandoverItem[]>(url);
       setItems(Array.isArray(res.data) ? res.data : []);
-    } catch { /* ignore */ } finally { setLoading(false); }
+    } catch { showError("데이터를 불러오는 데 실패했습니다."); } finally { setLoading(false); }
   }, [filterType]);
 
   useEffect(() => { fetchData(); }, [fetchData]);

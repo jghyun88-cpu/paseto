@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 import { fmtDate } from "@/lib/formatters";
 
 interface MentoringSession {
@@ -47,7 +48,7 @@ export default function MentoringPage() {
       const res = await api.get<{ data: MentoringSession[] }>(`/mentoring-sessions/?startup_id=${params.id}&page_size=50`);
       setSessions(res.data.data);
     } catch {
-      /* ignore */
+      showError("데이터를 불러오는 데 실패했습니다.");
     } finally {
       setLoading(false);
     }

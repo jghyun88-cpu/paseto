@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import { fmtDate } from "@/lib/formatters";
+import { showError } from "@/lib/toast";
 
 interface ScreeningItem {
   id: string;
@@ -46,7 +47,7 @@ export default function ScreeningListPage() {
         }
         setStartups(map);
       } catch {
-        /* ignore */
+        showError("데이터를 불러오는 데 실패했습니다.");
       } finally {
         setLoading(false);
       }

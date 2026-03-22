@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, Calendar, ArrowRightLeft, BarChart3 } from "lucide-react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface DashboardData {
   deal_pipeline: { total: number; in_screening: number; in_contract: number; portfolio: number };
@@ -23,7 +24,7 @@ export default function DashboardPage() {
     try {
       const res = await api.get<DashboardData>("/dashboard/executive");
       setData(res.data);
-    } catch { /* ignore */ } finally { setLoading(false); }
+    } catch { showError("데이터를 불러오는 데 실패했습니다."); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);

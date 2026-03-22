@@ -7,6 +7,7 @@ import { Search, Plus } from "lucide-react";
 import api from "@/lib/api";
 import { fmtDate } from "@/lib/formatters";
 import { DEAL_STAGE_LABEL, DEAL_STAGE_COLOR, CHANNEL_LABEL } from "@/lib/constants";
+import { showError } from "@/lib/toast";
 
 interface DealItem {
   id: string;
@@ -48,6 +49,7 @@ export default function SourcingDealsPage() {
       setItems(res.data.data);
       setTotal(res.data.total);
     } catch {
+      showError("데이터를 불러오는 데 실패했습니다.");
       setItems([]);
     } finally {
       setLoading(false);

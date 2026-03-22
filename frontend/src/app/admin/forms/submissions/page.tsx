@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface SubmissionItem {
   id: string;
@@ -60,13 +61,13 @@ export default function FormSubmissionsPage() {
             }));
             allSubs.push(...subs);
           } catch {
-            /* skip */
+            showError("양식 제출 이력을 불러오는 데 실패했습니다.");
           }
         }
         allSubs.sort((a, b) => b.created_at.localeCompare(a.created_at));
         setItems(allSubs);
       } catch {
-        /* ignore */
+        showError("데이터를 불러오는 데 실패했습니다.");
       }
     } finally {
       setLoading(false);

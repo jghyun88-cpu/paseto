@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 import type { MemoItem } from "@/lib/types";
 
 interface StartupOption {
@@ -55,6 +56,7 @@ export default function ICDecisionModal({
         setMemos(res.data);
         if (res.data.length > 0) setMemoId(res.data[0].id);
       } catch {
+        showError("투자메모를 불러오는 데 실패했습니다.");
         setMemos([]);
       }
     })();

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
 import { fmtDate } from "@/lib/formatters";
+import { showError } from "@/lib/toast";
 
 interface ChecklistItem {
   key: string;
@@ -35,7 +36,7 @@ export default function CompliancePage() {
         const parsed: ChecklistItem[] = JSON.parse(stored);
         setChecklist(parsed);
       } catch {
-        /* 파싱 실패 시 기본값 유지 */
+        showError("저장된 체크리스트를 불러오는 데 실패했습니다.");
       }
     }
   }, []);

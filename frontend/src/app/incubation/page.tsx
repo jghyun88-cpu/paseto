@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus, AlertTriangle, TrendingUp, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface IncubationItem {
   id: string;
@@ -65,7 +66,7 @@ export default function IncubationPage() {
           const sRes = await api.get<StartupInfo>(`/startups/${sid}`);
           startupMap[sid] = sRes.data;
         } catch {
-          /* ignore */
+          showError("스타트업 정보를 불러오는 데 실패했습니다.");
         }
       }
 
@@ -76,7 +77,7 @@ export default function IncubationPage() {
       }));
       setItems(merged);
     } catch {
-      /* ignore */
+      showError("데이터를 불러오는 데 실패했습니다.");
     } finally {
       setLoading(false);
     }

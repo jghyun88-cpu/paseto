@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface MeetingDetail {
   id: string; meeting_type: string; title: string; scheduled_at: string;
@@ -35,7 +36,7 @@ export default function MeetingDetailPage() {
     try {
       await api.patch(`/meetings/${params.id}`, { minutes });
       setSuccess("회의록이 저장되었습니다.");
-    } catch { /* ignore */ } finally { setSaving(false); }
+    } catch { showError("회의록 저장에 실패했습니다."); } finally { setSaving(false); }
   }, [params.id, minutes]);
 
   if (loading) return <div className="p-8 text-center text-slate-400">로딩 중...</div>;

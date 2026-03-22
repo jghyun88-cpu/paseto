@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import ICDecisionModal from "@/components/forms/ICDecisionModal";
 import api from "@/lib/api";
 import type { ICDecisionItem } from "@/lib/types";
+import { showError } from "@/lib/toast";
 
 interface StartupOption {
   id: string;
@@ -49,13 +50,13 @@ export default function ICDecisionsPage() {
           const res = await api.get<ICDecisionItem[]>(`/ic-decisions/?startup_id=${s.id}`);
           allDecisions.push(...res.data);
         } catch {
-          /* 결정 없는 스타트업은 무시 */
+          /* 결정 없는 스타트업 — 개별 실패 무시 */
         }
       }
       allDecisions.sort((a, b) => b.decided_at.localeCompare(a.decided_at));
       setDecisions(allDecisions);
     } catch {
-      /* ignore */
+      showError("데이터를 불러오는 데 실패했습니다.");
     } finally {
       setLoading(false);
     }

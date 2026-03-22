@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface TeamSummary {
   team: string; total_kpis: number; achieved: number; needs_improvement: number;
@@ -39,7 +40,7 @@ export default function ExecutiveKPIPage() {
     try {
       const res = await api.get<ExecutiveData>(`/team-kpis/executive?period=${period}`);
       setData(res.data);
-    } catch { /* ignore */ } finally { setLoading(false); }
+    } catch { showError("데이터를 불러오는 데 실패했습니다."); } finally { setLoading(false); }
   }, [period]);
 
   useEffect(() => { fetchData(); }, [fetchData]);

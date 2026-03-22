@@ -6,6 +6,7 @@ import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface KPITrend {
   startup_id: string;
@@ -57,7 +58,7 @@ export default function KPIPage() {
           const tRes = await api.get<KPITrend>(`/kpi-records/${sid}/trend?months=6`);
           setTrend(tRes.data);
         } catch {
-          /* ignore */
+          showError("KPI 트렌드를 불러오는 데 실패했습니다.");
         }
       })
       .catch(() => router.push("/incubation"))

@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface MentorItem {
   id: string;
@@ -39,7 +40,7 @@ export default function MentorsPage() {
       const res = await api.get<{ data: MentorItem[] }>("/mentors/?page_size=100");
       setMentors(res.data.data);
     } catch {
-      /* ignore */
+      showError("데이터를 불러오는 데 실패했습니다.");
     } finally {
       setLoading(false);
     }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface DemandItem {
   id: string;
@@ -56,7 +57,7 @@ export default function MatchingPage() {
       setDemands(dRes.data.data);
       setStartups(sRes.data.data);
     } catch {
-      /* ignore */
+      showError("데이터를 불러오는 데 실패했습니다.");
     } finally {
       setLoading(false);
     }

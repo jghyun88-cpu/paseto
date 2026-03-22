@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface MeetingItem {
   id: string; meeting_type: string; title: string; scheduled_at: string;
@@ -43,7 +44,7 @@ export default function MeetingsPage() {
       if (filterType) url += `&meeting_type=${filterType}`;
       const res = await api.get<{ data: MeetingItem[] }>(url);
       setItems(res.data.data);
-    } catch { /* ignore */ } finally { setLoading(false); }
+    } catch { showError("데이터를 불러오는 데 실패했습니다."); } finally { setLoading(false); }
   }, [filterType]);
 
   useEffect(() => { fetchData(); }, [fetchData]);

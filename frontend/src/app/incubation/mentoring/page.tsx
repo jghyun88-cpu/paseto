@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface MentoringSession {
   id: string;
@@ -38,6 +39,7 @@ export default function MentoringListPage() {
       );
       setSessions(sorted);
     } catch {
+      showError("데이터를 불러오는 데 실패했습니다.");
       setSessions([]);
     } finally {
       setLoading(false);

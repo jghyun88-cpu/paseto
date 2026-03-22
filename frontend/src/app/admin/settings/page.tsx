@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { showError } from "@/lib/toast";
 
 export default function SettingsPage() {
   const [orgName, setOrgName] = useState("eLSA 딥테크 액셀러레이터");
@@ -19,7 +20,7 @@ export default function SettingsPage() {
       await new Promise((resolve) => setTimeout(resolve, 500));
       setSuccess("설정이 저장되었습니다.");
     } catch {
-      /* ignore */
+      showError("설정 저장에 실패했습니다.");
     } finally {
       setSaving(false);
     }

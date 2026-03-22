@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface KPIItem {
   id: string; kpi_layer: string; kpi_name: string; target_value: number;
@@ -41,7 +42,7 @@ export default function TeamKPIPage() {
     try {
       const res = await api.get<{ data: KPIItem[] }>(`/team-kpis/${team}/${period}`);
       setItems(res.data.data);
-    } catch { /* ignore */ } finally { setLoading(false); }
+    } catch { showError("데이터를 불러오는 데 실패했습니다."); } finally { setLoading(false); }
   }, [team, period]);
 
   useEffect(() => { fetchData(); }, [fetchData]);

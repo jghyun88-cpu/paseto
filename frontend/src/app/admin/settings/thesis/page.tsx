@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { showError } from "@/lib/toast";
 
 export default function ThesisPage() {
   const [industries, setIndustries] = useState(
@@ -25,7 +26,7 @@ export default function ThesisPage() {
       await new Promise((resolve) => setTimeout(resolve, 500));
       setSuccess("투자 Thesis가 저장되었습니다.");
     } catch {
-      /* ignore */
+      showError("투자 Thesis 저장에 실패했습니다.");
     } finally {
       setSaving(false);
     }

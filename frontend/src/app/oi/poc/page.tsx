@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface PoCItem {
   id: string;
@@ -41,7 +42,7 @@ export default function PoCListPage() {
       if (filterStatus) url += `&status=${filterStatus}`;
       const res = await api.get<{ data: PoCItem[] }>(url);
       setItems(res.data.data);
-    } catch { /* ignore */ } finally { setLoading(false); }
+    } catch { showError("데이터를 불러오는 데 실패했습니다."); } finally { setLoading(false); }
   }, [filterStatus]);
 
   useEffect(() => { fetchData(); }, [fetchData]);

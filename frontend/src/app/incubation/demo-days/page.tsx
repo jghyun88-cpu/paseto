@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface DemoDayItem {
   id: string;
@@ -35,7 +36,7 @@ export default function DemoDaysPage() {
       const res = await api.get<{ data: DemoDayItem[] }>("/demo-days/?page_size=50");
       setItems(res.data.data);
     } catch {
-      /* ignore */
+      showError("데이터를 불러오는 데 실패했습니다.");
     } finally {
       setLoading(false);
     }

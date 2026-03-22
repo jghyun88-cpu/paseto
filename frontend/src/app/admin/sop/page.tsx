@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface SOPItem { id: string; document_number: string; title: string; owning_team: string; steps: { step: number; name: string }[]; is_active: boolean; }
 interface ExecItem { id: string; sop_template_id: string; current_step: number; step_statuses: Record<string, string>; completed_at: string | null; started_at: string; }
@@ -22,7 +23,7 @@ export default function SOPPage() {
         api.get<{ data: ExecItem[] }>("/sop/executions/?page_size=50"),
       ]);
       setTemplates(tRes.data.data); setExecutions(eRes.data.data);
-    } catch { /* ignore */ } finally { setLoading(false); }
+    } catch { showError("데이터를 불러오는 데 실패했습니다."); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);

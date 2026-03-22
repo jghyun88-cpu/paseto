@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 import { fmtDate } from "@/lib/formatters";
 
 interface FundItem {
@@ -49,7 +50,7 @@ export default function FundsPage() {
       const data = Array.isArray(res.data) ? res.data : res.data.data ?? [];
       setItems(data);
     } catch {
-      /* 조회 실패 무시 */
+      showError("데이터를 불러오는 데 실패했습니다.");
     } finally {
       setLoading(false);
     }

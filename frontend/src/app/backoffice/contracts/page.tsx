@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Search } from "lucide-react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 import { fmtDate, fmtAmount } from "@/lib/formatters";
 
 interface ContractItem {
@@ -58,7 +59,7 @@ export default function ContractsPage() {
       const res = await api.get<{ data: ContractItem[] }>(url);
       setItems(res.data.data);
     } catch {
-      /* 조회 실패 무시 */
+      showError("데이터를 불러오는 데 실패했습니다.");
     } finally {
       setLoading(false);
     }

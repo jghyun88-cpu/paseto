@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface InvestorMeeting {
   id: string;
@@ -31,6 +32,7 @@ export default function InvestorMeetingsPage() {
       );
       setMeetings(res.data.data ?? []);
     } catch {
+      showError("데이터를 불러오는 데 실패했습니다.");
       setMeetings([]);
     } finally {
       setLoading(false);

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface KPIItem {
   id: string; team: string; kpi_layer: string; kpi_name: string;
@@ -35,7 +36,7 @@ export default function KPIManagePage() {
         vals[k.id] = k.actual_value !== null ? String(k.actual_value) : "";
       }
       setEditValues(vals);
-    } catch { /* ignore */ } finally { setLoading(false); }
+    } catch { showError("데이터를 불러오는 데 실패했습니다."); } finally { setLoading(false); }
   }, [selectedTeam, period]);
 
   useEffect(() => { fetchData(); }, [fetchData]);

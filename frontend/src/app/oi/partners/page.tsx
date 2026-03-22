@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface DemandItem {
   id: string;
@@ -45,7 +46,7 @@ export default function PartnersPage() {
       if (filterType) url += `&demand_type=${filterType}`;
       const res = await api.get<{ data: DemandItem[] }>(url);
       setItems(res.data.data);
-    } catch { /* ignore */ } finally { setLoading(false); }
+    } catch { showError("데이터를 불러오는 데 실패했습니다."); } finally { setLoading(false); }
   }, [filterType]);
 
   useEffect(() => { fetchData(); }, [fetchData]);

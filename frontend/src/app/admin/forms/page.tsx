@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface FormItem { id: string; form_code: string; title: string; owning_team: string; is_active: boolean; }
 const TEAM_LABELS: Record<string, string> = { sourcing: "Sourcing", review: "심사", backoffice: "백오피스", incubation: "보육", oi: "OI" };
@@ -11,7 +12,7 @@ export default function FormsPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
-    try { const res = await api.get<{ data: FormItem[] }>("/forms/templates/?page_size=50"); setItems(res.data.data); } catch {} finally { setLoading(false); }
+    try { const res = await api.get<{ data: FormItem[] }>("/forms/templates/?page_size=50"); setItems(res.data.data); } catch { showError("데이터를 불러오는 데 실패했습니다."); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);

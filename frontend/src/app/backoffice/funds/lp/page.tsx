@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus, Search, Building2 } from "lucide-react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 import { fmtCorporateNumber, fmtBRN, fmtIndustry, fmtLocation, fmtDate } from "@/lib/formatters";
 
 interface LPItem {
@@ -45,6 +46,7 @@ export default function LPListPage() {
       setItems(res.data.data);
       setTotal(res.data.total);
     } catch {
+      showError("데이터를 불러오는 데 실패했습니다.");
       setItems([]);
     } finally {
       setLoading(false);

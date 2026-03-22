@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface NotifItem {
   id: string; title: string; message: string; notification_type: string;
@@ -32,7 +33,7 @@ export default function NotificationsPage() {
       if (filterType) url += `&notification_type=${filterType}`;
       const res = await api.get<{ data: NotifItem[] }>(url);
       setItems(res.data.data);
-    } catch { /* ignore */ } finally { setLoading(false); }
+    } catch { showError("데이터를 불러오는 데 실패했습니다."); } finally { setLoading(false); }
   }, [filterType]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -41,14 +42,14 @@ export default function NotificationsPage() {
     try {
       await api.patch(`/notifications/${id}/read`);
       setItems((prev) => prev.map((n) => n.id === id ? { ...n, is_read: true } : n));
-    } catch { /* ignore */ }
+    } catch { showError("알림 읽음 처리에 실패했습니다."); }
   }, []);
 
   const handleMarkAllRead = useCallback(async () => {
     try {
       await api.patch("/notifications/read-all");
       setItems((prev) => prev.map((n) => ({ ...n, is_read: true })));
-    } catch { /* ignore */ }
+    } catch { showError("전체 읽음 처리에 실패했습니다."); }
   }, []);
 
   if (loading) return <div className="p-8 text-center text-slate-400">로딩 중...</div>;

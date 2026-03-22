@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface FollowOnItem {
   id: string; startup_id: string; round_type: string; target_amount: number | null;
@@ -24,7 +25,7 @@ export default function FollowOnPage() {
   const [error, setError] = useState("");
 
   const fetchData = useCallback(async () => {
-    try { const res = await api.get<{ data: FollowOnItem[] }>("/follow-on-investments/?page_size=100"); setItems(res.data.data); } catch { /* ignore */ } finally { setLoading(false); }
+    try { const res = await api.get<{ data: FollowOnItem[] }>("/follow-on-investments/?page_size=100"); setItems(res.data.data); } catch { showError("데이터를 불러오는 데 실패했습니다."); } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);

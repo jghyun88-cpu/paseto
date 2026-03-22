@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface KpiRecord {
   id: string;
@@ -24,6 +25,7 @@ export default function KpiRecordPage() {
       const res = await api.get<{ data: KpiRecord[] }>(url);
       setRecords(res.data.data ?? []);
     } catch {
+      showError("데이터를 불러오는 데 실패했습니다.");
       setRecords([]);
     } finally {
       setLoading(false);

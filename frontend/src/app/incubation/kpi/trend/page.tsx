@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface StartupOption {
   id: string;
@@ -35,6 +36,7 @@ export default function KpiTrendPage() {
       );
       setStartups(res.data.data ?? []);
     } catch {
+      showError("데이터를 불러오는 데 실패했습니다.");
       setStartups([]);
     } finally {
       setLoading(false);
@@ -57,6 +59,7 @@ export default function KpiTrendPage() {
       );
       setRecords(res.data.data ?? []);
     } catch {
+      showError("KPI 데이터를 불러오는 데 실패했습니다.");
       setRecords([]);
     } finally {
       setLoadingRecords(false);

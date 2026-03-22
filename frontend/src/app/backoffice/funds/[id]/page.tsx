@@ -6,6 +6,7 @@ import { useClickOutside } from "@/hooks/useClickOutside";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Trash2 } from "lucide-react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 import { fmtDate } from "@/lib/formatters";
 
 const FUND_ACCOUNT_TYPES = [
@@ -105,6 +106,7 @@ export default function FundEditPage() {
       const res = await api.get(`/lps?search=${encodeURIComponent(query)}&page_size=20`);
       return res.data.data ?? [];
     } catch {
+      showError("LP 검색에 실패했습니다.");
       return [];
     }
   }, []);
@@ -166,7 +168,7 @@ export default function FundEditPage() {
               manager: r.manager ?? "",
             })));
           }
-        } catch { /* 파싱 실패 무시 */ }
+        } catch { showError("GP/운용인력 데이터 파싱에 실패했습니다."); }
 
         // investment_obligations JSON → obligation rows
         try {
@@ -177,7 +179,7 @@ export default function FundEditPage() {
               amount: r.amount ? String(r.amount) : "",
             })));
           }
-        } catch { /* 파싱 실패 무시 */ }
+        } catch { showError("투자의무 데이터 파싱에 실패했습니다."); }
 
         // LP 목록 → investor rows
         const lps = Array.isArray(lpRes.data) ? lpRes.data : lpRes.data.data ?? [];

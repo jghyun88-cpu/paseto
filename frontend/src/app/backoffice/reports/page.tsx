@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 import { fmtDate } from "@/lib/formatters";
 
 interface ReportItem {
@@ -48,7 +49,7 @@ export default function ReportsPage() {
       const res = await api.get<{ data: ReportItem[] }>(url);
       setItems(res.data.data);
     } catch {
-      /* 조회 실패 무시 */
+      showError("데이터를 불러오는 데 실패했습니다.");
     } finally {
       setLoading(false);
     }

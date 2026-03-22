@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import DDChecklist from "@/components/forms/DDChecklist";
 import api from "@/lib/api";
 import { DD_ITEMS, type DDStatus, type ReviewItem } from "@/lib/types";
+import { showError } from "@/lib/toast";
 
 const VERDICTS = [
   { value: "proceed", label: "진행", color: "text-green-600" },
@@ -48,7 +49,7 @@ export default function DDReviewPage() {
           setVerdict(existing.overall_verdict);
         }
       } catch {
-        /* 기존 DD 없음 — 빈 상태 유지 */
+        showError("데이터를 불러오는 데 실패했습니다.");
       } finally {
         setLoading(false);
       }

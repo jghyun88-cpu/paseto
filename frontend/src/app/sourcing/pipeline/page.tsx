@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import KanbanBoard, { type ColumnDef } from "@/components/kanban/KanbanBoard";
 import type { KanbanCardData } from "@/components/kanban/KanbanCard";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 const COLUMNS: ColumnDef[] = [
   { id: "inbound", title: "Inbound", stageKey: "inbound" },
@@ -54,7 +55,7 @@ export default function SourcingPipelinePage() {
       }
       setCards(grouped);
     } catch {
-      /* ignore */
+      showError("데이터를 불러오는 데 실패했습니다.");
     } finally {
       setLoading(false);
     }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 const FUNNEL_STAGES = [
   { key: "inbound", label: "유입", color: "bg-gray-400" },
@@ -29,6 +30,7 @@ export default function FunnelAnalysisPage() {
         }
         setCounts(stages);
       } catch {
+        showError("데이터를 불러오는 데 실패했습니다.");
         setCounts({});
       } finally {
         setLoading(false);

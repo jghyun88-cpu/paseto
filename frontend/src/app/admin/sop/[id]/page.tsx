@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface ExecDetail { id: string; sop_template_id: string; current_step: number; step_statuses: Record<string, string>; started_at: string; completed_at: string | null; notes: string | null; }
 interface SOPDetail { id: string; document_number: string; title: string; steps: { step: number; name: string; forms?: string[] }[]; }
@@ -17,7 +18,7 @@ export default function SOPExecutionPage() {
   useEffect(() => {
     if (!params.id) return;
     api.get<ExecDetail>(`/sop/executions/${params.id}`)
-      .then(async (res) => { setExec(res.data); try { const s = await api.get<SOPDetail>(`/sop/templates/${res.data.sop_template_id}`); setSop(s.data); } catch {} })
+      .then(async (res) => { setExec(res.data); try { const s = await api.get<SOPDetail>(`/sop/templates/${res.data.sop_template_id}`); setSop(s.data); } catch { showError("SOP 템플릿을 불러오는 데 실패했습니다."); } })
       .catch(() => router.push("/admin/sop")).finally(() => setLoading(false));
   }, [params.id, router]);
 

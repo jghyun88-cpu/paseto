@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 import { fmtDate } from "@/lib/formatters";
 
 interface ExecItem {
@@ -48,7 +49,7 @@ export default function SOPExecutionsPage() {
         ) as ExecItem[];
         setItems(execs);
       } catch {
-        /* ignore */
+        showError("데이터를 불러오는 데 실패했습니다.");
       }
     } finally {
       setLoading(false);

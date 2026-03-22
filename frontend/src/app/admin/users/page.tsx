@@ -5,6 +5,7 @@ import { Plus, RotateCcw, Eye, EyeOff, Copy, Check, Pencil, Trash2, X } from "lu
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 interface UserItem {
   id: string;
@@ -76,6 +77,7 @@ export default function UsersPage() {
         const me = await api.get<UserItem>("/auth/me");
         setUsers([me.data]);
       } catch {
+        showError("사용자 목록을 불러오는 데 실패했습니다.");
         setUsers([]);
       }
     } finally {

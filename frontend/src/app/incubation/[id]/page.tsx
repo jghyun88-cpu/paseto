@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { showError } from "@/lib/toast";
 
 const TABS = [
   { id: "overview", label: "개요" },
@@ -54,7 +55,7 @@ export default function IncubationDetailPage() {
           const sRes = await api.get<{ company_name: string }>(`/startups/${res.data.startup_id}`);
           setCompanyName(sRes.data.company_name);
         } catch {
-          /* ignore */
+          showError("기업 정보를 불러오는 데 실패했습니다.");
         }
       })
       .catch(() => router.push("/incubation"))
