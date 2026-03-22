@@ -128,7 +128,6 @@ async def create(db: AsyncSession, data: TeamKPICreate, user: User) -> TeamKPI:
     db.add(kpi)
     await db.flush()
     await activity_log_service.log(db, user.id, "create", {"entity": "team_kpi", "kpi_name": data.kpi_name})
-    await db.commit()
     await db.refresh(kpi)
     return kpi
 
@@ -144,7 +143,6 @@ async def update(db: AsyncSession, kpi: TeamKPI, data: TeamKPIUpdate, user: User
     kpi.updated_by = user.id
 
     await activity_log_service.log(db, user.id, "update", {"entity": "team_kpi", "fields": list(update_data.keys())})
-    await db.commit()
     await db.refresh(kpi)
     return kpi
 
@@ -168,5 +166,4 @@ async def seed_kpis(db: AsyncSession, period: str, user: User) -> int:
         )
         db.add(kpi)
         count += 1
-    await db.commit()
     return count

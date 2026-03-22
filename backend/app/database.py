@@ -26,10 +26,11 @@ sync_session_maker = sessionmaker(sync_engine, expire_on_commit=False)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """FastAPI 의존성: DB 세션 제공"""
+    """FastAPI 의존성: DB 세션 제공 (UoW 패턴 — auto-commit/rollback)"""
     async with async_session_maker() as session:
         try:
             yield session
+            await session.commit()
         except Exception:
             await session.rollback()
             raise

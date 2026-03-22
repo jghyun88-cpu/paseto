@@ -58,7 +58,6 @@ async def create_template(db: AsyncSession, data: SOPTemplateCreate, user: User)
     db.add(tmpl)
     await db.flush()
     await activity_log_service.log(db, user.id, "create", {"entity": "sop_template", "doc": data.document_number})
-    await db.commit()
     await db.refresh(tmpl)
     return tmpl
 
@@ -73,7 +72,6 @@ async def seed_templates(db: AsyncSession, user: User) -> int:
         tmpl = SOPTemplate(effective_date=today, checkpoints=[], **seed)
         db.add(tmpl)
         count += 1
-    await db.commit()
     return count
 
 
@@ -103,7 +101,6 @@ async def start_execution(db: AsyncSession, data: SOPExecutionCreate, user: User
     db.add(execution)
     await db.flush()
     await activity_log_service.log(db, user.id, "create", {"entity": "sop_execution"}, startup_id=data.startup_id)
-    await db.commit()
     await db.refresh(execution)
     return execution
 
@@ -122,6 +119,5 @@ async def advance_step(db: AsyncSession, execution: SOPExecution, data: SOPStepU
 
     execution.step_statuses = statuses
     await activity_log_service.log(db, user.id, "update", {"entity": "sop_execution", "step": data.step_number, "status": data.status}, startup_id=execution.startup_id)
-    await db.commit()
     await db.refresh(execution)
     return execution

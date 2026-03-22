@@ -64,7 +64,6 @@ async def create(db: AsyncSession, data: MeetingCreate, user: User) -> Meeting:
         db, user.id, "create",
         {"entity": "meeting", "meeting_type": data.meeting_type, "title": data.title},
     )
-    await db.commit()
     await db.refresh(meeting)
     return meeting
 
@@ -78,7 +77,6 @@ async def update(db: AsyncSession, meeting: Meeting, data: MeetingUpdate, user: 
         db, user.id, "update",
         {"entity": "meeting", "fields": list(update_data.keys())},
     )
-    await db.commit()
     await db.refresh(meeting)
     return meeting
 
@@ -88,4 +86,3 @@ async def delete(db: AsyncSession, meeting: Meeting, user: User) -> None:
     await activity_log_service.log(
         db, user.id, "delete", {"entity": "meeting", "meeting_id": str(meeting.id)},
     )
-    await db.commit()

@@ -84,7 +84,6 @@ async def create(db: AsyncSession, data: PoCProjectCreate, user: User) -> PoCPro
         {"entity": "poc_project", "poc_id": str(poc.id)},
         startup_id=data.startup_id,
     )
-    await db.commit()
     await db.refresh(poc)
     return poc
 
@@ -99,7 +98,6 @@ async def update(db: AsyncSession, poc: PoCProject, data: PoCProjectUpdate, user
         {"entity": "poc_project", "fields": list(update_data.keys())},
         startup_id=poc.startup_id,
     )
-    await db.commit()
     await db.refresh(poc)
     return poc
 
@@ -116,7 +114,6 @@ async def change_status(
         {"entity": "poc_project", "old_status": old_status.value, "new_status": data.status, "notes": data.notes},
         startup_id=poc.startup_id,
     )
-    await db.commit()
     await db.refresh(poc)
     return poc
 
@@ -145,6 +142,5 @@ async def update_progress(
         {"entity": "poc_project", "fields": list(update_data.keys()), "conversion_likelihood": data.conversion_likelihood},
         startup_id=poc.startup_id,
     )
-    await db.commit()
     await db.refresh(poc)
     return poc

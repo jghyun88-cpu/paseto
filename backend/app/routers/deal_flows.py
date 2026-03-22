@@ -41,5 +41,4 @@ async def move_deal_stage(
     deal_flow = await deal_flow_service.move_stage(
         db, startup, DealStage(data.to_stage), current_user, data.notes,
     )
-    await db.commit()
     return DealFlowResponse.model_validate(deal_flow)

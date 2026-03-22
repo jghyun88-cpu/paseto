@@ -75,7 +75,6 @@ async def create(db: AsyncSession, data: JDCreate, user: User) -> JobDescription
     db.add(jd)
     await db.flush()
     await activity_log_service.log(db, user.id, "create", {"entity": "job_description", "jd_code": data.jd_code})
-    await db.commit()
     await db.refresh(jd)
     return jd
 
@@ -93,5 +92,4 @@ async def seed_jds(db: AsyncSession, user: User) -> int:
         )
         db.add(jd)
         count += 1
-    await db.commit()
     return count

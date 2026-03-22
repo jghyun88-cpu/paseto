@@ -60,7 +60,6 @@ async def create_user(db: AsyncSession, data: UserCreate) -> User:
     )
     db.add(user)
     await db.flush()
-    await db.commit()
     await db.refresh(user)
     return user
 
@@ -71,7 +70,6 @@ async def update_user(db: AsyncSession, user: User, data: UserUpdate) -> User:
     for field, value in update_data.items():
         setattr(user, field, value)
     await db.flush()
-    await db.commit()
     await db.refresh(user)
     return user
 
@@ -80,7 +78,6 @@ async def toggle_active(db: AsyncSession, user: User) -> User:
     """활성/비활성 토글"""
     user.is_active = not user.is_active
     await db.flush()
-    await db.commit()
     await db.refresh(user)
     return user
 
@@ -90,7 +87,6 @@ async def reset_password(db: AsyncSession, user: User) -> str:
     temp_pw = generate_temp_password()
     user.hashed_password = hash_password(temp_pw)
     await db.flush()
-    await db.commit()
     await db.refresh(user)
     return temp_pw
 
@@ -101,4 +97,3 @@ async def soft_delete_user(db: AsyncSession, user: User) -> None:
     if not user.email.startswith("deleted_"):
         user.email = f"deleted_{user.id}_{user.email}"
     await db.flush()
-    await db.commit()

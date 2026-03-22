@@ -67,8 +67,6 @@ async def create(
         {"entity": "review", "review_type": data.review_type, "verdict": data.overall_verdict},
         startup_id=startup.id,
     )
-
-    await db.commit()
     await db.refresh(review)
     return review
 
@@ -100,7 +98,5 @@ async def update(
         {"entity": "review", "review_type": review.review_type},
         startup_id=review.startup_id,
     )
-
-    await db.commit()
     await db.refresh(review)
     return review

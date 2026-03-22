@@ -53,7 +53,6 @@ async def create(db: AsyncSession, data: FollowOnCreate, user: User) -> FollowOn
         {"entity": "follow_on_investment", "id": str(follow_on.id)},
         startup_id=data.startup_id,
     )
-    await db.commit()
     await db.refresh(follow_on)
     return follow_on
 
@@ -68,6 +67,5 @@ async def update(db: AsyncSession, follow_on: FollowOnInvestment, data: FollowOn
         {"entity": "follow_on_investment", "fields": list(update_data.keys())},
         startup_id=follow_on.startup_id,
     )
-    await db.commit()
     await db.refresh(follow_on)
     return follow_on

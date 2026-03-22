@@ -126,7 +126,6 @@ async def create(
         startup_id=data.startup_id,
     )
 
-    await db.commit()
     await db.refresh(incubation)
     return incubation
 
@@ -144,7 +143,6 @@ async def update(
         startup_id=incubation.startup_id,
     )
 
-    await db.commit()
     await db.refresh(incubation)
     return incubation
 
@@ -168,7 +166,6 @@ async def change_grade(
         startup_id=incubation.startup_id,
     )
 
-    await db.commit()
     await db.refresh(incubation)
     return incubation
 
@@ -187,6 +184,5 @@ async def update_action_plan(
         startup_id=incubation.startup_id,
     )
 
-    await db.commit()
     await db.refresh(incubation)
     return incubation

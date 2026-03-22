@@ -56,7 +56,6 @@ async def create(
         startup_id=data.startup_id,
     )
 
-    await db.commit()
     await db.refresh(entry)
     return entry
 
@@ -74,7 +73,6 @@ async def update(
         startup_id=entry.startup_id,
     )
 
-    await db.commit()
     await db.refresh(entry)
     return entry
 

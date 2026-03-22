@@ -149,8 +149,6 @@ async def create(db: AsyncSession, data: StartupCreate, user: User) -> Startup:
         {"entity": "startup", "company_name": data.company_name},
         startup_id=startup.id,
     )
-
-    await db.commit()
     await db.refresh(startup)
     return startup
 
@@ -174,7 +172,6 @@ async def update(
             {"entity": "startup", "changes": changes},
             startup_id=startup.id,
         )
-        await db.commit()
         await db.refresh(startup)
 
     return startup
@@ -189,5 +186,3 @@ async def soft_delete(db: AsyncSession, startup: Startup, user: User) -> None:
         {"entity": "startup", "company_name": startup.company_name},
         startup_id=startup.id,
     )
-
-    await db.commit()

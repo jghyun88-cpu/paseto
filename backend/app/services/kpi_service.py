@@ -130,8 +130,6 @@ async def create(
         {"entity": "kpi_record", "period": data.period},
         startup_id=data.startup_id,
     )
-
-    await db.commit()
     await db.refresh(record)
     return record
 
@@ -148,8 +146,6 @@ async def update(
         {"entity": "kpi_record", "period": record.period, "fields": list(update_data.keys())},
         startup_id=record.startup_id,
     )
-
-    await db.commit()
     await db.refresh(record)
     return record
 

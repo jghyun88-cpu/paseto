@@ -55,8 +55,6 @@ async def create(db: AsyncSession, data: LPCreate, user: User) -> LP:
         db, user.id, "create",
         {"entity": "lp", "lp_name": data.lp_name},
     )
-
-    await db.commit()
     await db.refresh(lp)
     return lp
 
@@ -70,8 +68,6 @@ async def update(db: AsyncSession, lp: LP, data: LPUpdate, user: User) -> LP:
         db, user.id, "update",
         {"entity": "lp", "lp_name": lp.lp_name},
     )
-
-    await db.commit()
     await db.refresh(lp)
     return lp
 
@@ -82,4 +78,3 @@ async def soft_delete(db: AsyncSession, lp: LP, user: User) -> None:
         db, user.id, "delete",
         {"entity": "lp", "lp_name": lp.lp_name},
     )
-    await db.commit()

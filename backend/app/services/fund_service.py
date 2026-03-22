@@ -60,7 +60,6 @@ async def create(db: AsyncSession, data: FundCreate, user: User) -> Fund:
         {"entity": "fund", "fund_name": data.fund_name},
     )
 
-    await db.commit()
     await db.refresh(fund)
     return fund
 
@@ -77,7 +76,6 @@ async def update(
         {"entity": "fund", "fund_name": fund.fund_name},
     )
 
-    await db.commit()
     await db.refresh(fund)
     return fund
 
@@ -88,4 +86,3 @@ async def delete(db: AsyncSession, fund: Fund, user: User) -> None:
         db, user.id, "delete",
         {"entity": "fund", "fund_name": fund.fund_name},
     )
-    await db.commit()

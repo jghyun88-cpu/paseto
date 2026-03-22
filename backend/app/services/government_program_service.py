@@ -56,7 +56,6 @@ async def create(db: AsyncSession, data: GovProgramCreate, user: User) -> Govern
         {"entity": "government_program", "id": str(program.id)},
         startup_id=data.startup_id,
     )
-    await db.commit()
     await db.refresh(program)
     return program
 
@@ -71,7 +70,6 @@ async def update(db: AsyncSession, program: GovernmentProgram, data: GovProgramU
         {"entity": "government_program", "fields": list(update_data.keys())},
         startup_id=program.startup_id,
     )
-    await db.commit()
     await db.refresh(program)
     return program
 
@@ -82,4 +80,3 @@ async def delete(db: AsyncSession, program: GovernmentProgram, user: User) -> No
         db, user.id, "delete", {"entity": "government_program", "id": str(program.id)},
         startup_id=program.startup_id,
     )
-    await db.commit()

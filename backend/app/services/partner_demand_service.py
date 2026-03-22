@@ -57,7 +57,6 @@ async def create(db: AsyncSession, data: PartnerDemandCreate, user: User) -> Par
         db, user.id, "create",
         {"entity": "partner_demand", "demand_id": str(demand.id)},
     )
-    await db.commit()
     await db.refresh(demand)
     return demand
 
@@ -71,7 +70,6 @@ async def update(db: AsyncSession, demand: PartnerDemand, data: PartnerDemandUpd
         db, user.id, "update",
         {"entity": "partner_demand", "fields": list(update_data.keys())},
     )
-    await db.commit()
     await db.refresh(demand)
     return demand
 
@@ -81,4 +79,3 @@ async def delete(db: AsyncSession, demand: PartnerDemand, user: User) -> None:
     await activity_log_service.log(
         db, user.id, "delete", {"entity": "partner_demand", "demand_id": str(demand.id)},
     )
-    await db.commit()

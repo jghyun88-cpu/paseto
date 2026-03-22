@@ -66,7 +66,6 @@ async def create(
         {"entity": "demo_day", "demo_day_id": str(demo_day.id)},
     )
 
-    await db.commit()
     await db.refresh(demo_day)
     return demo_day
 
@@ -83,6 +82,5 @@ async def update(
         {"entity": "demo_day", "fields": list(update_data.keys())},
     )
 
-    await db.commit()
     await db.refresh(demo_day)
     return demo_day

@@ -42,7 +42,6 @@ async def mark_read(db: AsyncSession, notification_id: uuid.UUID, user_id: uuid.
     notif = result.scalar_one_or_none()
     if notif:
         notif.is_read = True
-        await db.commit()
         await db.refresh(notif)
     return notif
 
@@ -53,5 +52,4 @@ async def mark_all_read(db: AsyncSession, user_id: uuid.UUID) -> int:
         .where(Notification.user_id == user_id, Notification.is_read == False)  # noqa: E712
         .values(is_read=True)
     )
-    await db.commit()
     return result.rowcount

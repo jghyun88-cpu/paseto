@@ -48,7 +48,6 @@ async def create(
             action_detail={"issue_type": data.issue_type, "severity": data.severity, "entity": "portfolio_issue"},
             startup_id=data.startup_id,
         )
-    await db.commit()
     await db.refresh(issue)
     return issue
 
@@ -58,6 +57,5 @@ async def update(
 ) -> PortfolioIssue:
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(issue, field, value)
-    await db.commit()
     await db.refresh(issue)
     return issue

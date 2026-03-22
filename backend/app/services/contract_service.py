@@ -76,7 +76,6 @@ async def create(
         startup_id=startup.id,
     )
 
-    await db.commit()
     await db.refresh(contract)
     return contract
 
@@ -125,6 +124,5 @@ async def update(
         startup_id=contract.startup_id,
     )
 
-    await db.commit()
     await db.refresh(contract)
     return contract

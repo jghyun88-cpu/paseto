@@ -65,7 +65,6 @@ async def create(
         startup_id=startup.id,
     )
 
-    await db.commit()
     await db.refresh(memo)
     return memo
 
@@ -83,6 +82,5 @@ async def update(
         startup_id=memo.startup_id,
     )
 
-    await db.commit()
     await db.refresh(memo)
     return memo

@@ -87,7 +87,6 @@ async def create_template(db: AsyncSession, data: FormTemplateCreate, user: User
     db.add(tmpl)
     await db.flush()
     await activity_log_service.log(db, user.id, "create", {"entity": "form_template", "code": data.form_code})
-    await db.commit()
     await db.refresh(tmpl)
     return tmpl
 
@@ -103,7 +102,6 @@ async def seed_templates(db: AsyncSession) -> int:
         tmpl = FormTemplate(fields=fields, **seed_without_fields)
         db.add(tmpl)
         count += 1
-    await db.commit()
     return count
 
 
@@ -147,7 +145,6 @@ async def submit_form(db: AsyncSession, data: FormSubmissionCreate, user: User) 
     elif form_code == "SRC-F02" and data.startup_id:
         await _trigger_src_f02(db, data.data, data.startup_id, user)
 
-    await db.commit()
     await db.refresh(submission)
     return submission
 

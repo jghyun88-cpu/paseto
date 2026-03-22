@@ -48,6 +48,5 @@ async def create(
             action_detail={"analysis_type": data.analysis_type, "entity": "ai_analysis"},
             startup_id=data.startup_id,
         )
-    await db.commit()
     await db.refresh(analysis)
     return analysis

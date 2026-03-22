@@ -131,6 +131,5 @@ async def create(
             related_entity_id=startup.id,
         )
 
-    await db.commit()
     await db.refresh(screening)
     return screening

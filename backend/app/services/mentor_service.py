@@ -72,8 +72,6 @@ async def create(
         db, user.id, "create",
         {"entity": "mentor", "mentor_id": str(mentor.id)},
     )
-
-    await db.commit()
     await db.refresh(mentor)
     return mentor
 
@@ -89,7 +87,5 @@ async def update(
         db, user.id, "update",
         {"entity": "mentor", "fields": list(update_data.keys())},
     )
-
-    await db.commit()
     await db.refresh(mentor)
     return mentor

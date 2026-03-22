@@ -69,7 +69,6 @@ async def create(db: AsyncSession, data: ExitRecordCreate, user: User) -> ExitRe
         {"entity": "exit_record", "id": str(record.id), "exit_type": data.exit_type},
         startup_id=data.startup_id,
     )
-    await db.commit()
     await db.refresh(record)
     return record
 
@@ -89,6 +88,5 @@ async def update(db: AsyncSession, record: ExitRecord, data: ExitRecordUpdate, u
         {"entity": "exit_record", "fields": list(update_data.keys())},
         startup_id=record.startup_id,
     )
-    await db.commit()
     await db.refresh(record)
     return record

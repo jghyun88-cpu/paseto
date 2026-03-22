@@ -74,7 +74,6 @@ async def create_lp(
         {"entity": "fund_lp", "lp_name": data.lp_name, "fund": fund.fund_name},
     )
 
-    await db.commit()
     await db.refresh(lp)
     return lp
 
@@ -114,6 +113,5 @@ async def create_investment(
         {"entity": "fund_investment", "amount": data.amount, "fund": fund.fund_name},
     )
 
-    await db.commit()
     await db.refresh(inv)
     return inv

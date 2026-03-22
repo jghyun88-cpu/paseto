@@ -81,6 +81,5 @@ async def create(
         startup_id=startup.id,
     )
 
-    await db.commit()
     await db.refresh(ic)
     return ic

@@ -106,8 +106,6 @@ async def create(
         {"entity": "mentoring_session", "action_items_count": len(action_items_raw)},
         startup_id=data.startup_id,
     )
-
-    await db.commit()
     await db.refresh(session)
     return session
 
@@ -132,8 +130,6 @@ async def update(
         {"entity": "mentoring_session", "fields": list(update_data.keys())},
         startup_id=session.startup_id,
     )
-
-    await db.commit()
     await db.refresh(session)
     return session
 
@@ -155,7 +151,5 @@ async def update_action_items_status(
         {"entity": "mentoring_session", "fields": ["action_items"]},
         startup_id=session.startup_id,
     )
-
-    await db.commit()
     await db.refresh(session)
     return session

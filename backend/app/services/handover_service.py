@@ -99,6 +99,5 @@ async def acknowledge(
         startup_id=handover.startup_id,
     )
 
-    await db.commit()
     await db.refresh(handover)
     return handover
