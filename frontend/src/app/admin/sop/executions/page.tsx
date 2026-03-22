@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
+import { fmtDate } from "@/lib/formatters";
 
 interface ExecItem {
   id: string;
@@ -29,10 +30,6 @@ const STATUS_LABELS: Record<string, string> = {
 function getExecStatus(item: ExecItem): string {
   if (item.completed_at) return "completed";
   return "in_progress";
-}
-
-function formatDate(dateStr: string): string {
-  return dateStr.slice(0, 10);
 }
 
 export default function SOPExecutionsPage() {
@@ -96,9 +93,9 @@ export default function SOPExecutionsPage() {
                     {e.template_name ?? e.sop_template_id.slice(0, 8)}
                   </td>
                   <td className="py-2.5 px-3 text-slate-600">{e.started_by ?? "-"}</td>
-                  <td className="py-2.5 px-3 text-slate-600">{formatDate(e.started_at)}</td>
+                  <td className="py-2.5 px-3 text-slate-600">{fmtDate(e.started_at)}</td>
                   <td className="py-2.5 px-3 text-slate-600">
-                    {e.completed_at ? formatDate(e.completed_at) : "-"}
+                    {e.completed_at ? fmtDate(e.completed_at) : "-"}
                   </td>
                   <td className="py-2.5 px-3">
                     <div className="flex items-center gap-2">

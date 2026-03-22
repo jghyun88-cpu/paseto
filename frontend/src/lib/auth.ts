@@ -1,11 +1,13 @@
 /** 인증 관련 타입 정의 */
 
+import type { UserRole, UserTeam } from "@/lib/types";
+
 export interface AuthUser {
   id: string;
   name: string;
   email: string;
-  role: string;
-  team: string;
+  role: UserRole;
+  team: UserTeam;
   role_title: string | null;
   is_active: boolean;
 }

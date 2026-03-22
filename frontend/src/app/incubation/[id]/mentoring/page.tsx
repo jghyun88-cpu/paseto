@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { fmtDate } from "@/lib/formatters";
 
 interface MentoringSession {
   id: string;
@@ -170,7 +171,7 @@ export default function MentoringPage() {
           <div key={s.id} className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-slate-800">{s.session_date.slice(0, 10)}</span>
+                <span className="text-sm font-bold text-slate-800">{fmtDate(s.session_date)}</span>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
                   {MENTOR_TYPE_LABELS[s.mentor_type] ?? s.mentor_type}
                 </span>

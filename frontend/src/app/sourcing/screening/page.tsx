@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { fmtDate } from "@/lib/formatters";
 
 interface ScreeningItem {
   id: string;
@@ -87,7 +88,7 @@ export default function ScreeningListPage() {
                       <span className={`inline-block px-2 py-0.5 text-xs rounded-full ${badge.cls}`}>{badge.label}</span>
                     </td>
                     <td className="px-4 py-2.5 text-slate-500 text-xs max-w-xs truncate">{sc.risk_notes ?? "-"}</td>
-                    <td className="px-4 py-2.5 text-slate-400">{sc.created_at.slice(0, 10)}</td>
+                    <td className="px-4 py-2.5 text-slate-400">{fmtDate(sc.created_at)}</td>
                   </tr>
                 );
               })

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
+import { fmtDate } from "@/lib/formatters";
 
 interface ICDecisionItem {
   id: string;
@@ -25,18 +26,6 @@ const DECISION_COLORS: Record<string, string> = {
   conditional: "bg-yellow-100 text-yellow-700",
   deferred: "bg-slate-100 text-slate-500",
 };
-
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
-}
 
 export default function ICDecisionHistoryPage() {
   const [items, setItems] = useState<ICDecisionItem[]>([]);
@@ -100,7 +89,7 @@ export default function ICDecisionHistoryPage() {
                 <td className="py-2.5 px-3 text-slate-600 max-w-xs truncate">
                   {item.vote_summary || "-"}
                 </td>
-                <td className="py-2.5 px-3 text-slate-500">{formatDate(item.decided_at)}</td>
+                <td className="py-2.5 px-3 text-slate-500">{fmtDate(item.decided_at)}</td>
               </tr>
             ))}
           </tbody>

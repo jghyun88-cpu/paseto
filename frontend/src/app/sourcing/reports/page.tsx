@@ -6,25 +6,7 @@ import {
   PieChart, Pie, Cell, LineChart, Line, Legend,
 } from "recharts";
 import api from "@/lib/api";
-
-const CHANNEL_LABEL: Record<string, string> = {
-  university_lab: "대학/연구소",
-  corporate_oi: "대기업 OI",
-  portfolio_referral: "포트폴리오 추천",
-  vc_cvc_angel: "VC/CVC/엔젤",
-  public_program: "공공기관",
-  competition_forum: "경진대회/포럼",
-  online_application: "온라인 모집",
-  direct_outreach: "직접 발굴",
-  tech_expo: "기술전시회",
-};
-
-const STAGE_LABEL: Record<string, string> = {
-  inbound: "유입",
-  first_screening: "1차 스크리닝",
-  deep_review: "심층검토",
-  interview: "인터뷰",
-};
+import { CHANNEL_LABEL, DEAL_STAGE_LABEL } from "@/lib/constants";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316", "#6366f1"];
 
@@ -90,7 +72,7 @@ export default function SourcingReportsPage() {
         }
         setStageData(
           Object.entries(stageMap).map(([k, v]) => ({
-            name: STAGE_LABEL[k] ?? k,
+            name: DEAL_STAGE_LABEL[k] ?? k,
             value: v,
           })),
         );

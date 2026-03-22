@@ -2,17 +2,22 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Building2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, Plus } from "lucide-react";
 import api from "@/lib/api";
+import { fmtDate } from "@/lib/formatters";
+import { DEAL_STAGE_LABEL, DEAL_STAGE_COLOR, CHANNEL_LABEL } from "@/lib/constants";
 
 interface DealItem {
   id: string;
   company_name: string;
-  ceo_name: string;
+  one_liner: string;
   industry: string;
   stage: string;
   current_deal_stage: string;
   sourcing_channel: string;
+  assigned_manager_id: string | null;
+  assigned_manager_name: string | null;
   created_at: string;
 }
 
@@ -22,35 +27,6 @@ interface ListResponse {
   page: number;
   page_size: number;
 }
-
-const DEAL_STAGE_LABEL: Record<string, string> = {
-  inbound: "유입",
-  first_screening: "1차 스크리닝",
-  deep_review: "심층검토",
-  interview: "인터뷰",
-  due_diligence: "기초실사",
-  ic_pending: "IC 대기",
-  ic_review: "IC 심사중",
-  approved: "승인",
-  conditional: "조건부",
-  on_hold: "보류",
-  rejected: "부결",
-  contract: "계약",
-  closed: "클로징",
-  portfolio: "포트폴리오",
-};
-
-const STAGE_COLOR: Record<string, string> = {
-  inbound: "bg-gray-100 text-gray-700",
-  first_screening: "bg-blue-100 text-blue-700",
-  deep_review: "bg-indigo-100 text-indigo-700",
-  interview: "bg-purple-100 text-purple-700",
-  due_diligence: "bg-yellow-100 text-yellow-700",
-  ic_pending: "bg-orange-100 text-orange-700",
-  approved: "bg-green-100 text-green-700",
-  rejected: "bg-red-100 text-red-700",
-  portfolio: "bg-emerald-100 text-emerald-700",
-};
 
 export default function SourcingDealsPage() {
   const [items, setItems] = useState<DealItem[]>([]);
@@ -67,6 +43,7 @@ export default function SourcingDealsPage() {
       const params = new URLSearchParams({ page: String(p), page_size: "20" });
       if (q) params.set("search", q);
       if (stage) params.set("current_deal_stage", stage);
+      params.set("has_deal_flow", "true");
       const res = await api.get<ListResponse>(`/startups/?${params}`);
       setItems(res.data.data);
       setTotal(res.data.total);
@@ -81,101 +58,121 @@ export default function SourcingDealsPage() {
     fetchList(page, search, stageFilter);
   }, [page, search, stageFilter, fetchList]);
 
+  const totalPages = Math.ceil(total / 20);
+
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">딜 목록</h1>
-        <span className="text-sm text-gray-500">총 {total}건</span>
+    <div>
+      {/* 헤더 */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-slate-800">소싱 / CRM</h2>
+        <Button size="sm" onClick={() => router.push("/sourcing/deals/new")}>
+          <Plus size={16} className="mr-1" />
+          딜 등록
+        </Button>
       </div>
 
-      <div className="flex gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+      {/* 검색 + 필터 */}
+      <div className="flex gap-3 mb-4">
+        <div className="relative flex-1">
           <input
             type="text"
-            placeholder="기업명 검색..."
+            placeholder="검색..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="pl-10 pr-3 py-2 border rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full h-10 pl-4 pr-10 border border-slate-300 rounded-md text-sm outline-none focus:border-blue-500 bg-white"
           />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         </div>
         <select
           value={stageFilter}
           onChange={(e) => { setStageFilter(e.target.value); setPage(1); }}
-          className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="h-10 px-3 border border-slate-300 rounded-md text-sm outline-none focus:border-blue-500 bg-white"
         >
-          <option value="">전체 단계</option>
+          <option value="">전체 상태</option>
           {Object.entries(DEAL_STAGE_LABEL).map(([k, v]) => (
             <option key={k} value={k}>{v}</option>
           ))}
         </select>
       </div>
 
-      {loading ? (
-        <div className="text-center py-20 text-gray-400">불러오는 중...</div>
-      ) : items.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">딜이 없습니다</div>
-      ) : (
-        <div className="border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-gray-600">
+      {/* 테이블 */}
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-x-auto">
+        <table className="w-full text-sm whitespace-nowrap">
+          <thead>
+            <tr className="border-b border-slate-200 bg-slate-50">
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">기업명</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">섹터</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">단계</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">발굴경로</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">발굴자</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">상태</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">등록일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
               <tr>
-                <th className="text-left px-4 py-3 font-medium">기업명</th>
-                <th className="text-left px-4 py-3 font-medium">대표자</th>
-                <th className="text-left px-4 py-3 font-medium">산업</th>
-                <th className="text-left px-4 py-3 font-medium">단계</th>
-                <th className="text-left px-4 py-3 font-medium">딜 상태</th>
-                <th className="text-left px-4 py-3 font-medium">등록일</th>
+                <td colSpan={7} className="px-4 py-8 text-center text-slate-400">불러오는 중...</td>
               </tr>
-            </thead>
-            <tbody className="divide-y">
-              {items.map((item) => (
+            ) : items.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-4 py-8 text-center text-slate-400">딜이 없습니다.</td>
+              </tr>
+            ) : (
+              items.map((item) => (
                 <tr
                   key={item.id}
-                  onClick={() => router.push(`/startup/${item.id}`)}
-                  className="hover:bg-blue-50 cursor-pointer"
+                  onClick={() => router.push(`/sourcing/deals/${item.id}`)}
+                  className="border-b border-slate-100 hover:bg-blue-50/50 cursor-pointer"
                 >
-                  <td className="px-4 py-3 font-medium flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-gray-400" />
-                    {item.company_name}
+                  <td className="px-4 py-2.5">
+                    <div>
+                      <span className="font-medium text-blue-700 hover:underline">
+                        {item.company_name}
+                      </span>
+                      {item.one_liner && (
+                        <p className="text-xs text-slate-400 mt-0.5 max-w-xs truncate">
+                          {item.one_liner}
+                        </p>
+                      )}
+                    </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{item.ceo_name}</td>
-                  <td className="px-4 py-3 text-gray-600">{item.industry}</td>
-                  <td className="px-4 py-3 text-gray-600">{item.stage}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STAGE_COLOR[item.current_deal_stage] ?? "bg-gray-100 text-gray-700"}`}>
+                  <td className="px-4 py-2.5 text-slate-600">{item.industry || "-"}</td>
+                  <td className="px-4 py-2.5 text-slate-600">{item.stage || "-"}</td>
+                  <td className="px-4 py-2.5 text-slate-600">
+                    {CHANNEL_LABEL[item.sourcing_channel] ?? item.sourcing_channel}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-600">
+                    {item.assigned_manager_name || "-"}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span className={DEAL_STAGE_COLOR[item.current_deal_stage] ?? "text-slate-500"}>
                       {DEAL_STAGE_LABEL[item.current_deal_stage] ?? item.current_deal_stage}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-500">{item.created_at?.slice(0, 10)}</td>
+                  <td className="px-4 py-2.5 text-slate-400">{fmtDate(item.created_at)}</td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {total > 20 && (
-        <div className="flex justify-center gap-2 pt-2">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page <= 1}
-            className="px-3 py-1 border rounded text-sm disabled:opacity-40"
-          >
-            이전
-          </button>
-          <span className="px-3 py-1 text-sm text-gray-600">
-            {page} / {Math.ceil(total / 20)}
-          </span>
-          <button
-            onClick={() => setPage((p) => p + 1)}
-            disabled={page >= Math.ceil(total / 20)}
-            className="px-3 py-1 border rounded text-sm disabled:opacity-40"
-          >
-            다음
-          </button>
-        </div>
-      )}
+      {/* 페이지네이션 + 총 건수 */}
+      <div className="flex items-center justify-between mt-4">
+        <span className="text-sm text-slate-500">총 {total}건</span>
+        {totalPages > 1 && (
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+              이전
+            </Button>
+            <span className="text-sm text-slate-500 leading-8">{page} / {totalPages}</span>
+            <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
+              다음
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

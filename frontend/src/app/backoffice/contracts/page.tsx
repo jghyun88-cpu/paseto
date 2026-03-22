@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Search } from "lucide-react";
 import api from "@/lib/api";
+import { fmtDate, fmtAmount } from "@/lib/formatters";
 
 interface ContractItem {
   id: string;
@@ -42,18 +43,6 @@ const TYPE_LABELS: Record<string, string> = {
   safe: "SAFE",
   mou: "MOU",
 };
-
-function formatAmount(amount: number | null): string {
-  if (amount === null || amount === undefined) return "-";
-  if (amount >= 100000000) return `${(amount / 100000000).toFixed(1)}억원`;
-  if (amount >= 10000) return `${(amount / 10000).toFixed(0)}만원`;
-  return `${amount.toLocaleString()}원`;
-}
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "-";
-  return dateStr.slice(0, 10).replace(/-/g, ".");
-}
 
 export default function ContractsPage() {
   const [items, setItems] = useState<ContractItem[]>([]);
@@ -143,9 +132,9 @@ export default function ContractsPage() {
                     {STATUS_LABELS[c.status] ?? c.status}
                   </span>
                 </td>
-                <td className="py-2 px-3">{formatAmount(c.amount)}</td>
-                <td className="py-2 px-3">{formatDate(c.signed_at)}</td>
-                <td className="py-2 px-3">{formatDate(c.created_at)}</td>
+                <td className="py-2 px-3">{fmtAmount(c.amount)}</td>
+                <td className="py-2 px-3">{fmtDate(c.signed_at)}</td>
+                <td className="py-2 px-3">{fmtDate(c.created_at)}</td>
               </tr>
             ))}
           </tbody>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
+import { fmtDate } from "@/lib/formatters";
 
 interface StartupOption {
   id: string;
@@ -16,18 +17,6 @@ interface KPIRecord {
   period?: string;
   recorded_at?: string;
   created_at?: string;
-}
-
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
 }
 
 export default function StartupKPIPage() {
@@ -155,7 +144,7 @@ export default function StartupKPIPage() {
                         <td className="py-2.5 px-3 font-medium text-slate-800">{rec.value ?? "-"}</td>
                         <td className="py-2.5 px-3 text-slate-500">{rec.target ?? "-"}</td>
                         <td className="py-2.5 px-3 text-slate-500">
-                          {formatDate(rec.recorded_at ?? rec.created_at ?? "")}
+                          {fmtDate(rec.recorded_at ?? rec.created_at ?? "")}
                         </td>
                       </tr>
                     ))}

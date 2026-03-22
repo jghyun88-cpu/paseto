@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Search } from "lucide-react";
 import api from "@/lib/api";
+import { fmtDate, fmtAmount } from "@/lib/formatters";
 
 interface CapTableEntry {
   id: string;
@@ -23,18 +24,6 @@ const SHARE_TYPE_LABELS: Record<string, string> = {
   safe: "SAFE",
   warrant: "신주인수권",
 };
-
-function formatAmount(amount: number | null): string {
-  if (amount === null || amount === undefined) return "-";
-  if (amount >= 100000000) return `${(amount / 100000000).toFixed(1)}억원`;
-  if (amount >= 10000) return `${(amount / 10000).toFixed(0)}만원`;
-  return `${amount.toLocaleString()}원`;
-}
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "-";
-  return dateStr.slice(0, 10).replace(/-/g, ".");
-}
 
 export default function CapTablePage() {
   const [items, setItems] = useState<CapTableEntry[]>([]);
@@ -107,11 +96,11 @@ export default function CapTablePage() {
                   </span>
                 </td>
                 <td className="py-2 px-3 text-right">{entry.share_count.toLocaleString()}</td>
-                <td className="py-2 px-3 text-right">{formatAmount(entry.share_price)}</td>
+                <td className="py-2 px-3 text-right">{fmtAmount(entry.share_price)}</td>
                 <td className="py-2 px-3 text-right">
                   {entry.ownership_pct !== null ? `${entry.ownership_pct.toFixed(2)}%` : "-"}
                 </td>
-                <td className="py-2 px-3">{formatDate(entry.investment_date)}</td>
+                <td className="py-2 px-3">{fmtDate(entry.investment_date)}</td>
               </tr>
             ))}
           </tbody>

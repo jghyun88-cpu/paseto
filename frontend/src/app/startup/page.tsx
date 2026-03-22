@@ -5,15 +5,19 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus, Search, Building2 } from "lucide-react";
 import api from "@/lib/api";
+import { fmtCorporateNumber, fmtBRN, fmtIndustry, fmtLocation, fmtDate } from "@/lib/formatters";
 
 interface StartupItem {
   id: string;
   company_name: string;
   ceo_name: string;
+  corporate_number: string | null;
+  business_registration_number: string | null;
   industry: string;
-  stage: string;
-  current_deal_stage: string;
-  sourcing_channel: string;
+  ksic_code: string | null;
+  city: string | null;
+  location: string | null;
+  stock_market: string | null;
   created_at: string;
 }
 
@@ -23,23 +27,6 @@ interface ListResponse {
   page: number;
   page_size: number;
 }
-
-const DEAL_STAGE_LABEL: Record<string, string> = {
-  inbound: "유입",
-  first_screening: "1차 스크리닝",
-  deep_review: "심층검토",
-  interview: "인터뷰",
-  due_diligence: "기초실사",
-  ic_pending: "IC 대기",
-  ic_review: "IC 심사중",
-  approved: "승인",
-  conditional: "조건부",
-  on_hold: "보류",
-  rejected: "부결",
-  contract: "계약",
-  closed: "클로징",
-  portfolio: "포트폴리오",
-};
 
 export default function StartupListPage() {
   const [items, setItems] = useState<StartupItem[]>([]);
@@ -68,11 +55,17 @@ export default function StartupListPage() {
     fetchList(page, search);
   }, [page, search, fetchList]);
 
-  const handleSearch = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    fetchList(1, search);
-  }, [search, fetchList]);
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      setPage(1);
+      // page가 이미 1이면 useEffect가 트리거되지 않으므로 직접 호출
+      if (page === 1) fetchList(1, search);
+    },
+    [search, fetchList, page],
+  );
+
+  const totalPages = Math.ceil(total / 20);
 
   return (
     <div>
@@ -84,42 +77,50 @@ export default function StartupListPage() {
         </Button>
       </div>
 
-      <form onSubmit={handleSearch} className="flex gap-2 mb-4">
-        <input
-          type="text"
-          className="h-9 px-3 border border-slate-300 rounded-md text-sm flex-1 max-w-xs outline-none focus:border-blue-500"
-          placeholder="기업명, CEO명 검색"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <Button type="submit" variant="outline" size="sm">
-          <Search size={14} className="mr-1" />
-          검색
-        </Button>
+      <form onSubmit={handleSearch} className="mb-4">
+        <div className="relative">
+          <input
+            type="text"
+            className="w-full h-10 pl-4 pr-10 border border-slate-300 rounded-md text-sm outline-none focus:border-blue-500 bg-white"
+            placeholder="기업명, 대표자, 법인등록번호, 사업자등록번호로 검색..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+          >
+            <Search size={18} />
+          </button>
+        </div>
       </form>
 
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-        <table className="w-full text-sm">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-x-auto">
+        <table className="w-full text-sm whitespace-nowrap">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50">
               <th className="text-left px-4 py-2.5 font-semibold text-slate-600">기업명</th>
-              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">대표</th>
-              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">산업</th>
-              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">단계</th>
-              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">딜 상태</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">대표자</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">법인(주민)등록번호</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">사업자등록번호</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">업종</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">소재지</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">상장시장</th>
               <th className="text-left px-4 py-2.5 font-semibold text-slate-600">등록일</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-400">로딩 중...</td>
+                <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
+                  로딩 중...
+                </td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
                   <Building2 size={24} className="mx-auto mb-2 text-slate-300" />
-                  등록된 스타트업이 없습니다.
+                  등록된 기업정보가 없습니다.
                 </td>
               </tr>
             ) : (
@@ -129,16 +130,24 @@ export default function StartupListPage() {
                   className="border-b border-slate-100 hover:bg-blue-50/50 cursor-pointer"
                   onClick={() => router.push(`/startup/${s.id}`)}
                 >
-                  <td className="px-4 py-2.5 font-medium text-blue-700">{s.company_name}</td>
-                  <td className="px-4 py-2.5 text-slate-600">{s.ceo_name}</td>
-                  <td className="px-4 py-2.5 text-slate-600">{s.industry}</td>
-                  <td className="px-4 py-2.5 text-slate-600">{s.stage}</td>
-                  <td className="px-4 py-2.5">
-                    <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">
-                      {DEAL_STAGE_LABEL[s.current_deal_stage] ?? s.current_deal_stage}
-                    </span>
+                  <td className="px-4 py-2.5 font-medium text-blue-700 hover:underline">
+                    {s.company_name}
                   </td>
-                  <td className="px-4 py-2.5 text-slate-400">{s.created_at.slice(0, 10)}</td>
+                  <td className="px-4 py-2.5 text-slate-700">{s.ceo_name || ""}</td>
+                  <td className="px-4 py-2.5 text-slate-600 font-mono text-xs">
+                    {fmtCorporateNumber(s.corporate_number)}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-600 font-mono text-xs">
+                    {fmtBRN(s.business_registration_number)}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-600">
+                    {fmtIndustry(s.ksic_code, s.industry)}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-600">
+                    {fmtLocation(s.city, s.location)}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-600">{s.stock_market || ""}</td>
+                  <td className="px-4 py-2.5 text-slate-400">{fmtDate(s.created_at)}</td>
                 </tr>
               ))
             )}
@@ -146,11 +155,22 @@ export default function StartupListPage() {
         </table>
       </div>
 
-      {total > 20 && (
+      {totalPages > 1 && (
         <div className="flex justify-center gap-2 mt-4">
-          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>이전</Button>
-          <span className="text-sm text-slate-500 leading-8">{page} / {Math.ceil(total / 20)}</span>
-          <Button variant="outline" size="sm" disabled={page >= Math.ceil(total / 20)} onClick={() => setPage(page + 1)}>다음</Button>
+          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+            이전
+          </Button>
+          <span className="text-sm text-slate-500 leading-8">
+            {page} / {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page >= totalPages}
+            onClick={() => setPage(page + 1)}
+          >
+            다음
+          </Button>
         </div>
       )}
     </div>

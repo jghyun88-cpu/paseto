@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { fmtDate } from "@/lib/formatters";
 
 interface LPReport {
   id: string;
@@ -20,11 +21,6 @@ const REPORT_TYPE_LABELS: Record<string, string> = {
   ad_hoc: "수시보고",
   distribution: "배분보고",
 };
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "-";
-  return dateStr.slice(0, 10).replace(/-/g, ".");
-}
 
 export default function LPReportPage() {
   const [items, setItems] = useState<LPReport[]>([]);
@@ -92,7 +88,7 @@ export default function LPReportPage() {
             <h3 className="text-sm font-bold text-slate-800 mb-1">{report.fund_name}</h3>
             <p className="text-xs text-slate-500 mb-2">기간: {report.report_period}</p>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-400">{formatDate(report.created_at)}</span>
+              <span className="text-xs text-slate-400">{fmtDate(report.created_at)}</span>
               {report.status && (
                 <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
                   {report.status}

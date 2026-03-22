@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
+import { fmtDate } from "@/lib/formatters";
 
 interface HandoverItem {
   id: string;
@@ -23,18 +24,6 @@ const STATUS_COLORS: Record<string, string> = {
   confirmed: "bg-green-100 text-green-700",
   rejected: "bg-red-100 text-red-700",
 };
-
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
-}
 
 export default function HandoversPage() {
   const [items, setItems] = useState<HandoverItem[]>([]);
@@ -98,7 +87,7 @@ export default function HandoversPage() {
                 <td className="py-2.5 px-3 text-slate-600 max-w-xs truncate">
                   {item.summary || "-"}
                 </td>
-                <td className="py-2.5 px-3 text-slate-500">{formatDate(item.created_at)}</td>
+                <td className="py-2.5 px-3 text-slate-500">{fmtDate(item.created_at)}</td>
               </tr>
             ))}
           </tbody>

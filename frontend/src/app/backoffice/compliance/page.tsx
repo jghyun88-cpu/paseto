@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
+import { fmtDate } from "@/lib/formatters";
 
 interface ChecklistItem {
   key: string;
@@ -21,11 +22,6 @@ const DEFAULT_CHECKLIST: ChecklistItem[] = [
 ];
 
 const STORAGE_KEY = "elsa_compliance_checklist";
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "미확인";
-  return dateStr.slice(0, 10).replace(/-/g, ".");
-}
 
 export default function CompliancePage() {
   const [checklist, setChecklist] = useState<ChecklistItem[]>(DEFAULT_CHECKLIST);
@@ -118,7 +114,7 @@ export default function CompliancePage() {
               </span>
             </div>
             <span className="text-xs text-slate-400">
-              최종확인: {formatDate(item.lastChecked)}
+              최종확인: {fmtDate(item.lastChecked)}
             </span>
           </div>
         ))}

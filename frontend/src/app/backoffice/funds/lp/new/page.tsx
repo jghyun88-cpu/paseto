@@ -32,7 +32,7 @@ const RESEARCH_LAB_OPTIONS = [
   { value: "false", label: "무" },
 ];
 
-export default function NewStartupPage() {
+export default function LPNewPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -53,10 +53,8 @@ export default function NewStartupPage() {
   const ksicRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // KSIC 드롭다운 외부 클릭 닫기
   useClickOutside(ksicRef, () => setShowKsicDropdown(false));
 
-  // KSIC 검색
   const searchKsic = useCallback(async (query: string) => {
     if (query.length < 1) {
       setKsicResults([]);
@@ -88,7 +86,6 @@ export default function NewStartupPage() {
     setShowKsicDropdown(false);
   }, []);
 
-  // 법인번호 입력
   const handleCorpNumChange = useCallback((value: string) => {
     const formatted = formatCorporateNumber(value);
     setCorpNum(formatted);
@@ -102,7 +99,6 @@ export default function NewStartupPage() {
     }
   }, []);
 
-  // 사업자등록번호 입력
   const handleBrnChange = useCallback((value: string) => {
     const formatted = formatBusinessRegistrationNumber(value);
     setBrn(formatted);
@@ -121,7 +117,6 @@ export default function NewStartupPage() {
       e.preventDefault();
       setError("");
 
-      // 법인번호 최종 검증
       const corpDigits = corpNum.replace(/[^0-9]/g, "");
       if (corpDigits.length > 0 && corpDigits.length !== 13) {
         setCorpNumError("13자리를 입력해주세요.");
@@ -132,7 +127,6 @@ export default function NewStartupPage() {
         return;
       }
 
-      // 사업자번호 최종 검증
       const brnDigits = brn.replace(/[^0-9]/g, "");
       if (brnDigits.length > 0 && brnDigits.length !== 10) {
         setBrnError("10자리를 입력해주세요.");
@@ -152,45 +146,37 @@ export default function NewStartupPage() {
       };
 
       const body = {
-        // 기업정보DB 등록 — 딜플로우 생성 안 함
-        skip_deal_flow: true,
-        // 기업 기본정보
-        company_name: fd.get("company_name"),
+        lp_name: fd.get("lp_name"),
         founded_date: fd.get("founded_date") || null,
         corporate_number: corpDigits || null,
         business_registration_number: brnDigits || null,
         ceo_name: fd.get("ceo_name") || null,
         current_employees: toInt("current_employees"),
         location: fd.get("location") || null,
-        // 사업정보
         ksic_code: selectedKsic?.code || null,
         industry: selectedKsic?.name || (fd.get("industry") as string) || null,
         main_product: fd.get("main_product") || null,
         stock_market: fd.get("stock_market") || null,
         listing_date: fd.get("listing_date") || null,
-        // 재무정보
         total_assets: toInt("total_assets"),
         capital: toInt("capital"),
         current_revenue: toInt("current_revenue"),
         operating_profit: toInt("operating_profit"),
-        // 연구개발
         has_research_lab: fd.get("has_research_lab") === "true" ? true : fd.get("has_research_lab") === "false" ? false : null,
         research_staff_count: toInt("research_staff_count"),
-        // 연락처
         city: fd.get("city") || null,
         website: fd.get("website") || null,
         contact_person: fd.get("contact_person") || null,
         contact_phone: fd.get("contact_phone") || null,
         contact_email: fd.get("contact_email") || null,
-        // 기타
         notes: fd.get("notes") || null,
       };
 
       try {
-        const res = await api.post("/startups/", body);
-        router.push(`/startup/${res.data.id}`);
+        await api.post("/lps", body);
+        router.push("/backoffice/funds/lp");
       } catch {
-        setError("스타트업 등록에 실패했습니다.");
+        setError("LP 등록에 실패했습니다.");
       } finally {
         setLoading(false);
       }
@@ -202,12 +188,12 @@ export default function NewStartupPage() {
     <div className="max-w-3xl">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => router.push("/startup")}>
+          <Button variant="ghost" size="icon" onClick={() => router.push("/backoffice/funds/lp")}>
             <ArrowLeft size={18} />
           </Button>
-          <h2 className="text-lg font-bold text-slate-800">스타트업 등록</h2>
+          <h2 className="text-lg font-bold text-slate-800">LP 등록</h2>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => router.push("/startup")}>
+        <Button variant="ghost" size="sm" onClick={() => router.push("/backoffice/funds/lp")}>
           목록으로
         </Button>
       </div>
@@ -216,7 +202,7 @@ export default function NewStartupPage() {
         {/* ── 기업 기본정보 ── */}
         <SectionTitle>기업 기본정보</SectionTitle>
         <div className="grid grid-cols-2 gap-4">
-          <Field label="기업(고객)명" name="company_name" required placeholder="예: 나노반도체(주)" />
+          <Field label="기업(고객)명" name="lp_name" required placeholder="예: (주)한국투자공사" />
           <Field label="설립일자" name="founded_date" type="date" />
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -333,7 +319,7 @@ export default function NewStartupPage() {
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="flex justify-end gap-2 pt-2">
-          <Button type="button" variant="outline" onClick={() => router.push("/startup")}>
+          <Button type="button" variant="outline" onClick={() => router.push("/backoffice/funds/lp")}>
             취소
           </Button>
           <Button type="submit" disabled={loading || !!corpNumError || !!brnError}>
@@ -345,60 +331,33 @@ export default function NewStartupPage() {
   );
 }
 
-/* ── 섹션 제목 ── */
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <h3 className="text-sm font-bold text-slate-700 border-b border-slate-200 pb-2 pt-2">{children}</h3>
   );
 }
 
-/* ── 공통 입력 필드 ── */
 function Field({
-  label,
-  name,
-  type = "text",
-  placeholder,
-  required,
-}: {
-  label: string;
-  name: string;
-  type?: string;
-  placeholder?: string;
-  required?: boolean;
-}) {
+  label, name, type = "text", placeholder, required,
+}: { label: string; name: string; type?: string; placeholder?: string; required?: boolean }) {
   return (
     <div>
       <label className="block text-sm font-medium text-slate-600 mb-1">
         {label}{required && " *"}
       </label>
-      <input
-        type={type}
-        name={name}
-        placeholder={placeholder}
-        required={required}
-        className="w-full h-9 px-3 border border-slate-300 rounded-md text-sm outline-none focus:border-blue-500"
-      />
+      <input type={type} name={name} placeholder={placeholder} required={required}
+        className="w-full h-9 px-3 border border-slate-300 rounded-md text-sm outline-none focus:border-blue-500" />
     </div>
   );
 }
 
-/* ── 공통 셀렉트 필드 ── */
 function SelectField({
-  label,
-  name,
-  options,
-}: {
-  label: string;
-  name: string;
-  options: { value: string; label: string }[];
-}) {
+  label, name, options,
+}: { label: string; name: string; options: { value: string; label: string }[] }) {
   return (
     <div>
       <label className="block text-sm font-medium text-slate-600 mb-1">{label}</label>
-      <select
-        name={name}
-        className="w-full h-9 px-3 border border-slate-300 rounded-md text-sm outline-none focus:border-blue-500 bg-white"
-      >
+      <select name={name} className="w-full h-9 px-3 border border-slate-300 rounded-md text-sm outline-none focus:border-blue-500 bg-white">
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
@@ -407,29 +366,15 @@ function SelectField({
   );
 }
 
-/* ── 재무정보 필드 (원 입력 → 백만원 표시) ── */
 function MoneyField({ label, name }: { label: string; name: string }) {
   const [raw, setRaw] = useState("");
-
-  const millions = raw.trim()
-    ? (Number(raw.replace(/,/g, "")) / 1_000_000).toFixed(1)
-    : null;
-
+  const millions = raw.trim() ? (Number(raw.replace(/,/g, "")) / 1_000_000).toFixed(1) : null;
   return (
     <div>
       <label className="block text-sm font-medium text-slate-600 mb-1">{label}(원)</label>
-      <input
-        type="number"
-        name={name}
-        value={raw}
-        onChange={(e) => setRaw(e.target.value)}
-        className="w-full h-9 px-3 border border-slate-300 rounded-md text-sm outline-none focus:border-blue-500"
-      />
-      {millions !== null && (
-        <p className="text-xs text-blue-600 mt-1">
-          = {millions} 백만원
-        </p>
-      )}
+      <input type="number" name={name} value={raw} onChange={(e) => setRaw(e.target.value)}
+        className="w-full h-9 px-3 border border-slate-300 rounded-md text-sm outline-none focus:border-blue-500" />
+      {millions !== null && <p className="text-xs text-blue-600 mt-1">= {millions} 백만원</p>}
     </div>
   );
 }

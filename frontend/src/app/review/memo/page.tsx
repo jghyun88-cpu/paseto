@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
+import { fmtDate } from "@/lib/formatters";
 
 interface MemoItem {
   id: string;
@@ -28,18 +29,6 @@ const RECOMMENDATION_COLORS: Record<string, string> = {
   hold: "bg-slate-100 text-slate-600",
   pass: "bg-red-100 text-red-700",
 };
-
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
-}
 
 export default function InvestmentMemoListPage() {
   const router = useRouter();
@@ -110,7 +99,7 @@ export default function InvestmentMemoListPage() {
                     <span className="text-xs text-slate-400">-</span>
                   )}
                 </td>
-                <td className="py-2.5 px-3 text-slate-500">{formatDate(item.created_at)}</td>
+                <td className="py-2.5 px-3 text-slate-500">{fmtDate(item.created_at)}</td>
               </tr>
             ))}
           </tbody>

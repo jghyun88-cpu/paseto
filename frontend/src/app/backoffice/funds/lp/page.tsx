@@ -1,143 +1,170 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Plus, Search, Building2 } from "lucide-react";
 import api from "@/lib/api";
-
-interface FundSummary {
-  id: string;
-  fund_name: string;
-}
+import { fmtCorporateNumber, fmtBRN, fmtIndustry, fmtLocation, fmtDate } from "@/lib/formatters";
 
 interface LPItem {
   id: string;
-  fund_id: string;
-  fund_name?: string;
   lp_name: string;
-  commitment_amount: number;
-  paid_in: number | null;
-  ownership_pct: number | null;
+  ceo_name: string | null;
+  corporate_number: string | null;
+  business_registration_number: string | null;
+  industry: string | null;
+  ksic_code: string | null;
+  city: string | null;
+  location: string | null;
+  stock_market: string | null;
+  created_at: string;
 }
 
-function toEok(amount: number | null): string {
-  if (amount === null || amount === undefined) return "-";
-  if (amount >= 100000000) return `${(amount / 100000000).toFixed(1)}억`;
-  if (amount >= 10000) return `${(amount / 10000).toFixed(0)}만`;
-  return `${amount.toLocaleString()}원`;
+interface ListResponse {
+  data: LPItem[];
+  total: number;
+  page: number;
+  page_size: number;
 }
 
-export default function LPManagementPage() {
-  const [funds, setFunds] = useState<FundSummary[]>([]);
-  const [lpItems, setLpItems] = useState<LPItem[]>([]);
+export default function LPListPage() {
+  const [items, setItems] = useState<LPItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [selectedFund, setSelectedFund] = useState<string | null>(null);
+  const router = useRouter();
 
-  const fetchFunds = useCallback(async () => {
-    try {
-      const res = await api.get<{ data: FundSummary[] }>("/funds/?page_size=100");
-      setFunds(res.data.data);
-    } catch {
-      /* 조회 실패 무시 */
-    }
-  }, []);
-
-  const fetchLPs = useCallback(async (fundId: string | null) => {
+  const fetchList = useCallback(async (p: number, q: string) => {
     setLoading(true);
     try {
-      const url = fundId
-        ? `/funds/${fundId}/lps?page_size=200`
-        : "/fund-lps/?page_size=200";
-      const res = await api.get<{ data: LPItem[] }>(url);
-      setLpItems(res.data.data);
+      const params = new URLSearchParams({ page: String(p), page_size: "20" });
+      if (q) params.set("search", q);
+      const res = await api.get<ListResponse>(`/lps?${params}`);
+      setItems(res.data.data);
+      setTotal(res.data.total);
     } catch {
-      setLpItems([]);
+      setItems([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchFunds();
-  }, [fetchFunds]);
+    fetchList(page, search);
+  }, [page, search, fetchList]);
 
-  useEffect(() => {
-    fetchLPs(selectedFund);
-  }, [selectedFund, fetchLPs]);
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      setPage(1);
+      fetchList(1, search);
+    },
+    [search, fetchList],
+  );
 
-  const totalCommitment = lpItems.reduce((sum, lp) => sum + (lp.commitment_amount ?? 0), 0);
-  const totalPaidIn = lpItems.reduce((sum, lp) => sum + (lp.paid_in ?? 0), 0);
+  const totalPages = Math.ceil(total / 20);
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-slate-800 mb-4">LP 관리</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-slate-800">LP 목록</h2>
+        <Button size="sm" onClick={() => router.push("/backoffice/funds/lp/new")}>
+          <Plus size={16} className="mr-1" />
+          LP 등록
+        </Button>
+      </div>
 
-      {/* 조합 필터 */}
-      <div className="flex gap-1 mb-4">
-        <button
-          className={`px-3 py-1 text-xs rounded-full border ${!selectedFund ? "bg-slate-800 text-white" : "bg-white text-slate-600 border-slate-300"}`}
-          onClick={() => setSelectedFund(null)}
-        >
-          전체
-        </button>
-        {funds.map((f) => (
+      <form onSubmit={handleSearch} className="mb-4">
+        <div className="relative">
+          <input
+            type="text"
+            className="w-full h-10 pl-4 pr-10 border border-slate-300 rounded-md text-sm outline-none focus:border-blue-500 bg-white"
+            placeholder="기업명, 대표자, 법인등록번호, 사업자등록번호로 검색..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
           <button
-            key={f.id}
-            className={`px-3 py-1 text-xs rounded-full border ${selectedFund === f.id ? "bg-slate-800 text-white" : "bg-white text-slate-600 border-slate-300"}`}
-            onClick={() => setSelectedFund(f.id === selectedFund ? null : f.id)}
+            type="submit"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
           >
-            {f.fund_name}
+            <Search size={18} />
           </button>
-        ))}
-      </div>
+        </div>
+      </form>
 
-      {/* 요약 */}
-      <div className="grid grid-cols-3 gap-4 mb-5">
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 text-center">
-          <div className="text-sm text-slate-500">LP 수</div>
-          <div className="text-2xl font-bold text-slate-800">{lpItems.length}</div>
-        </div>
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 text-center">
-          <div className="text-sm text-slate-500">총 약정</div>
-          <div className="text-2xl font-bold text-slate-800">{toEok(totalCommitment)}</div>
-        </div>
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 text-center">
-          <div className="text-sm text-slate-500">납입 완료</div>
-          <div className="text-2xl font-bold text-green-600">{toEok(totalPaidIn)}</div>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="p-8 text-center text-slate-400">로딩 중...</div>
-      ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-x-auto">
+        <table className="w-full text-sm whitespace-nowrap">
+          <thead>
+            <tr className="border-b border-slate-200 bg-slate-50">
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">기업명</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">대표자</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">법인(주민)등록번호</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">사업자등록번호</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">업종</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">소재지</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">상장시장</th>
+              <th className="text-left px-4 py-2.5 font-semibold text-slate-600">등록일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
               <tr>
-                <th className="text-left py-2 px-3 text-slate-600 font-semibold">조합명</th>
-                <th className="text-left py-2 px-3 text-slate-600 font-semibold">LP명</th>
-                <th className="text-right py-2 px-3 text-slate-600 font-semibold">약정금액</th>
-                <th className="text-right py-2 px-3 text-slate-600 font-semibold">납입금액</th>
-                <th className="text-right py-2 px-3 text-slate-600 font-semibold">지분율</th>
+                <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
+                  로딩 중...
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {lpItems.map((lp) => (
-                <tr key={lp.id} className="border-t border-slate-100 hover:bg-slate-50">
-                  <td className="py-2 px-3 font-medium text-slate-800">
-                    {lp.fund_name ?? funds.find((f) => f.id === lp.fund_id)?.fund_name ?? "-"}
+            ) : items.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
+                  <Building2 size={24} className="mx-auto mb-2 text-slate-300" />
+                  등록된 LP가 없습니다.
+                </td>
+              </tr>
+            ) : (
+              items.map((lp) => (
+                <tr
+                  key={lp.id}
+                  className="border-b border-slate-100 hover:bg-blue-50/50 cursor-pointer"
+                  onClick={() => router.push(`/backoffice/funds/lp/${lp.id}`)}
+                >
+                  <td className="px-4 py-2.5 font-medium text-blue-700 hover:underline">
+                    {lp.lp_name}
                   </td>
-                  <td className="py-2 px-3">{lp.lp_name}</td>
-                  <td className="py-2 px-3 text-right">{toEok(lp.commitment_amount)}</td>
-                  <td className="py-2 px-3 text-right">{toEok(lp.paid_in)}</td>
-                  <td className="py-2 px-3 text-right">
-                    {lp.ownership_pct !== null ? `${lp.ownership_pct.toFixed(2)}%` : "-"}
+                  <td className="px-4 py-2.5 text-slate-700">{lp.ceo_name || ""}</td>
+                  <td className="px-4 py-2.5 text-slate-600 font-mono text-xs">
+                    {fmtCorporateNumber(lp.corporate_number)}
                   </td>
+                  <td className="px-4 py-2.5 text-slate-600 font-mono text-xs">
+                    {fmtBRN(lp.business_registration_number)}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-600">
+                    {fmtIndustry(lp.ksic_code, lp.industry)}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-600">
+                    {fmtLocation(lp.city, lp.location)}
+                  </td>
+                  <td className="px-4 py-2.5 text-slate-600">{lp.stock_market || ""}</td>
+                  <td className="px-4 py-2.5 text-slate-400">{fmtDate(lp.created_at)}</td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {lpItems.length === 0 && (
-            <div className="p-8 text-center text-slate-400 text-sm">LP 데이터가 없습니다.</div>
-          )}
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-2 mt-4">
+          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>
+            이전
+          </Button>
+          <span className="text-sm text-slate-500 leading-8">
+            {page} / {totalPages}
+          </span>
+          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
+            다음
+          </Button>
         </div>
       )}
     </div>

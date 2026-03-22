@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { fmtDate } from "@/lib/formatters";
 
 interface ReportItem {
   id: string;
@@ -33,11 +34,6 @@ const STATUS_COLORS: Record<string, string> = {
   submitted: "bg-amber-100 text-amber-700",
   approved: "bg-green-100 text-green-700",
 };
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "-";
-  return dateStr.slice(0, 10).replace(/-/g, ".");
-}
 
 export default function ReportsPage() {
   const router = useRouter();
@@ -119,7 +115,7 @@ export default function ReportsPage() {
                     {STATUS_LABELS[report.status] ?? report.status}
                   </span>
                 </td>
-                <td className="py-2 px-3">{formatDate(report.created_at)}</td>
+                <td className="py-2 px-3">{fmtDate(report.created_at)}</td>
               </tr>
             ))}
           </tbody>

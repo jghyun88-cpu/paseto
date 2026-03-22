@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import api from "@/lib/api";
+import { fmtDate, fmtAmount } from "@/lib/formatters";
 
 interface ExecutionItem {
   id: string;
@@ -31,18 +32,6 @@ const DISBURSEMENT_COLORS: Record<string, string> = {
   completed: "bg-green-100 text-green-700",
   delayed: "bg-red-100 text-red-700",
 };
-
-function formatAmount(amount: number | null): string {
-  if (amount === null || amount === undefined) return "-";
-  if (amount >= 100000000) return `${(amount / 100000000).toFixed(1)}억원`;
-  if (amount >= 10000) return `${(amount / 10000).toFixed(0)}만원`;
-  return `${amount.toLocaleString()}원`;
-}
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "-";
-  return dateStr.slice(0, 10).replace(/-/g, ".");
-}
 
 export default function ExecutionPage() {
   const [items, setItems] = useState<ExecutionItem[]>([]);
@@ -116,14 +105,14 @@ export default function ExecutionPage() {
                   <td className="py-2 px-3 font-medium text-slate-800">
                     {item.startup_name ?? item.startup_id?.slice(0, 8) ?? "-"}
                   </td>
-                  <td className="py-2 px-3">{formatAmount(item.investment_amount ?? item.amount)}</td>
+                  <td className="py-2 px-3">{fmtAmount(item.investment_amount ?? item.amount)}</td>
                   <td className="py-2 px-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${DISBURSEMENT_COLORS[disbStatus] ?? "bg-slate-100 text-slate-600"}`}>
                       {DISBURSEMENT_LABELS[disbStatus] ?? disbStatus}
                     </span>
                   </td>
-                  <td className="py-2 px-3">{formatDate(item.scheduled_date)}</td>
-                  <td className="py-2 px-3">{formatDate(item.actual_date)}</td>
+                  <td className="py-2 px-3">{fmtDate(item.scheduled_date)}</td>
+                  <td className="py-2 px-3">{fmtDate(item.actual_date)}</td>
                 </tr>
               );
             })}

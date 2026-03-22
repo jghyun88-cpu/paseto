@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Clock, AlertTriangle } from "lucide-react";
 import api from "@/lib/api";
+import { fmtDate } from "@/lib/formatters";
 
 interface HandoverItem {
   id: string;
@@ -62,7 +63,7 @@ export default function HandoverPage() {
                   >
                     {h.content.company_overview?.name ?? h.startup_id.slice(0, 8)}
                   </td>
-                  <td className="px-4 py-2.5 text-slate-500">{h.created_at.slice(0, 10)}</td>
+                  <td className="px-4 py-2.5 text-slate-500">{fmtDate(h.created_at)}</td>
                   <td className="px-4 py-2.5">
                     <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700">
                       {h.content.screening_results?.grade ?? "-"}
