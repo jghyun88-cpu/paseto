@@ -29,6 +29,11 @@ interface ListResponse {
   page_size: number;
 }
 
+interface ScreeningItem {
+  id: string;
+  startup_id: string;
+}
+
 export default function SourcingDealsPage() {
   const [items, setItems] = useState<DealItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -36,6 +41,7 @@ export default function SourcingDealsPage() {
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState("");
   const [loading, setLoading] = useState(true);
+  const [screenedIds, setScreenedIds] = useState<Set<string>>(new Set());
   const router = useRouter();
 
   const fetchList = useCallback(async (p: number, q: string, stage: string) => {
@@ -46,8 +52,21 @@ export default function SourcingDealsPage() {
       if (stage) params.set("current_deal_stage", stage);
       params.set("has_deal_flow", "true");
       const res = await api.get<ListResponse>(`/startups/?${params}`);
-      setItems(res.data.data);
+      const deals = res.data.data;
+      setItems(deals);
       setTotal(res.data.total);
+
+      // 각 딜의 스크리닝 존재 여부 확인
+      const results = await Promise.all(
+        deals.map((d) =>
+          api.get<ScreeningItem[]>(`/screenings/?startup_id=${d.id}`).catch(() => ({ data: [] as ScreeningItem[] }))
+        )
+      );
+      const ids = new Set<string>();
+      results.forEach((r, i) => {
+        if (r.data.length > 0) ids.add(deals[i].id);
+      });
+      setScreenedIds(ids);
     } catch {
       showError("데이터를 불러오는 데 실패했습니다.");
       setItems([]);
@@ -155,17 +174,31 @@ export default function SourcingDealsPage() {
                   </td>
                   <td className="px-4 py-2.5 text-slate-400">{fmtDate(item.created_at)}</td>
                   <td className="px-4 py-2.5 text-right">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/sourcing/screening/new?startup_id=${item.id}`);
-                      }}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
-                      title="1차 스크리닝"
-                    >
-                      <ClipboardCheck size={16} />
-                      스크리닝
-                    </button>
+                    {screenedIds.has(item.id) ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.alert("스크리닝 제출 완료했습니다.\n재작성하려면 스크리닝 이력에서 삭제 후 다시 진행해주세요.");
+                        }}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-slate-400 rounded-lg shadow-sm cursor-default"
+                        title="스크리닝 완료"
+                      >
+                        <ClipboardCheck size={16} />
+                        완료
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/sourcing/screening/new?startup_id=${item.id}`);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
+                        title="1차 스크리닝"
+                      >
+                        <ClipboardCheck size={16} />
+                        스크리닝
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))
