@@ -7,13 +7,13 @@ import { useAuth } from "@/hooks/useAuth";
 const PUBLIC_PATHS = ["/login"];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { user, isLoading, hydrate } = useAuth();
+  const { user, isLoading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    hydrate();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    useAuth.getState().hydrate();
+  }, []);
 
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
