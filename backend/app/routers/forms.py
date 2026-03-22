@@ -38,7 +38,8 @@ async def get_template(template_id: uuid.UUID, db: Annotated[AsyncSession, Depen
     return FormTemplateResponse.model_validate(tmpl)
 
 @router.post("/templates/", response_model=FormTemplateResponse, status_code=201)
-async def create_template(data: FormTemplateCreate, db: Annotated[AsyncSession, Depends(get_db)], user: Annotated[User, Depends(get_current_active_user)]) -> FormTemplateResponse:
+async def create_template(data: FormTemplateCreate, db: Annotated[AsyncSession, Depends(get_db)], user: Annotated[User, Depends(require_permission("compliance", "full"))]) -> FormTemplateResponse:
+    """양식 템플릿 생성 (compliance full 권한 필요)"""
     return FormTemplateResponse.model_validate(await form_service.create_template(db, data, user))
 
 @router.post("/templates/seed")
