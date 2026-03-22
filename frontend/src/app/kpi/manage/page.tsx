@@ -56,7 +56,7 @@ export default function KPIManagePage() {
         const val = editValues[item.id];
         const numVal = val !== "" ? parseFloat(val) : null;
         if (numVal !== item.actual_value) {
-          await api.put(`/team-kpis/${item.id}`, { actual_value: numVal });
+          await api.patch(`/team-kpis/${item.id}`, { actual_value: numVal });
         }
       }
       setSuccess("저장 완료");

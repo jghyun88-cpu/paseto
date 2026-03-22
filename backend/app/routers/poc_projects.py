@@ -66,7 +66,7 @@ async def create_poc_project(
     return PoCProjectResponse.model_validate(poc)
 
 
-@router.put("/{poc_id}", response_model=PoCProjectResponse)
+@router.patch("/{poc_id}", response_model=PoCProjectResponse)
 async def update_poc_project(
     poc_id: uuid.UUID,
     data: PoCProjectUpdate,

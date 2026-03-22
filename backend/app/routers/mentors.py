@@ -66,7 +66,7 @@ async def create_mentor(
     return MentorResponse.model_validate(mentor)
 
 
-@router.put("/{mentor_id}", response_model=MentorResponse)
+@router.patch("/{mentor_id}", response_model=MentorResponse)
 async def update_mentor(
     mentor_id: uuid.UUID,
     data: MentorUpdate,

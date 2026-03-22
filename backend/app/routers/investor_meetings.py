@@ -66,7 +66,7 @@ async def create_investor_meeting(
     return InvestorMeetingResponse.model_validate(meeting)
 
 
-@router.put("/{meeting_id}", response_model=InvestorMeetingResponse)
+@router.patch("/{meeting_id}", response_model=InvestorMeetingResponse)
 async def update_investor_meeting(
     meeting_id: uuid.UUID,
     data: InvestorMeetingUpdate,

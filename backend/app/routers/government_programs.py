@@ -63,7 +63,7 @@ async def create_government_program(
     return GovProgramResponse.model_validate(program)
 
 
-@router.put("/{program_id}", response_model=GovProgramResponse)
+@router.patch("/{program_id}", response_model=GovProgramResponse)
 async def update_government_program(
     program_id: uuid.UUID,
     data: GovProgramUpdate,

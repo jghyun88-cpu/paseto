@@ -63,7 +63,7 @@ async def create_demo_day(
     return DemoDayResponse.model_validate(demo_day)
 
 
-@router.put("/{demo_day_id}", response_model=DemoDayResponse)
+@router.patch("/{demo_day_id}", response_model=DemoDayResponse)
 async def update_demo_day(
     demo_day_id: uuid.UUID,
     data: DemoDayUpdate,

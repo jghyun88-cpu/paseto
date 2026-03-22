@@ -61,7 +61,7 @@ async def create_exit_record(
     return ExitRecordResponse.model_validate(record)
 
 
-@router.put("/{exit_id}", response_model=ExitRecordResponse)
+@router.patch("/{exit_id}", response_model=ExitRecordResponse)
 async def update_exit_record(
     exit_id: uuid.UUID,
     data: ExitRecordUpdate,

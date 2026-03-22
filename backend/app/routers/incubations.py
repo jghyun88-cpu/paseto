@@ -68,7 +68,7 @@ async def create_incubation(
     return IncubationResponse.model_validate(incubation)
 
 
-@router.put("/{incubation_id}", response_model=IncubationResponse)
+@router.patch("/{incubation_id}", response_model=IncubationResponse)
 async def update_incubation(
     incubation_id: uuid.UUID,
     data: IncubationUpdate,

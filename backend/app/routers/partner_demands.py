@@ -64,7 +64,7 @@ async def create_partner_demand(
     return PartnerDemandResponse.model_validate(demand)
 
 
-@router.put("/{demand_id}", response_model=PartnerDemandResponse)
+@router.patch("/{demand_id}", response_model=PartnerDemandResponse)
 async def update_partner_demand(
     demand_id: uuid.UUID,
     data: PartnerDemandUpdate,

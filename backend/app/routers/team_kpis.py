@@ -83,7 +83,7 @@ async def create_team_kpi(
     return TeamKPIResponse.model_validate(kpi)
 
 
-@router.put("/{kpi_id}", response_model=TeamKPIResponse)
+@router.patch("/{kpi_id}", response_model=TeamKPIResponse)
 async def update_team_kpi(
     kpi_id: uuid.UUID,
     data: TeamKPIUpdate,

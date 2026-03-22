@@ -63,7 +63,7 @@ async def create_kpi_record(
     return KPIRecordResponse.model_validate(record)
 
 
-@router.put("/{record_id}", response_model=KPIRecordResponse)
+@router.patch("/{record_id}", response_model=KPIRecordResponse)
 async def update_kpi_record(
     record_id: uuid.UUID,
     data: KPIRecordUpdate,

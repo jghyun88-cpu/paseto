@@ -33,7 +33,7 @@ export default function MeetingDetailPage() {
   const handleSaveMinutes = useCallback(async () => {
     setSaving(true); setSuccess("");
     try {
-      await api.put(`/meetings/${params.id}`, { minutes });
+      await api.patch(`/meetings/${params.id}`, { minutes });
       setSuccess("회의록이 저장되었습니다.");
     } catch { /* ignore */ } finally { setSaving(false); }
   }, [params.id, minutes]);

@@ -65,7 +65,7 @@ async def create_session(
     return MentoringSessionResponse.model_validate(session)
 
 
-@router.put("/{session_id}", response_model=MentoringSessionResponse)
+@router.patch("/{session_id}", response_model=MentoringSessionResponse)
 async def update_session(
     session_id: uuid.UUID,
     data: MentoringSessionUpdate,

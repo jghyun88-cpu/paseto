@@ -61,7 +61,7 @@ async def create_follow_on(
     return FollowOnResponse.model_validate(follow_on)
 
 
-@router.put("/{follow_on_id}", response_model=FollowOnResponse)
+@router.patch("/{follow_on_id}", response_model=FollowOnResponse)
 async def update_follow_on(
     follow_on_id: uuid.UUID,
     data: FollowOnUpdate,
