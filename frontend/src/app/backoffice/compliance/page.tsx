@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
 import { fmtDate } from "@/lib/formatters";
-import { showError } from "@/lib/toast";
+import api from "@/lib/api";
+import { showError, showSuccess } from "@/lib/toast";
 
 interface ChecklistItem {
   key: string;
@@ -29,16 +30,35 @@ export default function CompliancePage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
+    async function loadChecklist() {
       try {
-        const parsed: ChecklistItem[] = JSON.parse(stored);
-        setChecklist(parsed);
+        const { data } = await api.get("/compliance/checklists/");
+        if (data) {
+          setChecklist(data.items);
+          return;
+        }
+        // 서버에 데이터 없음 — localStorage 마이그레이션 시도
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed: ChecklistItem[] = JSON.parse(stored);
+          setChecklist(parsed);
+          // 서버로 마이그레이션
+          await api.patch("/compliance/checklists/", { items: parsed });
+          localStorage.removeItem(STORAGE_KEY);
+        }
       } catch {
-        showError("저장된 체크리스트를 불러오는 데 실패했습니다.");
+        // API 실패 시 localStorage fallback
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          try {
+            setChecklist(JSON.parse(stored));
+          } catch {
+            showError("저장된 체크리스트를 불러오는 데 실패했습니다.");
+          }
+        }
       }
     }
+    loadChecklist();
   }, []);
 
   const handleToggle = useCallback((key: string) => {
@@ -56,10 +76,18 @@ export default function CompliancePage() {
     );
   }, []);
 
-  const handleSave = useCallback(() => {
-    if (typeof window === "undefined") return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(checklist));
-    setSaved(true);
+  const handleSave = useCallback(async () => {
+    try {
+      await api.patch("/compliance/checklists/", { items: checklist });
+      setSaved(true);
+      showSuccess("저장 완료");
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // API 실패 시 localStorage에 임시 저장
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(checklist));
+      setSaved(false);
+      showError("서버 저장 실패. 로컬에 임시 저장되었습니다.");
+    }
   }, [checklist]);
 
   const completedCount = checklist.filter((c) => c.checked).length;

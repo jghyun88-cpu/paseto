@@ -135,6 +135,7 @@ nginx: `/api/*` → backend, 나머지 → frontend
 3. **CORS**: 새 도메인 → `.env`의 `CORS_ORIGINS`에 추가
 4. **Enum 동기화**: `enums.py` 변경 → `lib/types.ts` 동시 업데이트
 5. **Soft Delete**: 조회 쿼리에 `is_deleted == False` 필터 누락 주의
+6. **LIKE 검색**: 사용자 입력에 반드시 `escape_like()` 적용 (`app/utils/validators.py`)
 
 ---
 
