@@ -33,7 +33,7 @@ export default function SourcingPipelinePage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await api.get<{ data: StartupItem[] }>("/startups/?page_size=200");
+      const res = await api.get<{ data: StartupItem[] }>("/startups/?page_size=100&has_deal_flow=true");
       const grouped: Record<string, KanbanCardData[]> = {};
       for (const col of COLUMNS) {
         grouped[col.id] = [];
