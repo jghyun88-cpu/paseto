@@ -1,7 +1,7 @@
 """회수 기록 모델 — ExitType Enum + 7개 체크리스트"""
 
 import uuid
-from datetime import date, datetime
+from datetime import date
 from decimal import Decimal
 
 from sqlalchemy import (
@@ -13,18 +13,16 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
-    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.enums import ExitType
-from app.models.base import Base
+from app.models.base import Base, BaseMixin, SoftDeleteMixin
 
 
-class ExitRecord(Base):
+class ExitRecord(BaseMixin, SoftDeleteMixin, Base):
     __tablename__ = "exit_records"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     startup_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("startups.id"), index=True,
     )
@@ -44,8 +42,3 @@ class ExitRecord(Base):
     exit_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(),
-    )

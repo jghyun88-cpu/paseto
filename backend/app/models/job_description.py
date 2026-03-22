@@ -1,18 +1,14 @@
 """직무기술서 모델 — §17 10개 JD"""
 
-import uuid
-from datetime import datetime
-
-from sqlalchemy import JSON, Boolean, String, Text, func
+from sqlalchemy import JSON, Boolean, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.models.base import Base, BaseMixin, SoftDeleteMixin
 
 
-class JobDescription(Base):
+class JobDescription(BaseMixin, SoftDeleteMixin, Base):
     __tablename__ = "job_descriptions"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     jd_code: Mapped[str] = mapped_column(String(10), unique=True)
     title: Mapped[str] = mapped_column(String(200))
     team: Mapped[str] = mapped_column(String(50))
@@ -35,6 +31,3 @@ class JobDescription(Base):
     version: Mapped[str] = mapped_column(String(20), default="1.0")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())

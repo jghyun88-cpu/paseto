@@ -1,18 +1,16 @@
 """투자 메모 모델 — §3-3 InvestmentMemo (9개 필수 섹션)"""
 
 import uuid
-from datetime import datetime
 
-from sqlalchemy import Boolean, JSON, ForeignKey, Integer, String, Text, func
+from sqlalchemy import JSON, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.models.base import Base, BaseMixin, SoftDeleteMixin
 
 
-class InvestmentMemo(Base):
+class InvestmentMemo(BaseMixin, SoftDeleteMixin, Base):
     __tablename__ = "investment_memos"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     startup_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("startups.id"), index=True)
     author_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
     version: Mapped[int] = mapped_column(Integer, default=1)
@@ -29,6 +27,3 @@ class InvestmentMemo(Base):
     post_investment_plan: Mapped[str] = mapped_column(Text)
 
     status: Mapped[str] = mapped_column(String(20), default="draft")  # draft / submitted / ic_ready
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())

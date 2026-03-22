@@ -1,27 +1,24 @@
 """후속투자 모델 — 후속 라운드 관리 + 투자자맵"""
 
 import uuid
-from datetime import date, datetime
+from datetime import date
 
 from sqlalchemy import (
     BigInteger,
     JSON,
-    Boolean,
     Date,
     ForeignKey,
     Integer,
     String,
-    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.models.base import Base, BaseMixin, SoftDeleteMixin
 
 
-class FollowOnInvestment(Base):
+class FollowOnInvestment(BaseMixin, SoftDeleteMixin, Base):
     __tablename__ = "follow_on_investments"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     startup_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("startups.id"), index=True,
     )
@@ -37,8 +34,3 @@ class FollowOnInvestment(Base):
     ir_meetings_count: Mapped[int] = mapped_column(Integer, default=0)
     closed_at: Mapped[date | None] = mapped_column(Date, nullable=True)
 
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(),
-    )

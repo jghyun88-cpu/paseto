@@ -1,18 +1,16 @@
 """SOP 템플릿 모델 — §14 6개 SOP 워크플로우"""
 
-import uuid
-from datetime import date, datetime
+from datetime import date
 
-from sqlalchemy import JSON, Boolean, Date, String, Text, func
+from sqlalchemy import JSON, Boolean, Date, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.models.base import Base, BaseMixin, SoftDeleteMixin
 
 
-class SOPTemplate(Base):
+class SOPTemplate(BaseMixin, SoftDeleteMixin, Base):
     __tablename__ = "sop_templates"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     document_number: Mapped[str] = mapped_column(String(20), unique=True)
     title: Mapped[str] = mapped_column(String(200))
     version: Mapped[str] = mapped_column(String(20), default="1.0")
@@ -27,6 +25,3 @@ class SOPTemplate(Base):
     exception_rules: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())

@@ -1,27 +1,24 @@
 """보육 포트폴리오 모델 — §3-3 Incubation (PRG-F01/F02 양식 기반)"""
 
 import uuid
-from datetime import date, datetime
+from datetime import date
 
 from sqlalchemy import (
     JSON,
-    Boolean,
     Date,
     ForeignKey,
     String,
     Text,
-    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.enums import PortfolioGrade
-from app.models.base import Base
+from app.models.base import Base, BaseMixin, SoftDeleteMixin
 
 
-class Incubation(Base):
+class Incubation(BaseMixin, SoftDeleteMixin, Base):
     __tablename__ = "incubations"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     startup_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("startups.id"), index=True,
     )
@@ -63,8 +60,3 @@ class Incubation(Base):
     # {"pitch_1min": false, ..., "milestone_plan": false}
     ir_readiness: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(),
-    )

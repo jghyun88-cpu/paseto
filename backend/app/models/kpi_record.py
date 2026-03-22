@@ -1,30 +1,26 @@
 """KPI 기록 모델 — §3-3 KPIRecord (PRG-F04 양식 기반)"""
 
 import uuid
-from datetime import datetime
 
 from sqlalchemy import (
-    Boolean,
     Float,
     ForeignKey,
     Integer,
     String,
     Text,
     UniqueConstraint,
-    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.models.base import Base, BaseMixin, SoftDeleteMixin
 
 
-class KPIRecord(Base):
+class KPIRecord(BaseMixin, SoftDeleteMixin, Base):
     __tablename__ = "kpi_records"
     __table_args__ = (
         UniqueConstraint("startup_id", "period", name="uq_kpi_startup_period"),
     )
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     startup_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("startups.id"), index=True,
     )
@@ -49,8 +45,3 @@ class KPIRecord(Base):
 
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(),
-    )

@@ -3,17 +3,16 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, Boolean, ForeignKey, Integer, String, Text, func
+from sqlalchemy import JSON, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.enums import MeetingType
-from app.models.base import Base
+from app.models.base import Base, BaseMixin, SoftDeleteMixin
 
 
-class Meeting(Base):
+class Meeting(BaseMixin, SoftDeleteMixin, Base):
     __tablename__ = "meetings"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     meeting_type: Mapped[MeetingType] = mapped_column()
     title: Mapped[str] = mapped_column(String(200))
     scheduled_at: Mapped[datetime] = mapped_column()
@@ -29,8 +28,3 @@ class Meeting(Base):
     related_startup_ids: Mapped[list | None] = mapped_column(JSON, nullable=True)
     created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
 
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(),
-    )

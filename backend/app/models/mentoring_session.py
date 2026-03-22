@@ -5,23 +5,20 @@ from datetime import date, datetime
 
 from sqlalchemy import (
     JSON,
-    Boolean,
     Date,
     Float,
     ForeignKey,
     String,
     Text,
-    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.models.base import Base, BaseMixin, SoftDeleteMixin
 
 
-class MentoringSession(Base):
+class MentoringSession(BaseMixin, SoftDeleteMixin, Base):
     __tablename__ = "mentoring_sessions"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     startup_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("startups.id"), index=True,
     )
@@ -51,8 +48,3 @@ class MentoringSession(Base):
         ForeignKey("users.id"), nullable=True,
     )
 
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(),
-    )

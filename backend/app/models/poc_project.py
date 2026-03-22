@@ -1,28 +1,25 @@
 """PoC 프로젝트 모델 — §4-4 OI-F02/F03 PoC 제안서 + 진행관리"""
 
 import uuid
-from datetime import date, datetime
+from datetime import date
 
 from sqlalchemy import (
     JSON,
-    Boolean,
     Date,
     ForeignKey,
     Integer,
     String,
     Text,
-    func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.enums import PoCStatus
-from app.models.base import Base
+from app.models.base import Base, BaseMixin, SoftDeleteMixin
 
 
-class PoCProject(Base):
+class PoCProject(BaseMixin, SoftDeleteMixin, Base):
     __tablename__ = "poc_projects"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     startup_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("startups.id"), index=True,
     )
@@ -58,8 +55,3 @@ class PoCProject(Base):
     conversion_likelihood: Mapped[str | None] = mapped_column(String(20), nullable=True)
     result_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(),
-    )

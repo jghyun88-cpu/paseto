@@ -7,13 +7,12 @@ from decimal import Decimal
 from sqlalchemy import BigInteger, Boolean, Date, ForeignKey, Integer, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.models.base import Base, BaseMixin, SoftDeleteMixin
 
 
-class Fund(Base):
+class Fund(BaseMixin, SoftDeleteMixin, Base):
     __tablename__ = "funds"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     fund_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
     fund_name: Mapped[str] = mapped_column(String(200))
     fund_type: Mapped[str] = mapped_column(String(30))  # individual_union / venture_fund / self_capital / gov_linked
@@ -41,9 +40,6 @@ class Fund(Base):
     investment_obligations: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON: 투자의무분야/금액
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default="forming")  # forming / active / winding_down / dissolved
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 
 
 class FundLP(Base):
