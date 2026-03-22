@@ -6,9 +6,11 @@ import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import { showError } from "@/lib/toast";
+import DocumentsTab from "@/components/DocumentsTab";
 
 const TABS = [
   { id: "overview", label: "개요" },
+  { id: "documents", label: "문서" },
   { id: "action-plan", label: "90일 액션플랜", href: "action-plan" },
   { id: "mentoring", label: "멘토링", href: "mentoring" },
   { id: "kpi", label: "KPI", href: "kpi" },
@@ -44,6 +46,7 @@ export default function IncubationDetailPage() {
   const [item, setItem] = useState<IncubationDetail | null>(null);
   const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     if (!params.id) return;
@@ -94,12 +97,16 @@ export default function IncubationDetailPage() {
           <button
             key={tab.id}
             className={`px-4 py-2 text-sm whitespace-nowrap border-b-2 transition-colors ${
-              tab.id === "overview"
+              activeTab === tab.id
                 ? "border-blue-600 text-blue-600 font-semibold"
                 : "border-transparent text-slate-500 hover:text-slate-700"
             }`}
             onClick={() => {
-              if (tab.href) router.push(`/incubation/${params.id}/${tab.href}`);
+              if (tab.href) {
+                router.push(`/incubation/${params.id}/${tab.href}`);
+              } else {
+                setActiveTab(tab.id);
+              }
             }}
           >
             {tab.label}
@@ -107,8 +114,13 @@ export default function IncubationDetailPage() {
         ))}
       </div>
 
+      {/* 문서 탭 */}
+      {activeTab === "documents" && (
+        <DocumentsTab startupId={item.startup_id} allowedCategories={["mentoring", "report", "poc"]} />
+      )}
+
       {/* 개요 탭 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {activeTab === "overview" && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* 진단 결과 */}
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
           <h3 className="text-sm font-bold text-slate-700 mb-3 pb-2 border-b border-slate-100">성장 진단</h3>
@@ -172,7 +184,7 @@ export default function IncubationDetailPage() {
             <p className="text-sm text-slate-400">IR 준비 상태 미설정</p>
           )}
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

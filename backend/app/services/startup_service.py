@@ -4,6 +4,7 @@ import uuid
 
 from sqlalchemy import exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.enums import DealStage, SourcingChannel
 from app.models.deal_flow import DealFlow
@@ -67,9 +68,14 @@ async def get_list(
 
     # 페이지네이션
     offset = (page - 1) * page_size
-    items_query = query.order_by(Startup.created_at.desc()).offset(offset).limit(page_size)
+    items_query = (
+        query.options(joinedload(Startup.assigned_manager))
+        .order_by(Startup.created_at.desc())
+        .offset(offset)
+        .limit(page_size)
+    )
     result = await db.execute(items_query)
-    items = list(result.scalars().all())
+    items = list(result.unique().scalars().all())
 
     return items, total
 
@@ -77,9 +83,11 @@ async def get_list(
 async def get_by_id(db: AsyncSession, startup_id: uuid.UUID) -> Startup | None:
     """ID로 스타트업 조회 (soft delete 제외)"""
     result = await db.execute(
-        select(Startup).where(Startup.id == startup_id, Startup.is_deleted == False)  # noqa: E712
+        select(Startup)
+        .options(joinedload(Startup.assigned_manager))
+        .where(Startup.id == startup_id, Startup.is_deleted == False)  # noqa: E712
     )
-    return result.scalar_one_or_none()
+    return result.unique().scalar_one_or_none()
 
 
 async def create(db: AsyncSession, data: StartupCreate, user: User) -> Startup:
@@ -149,8 +157,10 @@ async def create(db: AsyncSession, data: StartupCreate, user: User) -> Startup:
         {"entity": "startup", "company_name": data.company_name},
         startup_id=startup.id,
     )
-    await db.refresh(startup)
-    return startup
+
+    # relationship 포함 재조회
+    reloaded = await get_by_id(db, startup.id)
+    return reloaded if reloaded else startup
 
 
 async def update(
@@ -175,9 +185,10 @@ async def update(
             {"entity": "startup", "changes": changes},
             startup_id=startup.id,
         )
-        await db.refresh(startup)
 
-    return startup
+    # relationship 포함 재조회 (joinedload로 assigned_manager 로드)
+    reloaded = await get_by_id(db, startup.id)
+    return reloaded if reloaded else startup
 
 
 async def soft_delete(db: AsyncSession, startup: Startup, user: User) -> None:

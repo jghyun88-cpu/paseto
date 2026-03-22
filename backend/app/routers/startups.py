@@ -22,7 +22,8 @@ from app.services import startup_service
 router = APIRouter()
 
 
-@router.get("/", response_model=StartupListResponse)
+@router.get("", response_model=StartupListResponse)
+@router.get("/", response_model=StartupListResponse, include_in_schema=False)
 async def list_startups(
     db: Annotated[AsyncSession, Depends(get_db)],
     _user: Annotated[User, Depends(require_permission("deal_flow", "read"))],
@@ -35,6 +36,7 @@ async def list_startups(
     sourcing_channel: str | None = None,
     is_portfolio: bool | None = None,
     assigned_manager_id: uuid.UUID | None = None,
+    has_deal_flow: bool | None = None,
 ) -> StartupListResponse:
     """스타트업 목록 조회 (페이지네이션 + 필터)"""
     items, total = await startup_service.get_list(
@@ -48,6 +50,7 @@ async def list_startups(
         sourcing_channel=sourcing_channel,
         is_portfolio=is_portfolio,
         assigned_manager_id=assigned_manager_id,
+        has_deal_flow=has_deal_flow,
     )
     return StartupListResponse(
         data=[StartupResponse.model_validate(s) for s in items],
@@ -70,7 +73,8 @@ async def get_startup(
     return StartupResponse.model_validate(startup)
 
 
-@router.post("/", response_model=StartupResponse, status_code=201)
+@router.post("", response_model=StartupResponse, status_code=201)
+@router.post("/", response_model=StartupResponse, status_code=201, include_in_schema=False)
 async def create_startup(
     data: StartupCreate,
     db: Annotated[AsyncSession, Depends(get_db)],

@@ -101,3 +101,26 @@ export const SOURCING_CHANNEL_OPTIONS: SelectOption[] = [
   { value: "tech_expo", label: "기술전시회" },
   { value: "Referral", label: "레퍼럴" },
 ];
+
+/** 문서 카테고리 라벨 (backend DocumentCategory enum 동기화) */
+export const DOCUMENT_CATEGORY_LABEL: Record<string, string> = {
+  dd: "DD 자료",
+  contract: "계약",
+  ir: "IR",
+  mentoring: "멘토링",
+  poc: "PoC",
+  report: "보고서",
+  legal: "법무",
+  other: "기타",
+};
+
+export const DOCUMENT_CATEGORY_OPTIONS: SelectOption[] = [
+  { value: "other", label: "기타" },
+  { value: "dd", label: "DD 자료" },
+  { value: "contract", label: "계약" },
+  { value: "ir", label: "IR" },
+  { value: "mentoring", label: "멘토링" },
+  { value: "poc", label: "PoC" },
+  { value: "report", label: "보고서" },
+  { value: "legal", label: "법무" },
+];

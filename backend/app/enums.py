@@ -158,6 +158,18 @@ class AnalysisRecommendation(str, Enum):
 
 
 # --- 포트폴리오 이슈 유형 ---
+class DocumentCategory(str, Enum):
+    """문서 카테고리 — 마스터 §26"""
+    DD = "dd"
+    CONTRACT = "contract"
+    IR = "ir"
+    MENTORING = "mentoring"
+    POC = "poc"
+    REPORT = "report"
+    LEGAL = "legal"
+    OTHER = "other"
+
+
 class IssueType(str, Enum):
     CASH_RUNWAY = "cash_runway"
     KEY_PERSON = "key_person"

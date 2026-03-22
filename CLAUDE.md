@@ -58,7 +58,7 @@
 - **아키텍처**: Router(HTTP) → Service(비즈니스 로직+ActivityLog) → Model(ORM)
 - **Enum**: `enums.py`에 중앙 관리. 새 Enum은 여기에만 추가
 - **에러**: `errors.py` 팩토리 함수. 메시지는 한글
-- **금액**: Decimal 타입 (int/float 금지)
+- **금액**: Decimal 타입 (int/float 금지). DB 저장은 **원 단위**, 화면 표시는 **÷1,000,000 백만원 단위** (`fmtMillions` 사용). `fmtMoney`는 원 단위 그대로 표시이므로 백만원 라벨에 사용 금지
 - **시간**: Asia/Seoul (KST)
 - **삭제**: soft delete만 (`is_deleted` 필드). 조회 시 항상 필터
 - **변경 추적**: 모든 변경은 activity_logs에 기록

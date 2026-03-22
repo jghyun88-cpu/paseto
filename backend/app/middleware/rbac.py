@@ -58,6 +58,10 @@ PERMISSIONS: dict[str, dict[str, str]] = {
         "sourcing": "full", "review": "read", "incubation": "read",
         "oi": "read", "backoffice": "read",
     },
+    "document": {
+        "sourcing": "full", "review": "full", "incubation": "full",
+        "oi": "full", "backoffice": "full",
+    },
     "legal_commitment": {
         # partner만 가능 (아래 bypass 로직)
     },

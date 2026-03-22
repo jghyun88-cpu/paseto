@@ -224,6 +224,20 @@ def government_program_not_found() -> HTTPException:
 # --- Phase 7 (팀간 연결 + 고도화) ---
 
 
+def document_not_found() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="해당 문서를 찾을 수 없습니다.",
+    )
+
+
+def file_too_large() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+        detail="파일 크기가 최대 허용 크기를 초과합니다.",
+    )
+
+
 def meeting_not_found() -> HTTPException:
     return HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,

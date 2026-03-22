@@ -146,7 +146,8 @@ class StartupResponse(BaseModel):
         if hasattr(data, "assigned_manager") and data.assigned_manager is not None:
             manager_name = data.assigned_manager.name
         instance = handler(data)  # type: ignore[operator]
-        instance.assigned_manager_name = manager_name
+        if manager_name is not None:
+            instance.assigned_manager_name = manager_name
         return instance
 
     id: uuid.UUID

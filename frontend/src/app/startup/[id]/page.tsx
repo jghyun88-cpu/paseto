@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import api from "@/lib/api";
-import { fmtCorporateNumber, fmtBRN, fmtMoney, fmtIndustry, fmtDate } from "@/lib/formatters";
+import { fmtCorporateNumber, fmtBRN, fmtMillions, fmtIndustry, fmtDate } from "@/lib/formatters";
 
 interface StartupDetail {
   id: string;
@@ -158,10 +158,10 @@ export default function StartupProfilePage() {
         {/* 재무정보 */}
         <Section title="재무정보">
           <div className="grid grid-cols-2 gap-x-12 gap-y-4">
-            <Field label="자산총액(백만원)" value={fmtMoney(s.total_assets)} />
-            <Field label="자본금(백만원)" value={fmtMoney(s.capital)} />
-            <Field label="매출액(백만원)" value={fmtMoney(s.current_revenue)} />
-            <Field label="영업이익(백만원)" value={fmtMoney(s.operating_profit)} />
+            <Field label="자산총액(백만원)" value={fmtMillions(s.total_assets)} />
+            <Field label="자본금(백만원)" value={fmtMillions(s.capital)} />
+            <Field label="매출액(백만원)" value={fmtMillions(s.current_revenue)} />
+            <Field label="영업이익(백만원)" value={fmtMillions(s.operating_profit)} />
           </div>
         </Section>
 

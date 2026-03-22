@@ -5,8 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import api from "@/lib/api";
-import { fmtCorporateNumberFull, fmtBRN, fmtMoney, fmtDate } from "@/lib/formatters";
+import { fmtCorporateNumberFull, fmtBRN, fmtMillions, fmtDate } from "@/lib/formatters";
 import { DEAL_STAGE_LABEL, CHANNEL_LABEL } from "@/lib/constants";
+import DocumentsTab from "@/components/DocumentsTab";
 
 interface StartupDetail {
   id: string;
@@ -160,9 +161,7 @@ export default function DealDetailPage() {
         <BasicInfoTab startup={s} dealFlows={dealFlows} stageLabel={stageLabel} />
       )}
       {activeTab === "docs" && (
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center text-slate-400">
-          문서 관리 기능은 준비 중입니다.
-        </div>
+        <DocumentsTab startupId={s.id} allowedCategories={["ir", "other"]} />
       )}
       {activeTab === "meetings" && (
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center text-slate-400">
@@ -270,10 +269,10 @@ function BasicInfoTab({
           재무정보
         </h3>
         <div className="grid grid-cols-2 gap-x-12 gap-y-4">
-          <ReadField label="자산총액(백만원)" value={fmtMoney(s.total_assets)} />
-          <ReadField label="자본금(백만원)" value={fmtMoney(s.capital)} />
-          <ReadField label="매출액(백만원)" value={fmtMoney(s.current_revenue)} />
-          <ReadField label="영업이익(백만원)" value={fmtMoney(s.operating_profit)} />
+          <ReadField label="자산총액(백만원)" value={fmtMillions(s.total_assets)} />
+          <ReadField label="자본금(백만원)" value={fmtMillions(s.capital)} />
+          <ReadField label="매출액(백만원)" value={fmtMillions(s.current_revenue)} />
+          <ReadField label="영업이익(백만원)" value={fmtMillions(s.operating_profit)} />
         </div>
       </div>
 
@@ -354,3 +353,4 @@ function ReadField({ label, value, mono, full, link }: {
     </div>
   );
 }
+

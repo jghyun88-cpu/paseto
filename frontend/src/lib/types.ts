@@ -480,3 +480,15 @@ export interface JDItem {
   approval_required: string[];
   is_active: boolean;
 }
+
+export interface DocumentItem {
+  id: string;
+  startup_id: string | null;
+  category: string;
+  file_name: string;
+  file_size: number | null;
+  mime_type: string | null;
+  uploaded_by: string;
+  uploader_name: string | null;
+  created_at: string;
+}
