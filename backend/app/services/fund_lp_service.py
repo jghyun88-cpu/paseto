@@ -11,6 +11,24 @@ from app.schemas.fund_lp import FundInvestmentCreate, FundLPCreate
 from app.services import activity_log_service
 
 
+async def get_all_lps(
+    db: AsyncSession, search: str | None = None,
+) -> list[FundLP]:
+    stmt = select(FundLP).order_by(FundLP.created_at.desc())
+    if search:
+        from sqlalchemy import or_
+        from app.utils.validators import escape_like
+        escaped = escape_like(search)
+        stmt = stmt.where(
+            or_(
+                FundLP.lp_name.ilike(f"%{escaped}%", escape="\\"),
+                FundLP.contact_name.ilike(f"%{escaped}%", escape="\\"),
+            )
+        )
+    result = await db.execute(stmt)
+    return list(result.scalars().all())
+
+
 async def get_lps_by_fund(
     db: AsyncSession, fund_id: uuid.UUID,
 ) -> list[FundLP]:
@@ -27,9 +45,20 @@ async def create_lp(
         fund_id=fund.id,
         lp_name=data.lp_name,
         lp_type=data.lp_type,
+        founded_date=data.founded_date,
+        corporate_number=data.corporate_number,
+        business_registration_number=data.business_registration_number,
+        ceo_name=data.ceo_name,
+        current_employees=data.current_employees,
+        location=data.location,
+        industry=data.industry,
+        main_product=data.main_product,
         committed_amount=data.committed_amount,
         paid_in_amount=data.paid_in_amount,
+        city=data.city,
+        website=data.website,
         contact_name=data.contact_name,
+        contact_phone=data.contact_phone,
         contact_email=data.contact_email,
         notes=data.notes,
     )

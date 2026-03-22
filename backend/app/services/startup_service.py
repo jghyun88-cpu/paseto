@@ -11,6 +11,7 @@ from app.models.startup import Startup
 from app.models.user import User
 from app.schemas.startup import StartupCreate, StartupUpdate
 from app.services import activity_log_service
+from app.utils.validators import escape_like
 
 
 async def get_list(
@@ -24,15 +25,19 @@ async def get_list(
     sourcing_channel: str | None = None,
     is_portfolio: bool | None = None,
     assigned_manager_id: uuid.UUID | None = None,
+    has_deal_flow: bool | None = None,
 ) -> tuple[list[Startup], int]:
     """스타트업 목록 + 총 개수 (페이지네이션, 필터)"""
     query = select(Startup).where(Startup.is_deleted == False)  # noqa: E712
 
     if search:
+        escaped = escape_like(search)
         query = query.where(
             or_(
-                Startup.company_name.ilike(f"%{search}%"),
-                Startup.ceo_name.ilike(f"%{search}%"),
+                Startup.company_name.ilike(f"%{escaped}%", escape="\\"),
+                Startup.ceo_name.ilike(f"%{escaped}%", escape="\\"),
+                Startup.corporate_number.ilike(f"%{escaped}%", escape="\\"),
+                Startup.business_registration_number.ilike(f"%{escaped}%", escape="\\"),
             )
         )
     if industry:
@@ -47,6 +52,14 @@ async def get_list(
         query = query.where(Startup.is_portfolio == is_portfolio)
     if assigned_manager_id:
         query = query.where(Startup.assigned_manager_id == assigned_manager_id)
+    if has_deal_flow is True:
+        query = query.where(
+            Startup.id.in_(select(DealFlow.startup_id).distinct())
+        )
+    elif has_deal_flow is False:
+        query = query.where(
+            ~Startup.id.in_(select(DealFlow.startup_id).distinct())
+        )
 
     # 총 개수
     count_query = select(func.count()).select_from(query.subquery())
@@ -74,18 +87,22 @@ async def create(db: AsyncSession, data: StartupCreate, user: User) -> Startup:
 
     마스터 §18 자동화 #1: SRC-F01 제출 → Startup + DealFlow 자동 생성
     """
+    # sourcing_channel 기본값 처리 (딜등록 화면에서 미입력 시)
+    sourcing_channel = SourcingChannel(data.sourcing_channel) if data.sourcing_channel else SourcingChannel.DIRECT_OUTREACH
+
     startup = Startup(
         company_name=data.company_name,
         corporate_number=data.corporate_number,
-        ceo_name=data.ceo_name,
-        industry=data.industry,
-        stage=data.stage,
-        one_liner=data.one_liner,
+        business_registration_number=data.business_registration_number,
+        ceo_name=data.ceo_name or "",
+        industry=data.industry or "",
+        stage=data.stage or "",
+        one_liner=data.one_liner or "",
         problem_definition=data.problem_definition,
         solution_description=data.solution_description,
         team_size=data.team_size,
         is_fulltime=data.is_fulltime,
-        sourcing_channel=SourcingChannel(data.sourcing_channel),
+        sourcing_channel=sourcing_channel,
         referrer=data.referrer,
         current_deal_stage=DealStage.INBOUND,
         founded_date=data.founded_date,
@@ -97,17 +114,34 @@ async def create(db: AsyncSession, data: StartupCreate, user: User) -> Startup:
         first_meeting_date=data.first_meeting_date,
         batch_id=data.batch_id,
         assigned_manager_id=user.id,
+        # BHV 확장 필드
+        ksic_code=data.ksic_code,
+        main_product=data.main_product,
+        stock_market=data.stock_market,
+        listing_date=data.listing_date,
+        total_assets=data.total_assets,
+        capital=data.capital,
+        operating_profit=data.operating_profit,
+        has_research_lab=data.has_research_lab,
+        research_staff_count=data.research_staff_count,
+        city=data.city,
+        website=data.website,
+        contact_person=data.contact_person,
+        contact_phone=data.contact_phone,
+        contact_email=data.contact_email,
+        notes=data.notes,
     )
     db.add(startup)
     await db.flush()
 
-    # DealFlow 자동 생성 (inbound)
-    deal_flow = DealFlow(
-        startup_id=startup.id,
-        stage=DealStage.INBOUND,
-        moved_by=user.id,
-    )
-    db.add(deal_flow)
+    # DealFlow 자동 생성 (inbound) — 기업정보 등록 시에는 건너뜀
+    if not data.skip_deal_flow:
+        deal_flow = DealFlow(
+            startup_id=startup.id,
+            stage=DealStage.INBOUND,
+            moved_by=user.id,
+        )
+        db.add(deal_flow)
 
     # ActivityLog 기록
     await activity_log_service.log(
