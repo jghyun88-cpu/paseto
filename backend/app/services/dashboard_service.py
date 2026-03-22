@@ -101,7 +101,7 @@ async def get_executive_dashboard(db: AsyncSession) -> ExecutiveDashboardRespons
     )).scalar_one()
 
     # 5. 예정 회의 (향후 7일)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     meetings_result = await db.execute(
         select(Meeting)
         .where(Meeting.scheduled_at >= now, Meeting.is_deleted == False)  # noqa: E712

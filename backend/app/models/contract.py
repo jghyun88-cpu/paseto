@@ -20,8 +20,8 @@ class InvestmentContract(Base):
     status: Mapped[ContractStatus] = mapped_column(default=ContractStatus.IC_RECEIVED)
 
     # 투자 조건
-    investment_amount: Mapped[int] = mapped_column(Integer)
-    pre_money_valuation: Mapped[int] = mapped_column(Integer)
+    investment_amount: Mapped[Decimal] = mapped_column(Numeric(20, 2))
+    pre_money_valuation: Mapped[Decimal] = mapped_column(Numeric(20, 2))
     equity_pct: Mapped[Decimal] = mapped_column(Numeric(10, 4))
     vehicle: Mapped[InvestmentVehicle] = mapped_column()
     follow_on_rights: Mapped[bool] = mapped_column(default=False)

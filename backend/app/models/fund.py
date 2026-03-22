@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import date, datetime
+from decimal import Decimal
 
 from sqlalchemy import BigInteger, Boolean, Date, ForeignKey, Integer, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
@@ -26,7 +27,7 @@ class Fund(Base):
     gp_entity: Mapped[str] = mapped_column(String(200))
     key_managers: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON: 핵심운용인력
     payment_method: Mapped[str | None] = mapped_column(String(50), nullable=True)
-    benchmark_return_rate: Mapped[float | None] = mapped_column(Numeric(10, 4), nullable=True)
+    benchmark_return_rate: Mapped[Decimal | None] = mapped_column(Numeric(10, 4), nullable=True)
     investment_start_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     investment_end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     duration_start_date: Mapped[date | None] = mapped_column(Date, nullable=True)

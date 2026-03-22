@@ -1,7 +1,7 @@
 """인계 서비스 — HandoverDocument 생성 + 수신 확인"""
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -91,7 +91,7 @@ async def acknowledge(
         raise handover_already_acknowledged()
 
     handover.acknowledged_by = user.id
-    handover.acknowledged_at = datetime.now()
+    handover.acknowledged_at = datetime.now(timezone.utc)
 
     await activity_log_service.log(
         db, user.id, "update",

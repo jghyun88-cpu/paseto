@@ -1,7 +1,7 @@
 """투자 계약 서비스 — 7단계 워크플로우 + 자동화 #5 (OPS-F01 완료→클로징)"""
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -105,7 +105,7 @@ async def update(
         )
         if all_completed and contract.closed_at is None:
             contract.status = ContractStatus.COMPLETED
-            contract.closed_at = datetime.now()
+            contract.closed_at = datetime.now(timezone.utc)
 
             # Cap Table 자동 생성
             await cap_table_service.create_from_contract(db, contract)

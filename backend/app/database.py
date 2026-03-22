@@ -1,6 +1,8 @@
 from collections.abc import AsyncGenerator
 
+from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 from app.config import settings
 
@@ -16,6 +18,11 @@ async_session_maker = async_sessionmaker(
     class_=AsyncSession,
     expire_on_commit=False,
 )
+
+# Celery 태스크용 동기 세션 (asyncpg → psycopg2)
+_sync_url = settings.DATABASE_URL.replace("+asyncpg", "+psycopg2")
+sync_engine = create_engine(_sync_url, pool_size=5, max_overflow=5)
+sync_session_maker = sessionmaker(sync_engine, expire_on_commit=False)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

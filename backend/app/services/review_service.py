@@ -1,7 +1,7 @@
 """심사 서비스 — 3종 심사 CRUD + DD 자동 완료 감지 (#3)"""
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -88,7 +88,7 @@ async def update(
             v == "completed" for v in review.dd_checklist.values()
         )
         if all_completed and review.completed_at is None:
-            review.completed_at = datetime.now()
+            review.completed_at = datetime.now(timezone.utc)
             # DealStage → IC_PENDING
             await deal_flow_service.move_stage(
                 db, startup, DealStage.IC_PENDING, user,

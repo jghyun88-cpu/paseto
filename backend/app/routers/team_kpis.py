@@ -76,7 +76,7 @@ async def get_team_period_kpis(
 async def create_team_kpi(
     data: TeamKPICreate,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(require_permission("kpi", "full"))],
 ) -> TeamKPIResponse:
     """KPI 값 입력"""
     kpi = await team_kpi_service.create(db, data, current_user)
@@ -101,7 +101,7 @@ async def update_team_kpi(
 @router.post("/seed")
 async def seed_kpis(
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(require_permission("kpi", "full"))],
     period: str | None = None,
 ) -> dict:
     """39개 KPI 시드 데이터 생성"""

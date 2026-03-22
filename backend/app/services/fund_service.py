@@ -19,7 +19,9 @@ async def list_all(db: AsyncSession) -> list[Fund]:
 
 
 async def get_by_id(db: AsyncSession, fund_id: uuid.UUID) -> Fund | None:
-    result = await db.execute(select(Fund).where(Fund.id == fund_id))
+    result = await db.execute(
+        select(Fund).where(Fund.id == fund_id, Fund.is_deleted == False)  # noqa: E712
+    )
     return result.scalar_one_or_none()
 
 

@@ -26,7 +26,9 @@ async def get_list(
     if status:
         query = query.where(PartnerDemand.status == status)
     if search:
-        query = query.where(PartnerDemand.partner_company.ilike(f"%{search}%"))
+        from app.utils.validators import escape_like
+        escaped = escape_like(search)
+        query = query.where(PartnerDemand.partner_company.ilike(f"%{escaped}%", escape="\\"))
 
     count_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(count_query)).scalar_one()

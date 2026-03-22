@@ -4,6 +4,7 @@ import uuid
 from datetime import date, datetime
 
 from sqlalchemy import (
+    BigInteger,
     JSON,
     Boolean,
     Date,
@@ -26,7 +27,7 @@ class FollowOnInvestment(Base):
     )
     round_type: Mapped[str] = mapped_column(String(50))
     # round_type: bridge / pre_a / series_a / strategic
-    target_amount: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    target_amount: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     investor_map: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     matching_criteria: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     lead_investor: Mapped[str | None] = mapped_column(String(200), nullable=True)

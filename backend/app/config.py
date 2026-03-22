@@ -4,14 +4,14 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """애플리케이션 설정 — 환경변수에서 로드"""
 
-    # Database
-    DATABASE_URL: str = "postgresql+asyncpg://accel_admin:elsa_dev_2026@db:5432/accel_os"
+    # Database (필수 — .env 없으면 기동 실패)
+    DATABASE_URL: str
 
     # Redis
     REDIS_URL: str = "redis://redis:6379/0"
 
-    # JWT
-    JWT_SECRET: str = "change-me-in-production"
+    # JWT (필수 — 기본값 없음)
+    JWT_SECRET: str
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRATION_HOURS: int = 24
 

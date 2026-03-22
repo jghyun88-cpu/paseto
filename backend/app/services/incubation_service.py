@@ -67,8 +67,10 @@ async def get_list(
     if status:
         query = query.where(Incubation.status == status)
     if search:
+        from app.utils.validators import escape_like
+        escaped = escape_like(search)
         query = query.join(Startup, Incubation.startup_id == Startup.id).where(
-            Startup.company_name.ilike(f"%{search}%"),
+            Startup.company_name.ilike(f"%{escaped}%", escape="\\"),
         )
 
     count_query = select(func.count()).select_from(query.subquery())
