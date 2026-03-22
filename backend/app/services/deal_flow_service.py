@@ -88,6 +88,6 @@ async def move_stage(
         startup_id=startup.id,
     )
 
-    await db.commit()
+    await db.flush()
     await db.refresh(deal_flow)
     return deal_flow
