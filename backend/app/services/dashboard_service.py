@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import DealStage
@@ -25,47 +25,37 @@ from app.schemas.meeting import MeetingResponse
 async def get_executive_dashboard(db: AsyncSession) -> ExecutiveDashboardResponse:
     """통합 대시보드 데이터 집계"""
 
-    # 1. 딜 파이프라인
-    total_startups = (await db.execute(
-        select(func.count()).where(Startup.is_deleted == False)  # noqa: E712
-    )).scalar_one()
-
+    # 1. 딜 파이프라인 — 4개 count를 단일 쿼리로 통합
     screening_stages = [DealStage.FIRST_SCREENING, DealStage.DEEP_REVIEW, DealStage.INTERVIEW,
                         DealStage.DUE_DILIGENCE, DealStage.IC_PENDING, DealStage.IC_REVIEW]
-    in_screening = (await db.execute(
-        select(func.count()).where(
-            Startup.is_deleted == False, Startup.current_deal_stage.in_(screening_stages)  # noqa: E712
-        )
-    )).scalar_one()
-
     contract_stages = [DealStage.CONTRACT, DealStage.APPROVED, DealStage.CONDITIONAL]
-    in_contract = (await db.execute(
-        select(func.count()).where(
-            Startup.is_deleted == False, Startup.current_deal_stage.in_(contract_stages)  # noqa: E712
-        )
-    )).scalar_one()
 
-    portfolio = (await db.execute(
-        select(func.count()).where(
-            Startup.is_deleted == False, Startup.current_deal_stage == DealStage.PORTFOLIO  # noqa: E712
-        )
-    )).scalar_one()
+    startup_row = (await db.execute(
+        select(
+            func.count().label("total"),
+            func.sum(case((Startup.current_deal_stage.in_(screening_stages), 1), else_=0)).label("in_screening"),
+            func.sum(case((Startup.current_deal_stage.in_(contract_stages), 1), else_=0)).label("in_contract"),
+            func.sum(case((Startup.current_deal_stage == DealStage.PORTFOLIO, 1), else_=0)).label("portfolio"),
+        ).where(Startup.is_deleted == False)  # noqa: E712
+    )).one()
 
     deal_pipeline = DealPipelineMetrics(
-        total=total_startups, in_screening=in_screening,
-        in_contract=in_contract, portfolio=portfolio,
+        total=startup_row.total,
+        in_screening=startup_row.in_screening or 0,
+        in_contract=startup_row.in_contract or 0,
+        portfolio=startup_row.portfolio or 0,
     )
 
-    # 2. 포트폴리오 메트릭스
-    total_incubations = (await db.execute(
-        select(func.count()).where(Incubation.is_deleted == False)  # noqa: E712
-    )).scalar_one()
+    # 2. 포트폴리오 메트릭스 — 2개 count를 단일 쿼리로 통합
+    incubation_row = (await db.execute(
+        select(
+            func.count().label("total"),
+            func.sum(case((Incubation.portfolio_grade == "A", 1), else_=0)).label("grade_a"),
+        ).where(Incubation.is_deleted == False)  # noqa: E712
+    )).one()
 
-    grade_a = (await db.execute(
-        select(func.count()).where(
-            Incubation.is_deleted == False, Incubation.portfolio_grade == "A"  # noqa: E712
-        )
-    )).scalar_one()
+    total_incubations = incubation_row.total
+    grade_a = incubation_row.grade_a or 0
 
     portfolio_metrics = PortfolioMetrics(
         total_startups=total_incubations,
