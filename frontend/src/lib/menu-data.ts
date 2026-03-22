@@ -58,6 +58,7 @@ export const NAV_TABS: NavTab[] = [
         children: [
           { id: "src-kanban", label: "딜플로우 칸반보드", type: "page", href: "/sourcing/pipeline" },
           { id: "src-list", label: "딜 목록", type: "page", href: "/sourcing/deals" },
+          { id: "src-deal-new", label: "딜 등록", type: "page", href: "/sourcing/deals/new" },
         ],
       },
       {
@@ -65,7 +66,6 @@ export const NAV_TABS: NavTab[] = [
         label: "스크리닝관리",
         type: "folder",
         children: [
-          { id: "src-screen-new", label: "1차 스크리닝 작성", type: "page", href: "/sourcing/screening/new" },
           { id: "src-screen-list", label: "스크리닝 이력", type: "page", href: "/sourcing/screening" },
         ],
       },
@@ -236,7 +236,9 @@ export const NAV_TABS: NavTab[] = [
         type: "folder",
         children: [
           { id: "bo-fund-list", label: "조합 현황", type: "page", href: "/backoffice/funds" },
-          { id: "bo-fund-lp", label: "LP 관리", type: "page", href: "/backoffice/funds/lp" },
+          { id: "bo-fund-new", label: "조합 등록", type: "page", href: "/backoffice/funds/new" },
+          { id: "bo-fund-lp-list", label: "LP 목록", type: "page", href: "/backoffice/funds/lp" },
+          { id: "bo-fund-lp-new", label: "LP 등록", type: "page", href: "/backoffice/funds/lp/new" },
           { id: "bo-fund-report", label: "LP 보고서", type: "page", href: "/backoffice/funds/report" },
         ],
       },
