@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, ClipboardCheck } from "lucide-react";
 import api from "@/lib/api";
 import { fmtDate } from "@/lib/formatters";
 import { DEAL_STAGE_LABEL, DEAL_STAGE_COLOR, CHANNEL_LABEL } from "@/lib/constants";
@@ -109,16 +109,17 @@ export default function SourcingDealsPage() {
               <th className="text-left px-4 py-2.5 font-semibold text-slate-600">발굴자</th>
               <th className="text-left px-4 py-2.5 font-semibold text-slate-600">상태</th>
               <th className="text-left px-4 py-2.5 font-semibold text-slate-600">등록일</th>
+              <th className="px-4 py-2.5 font-semibold text-slate-600 w-24"></th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-slate-400">불러오는 중...</td>
+                <td colSpan={8} className="px-4 py-8 text-center text-slate-400">불러오는 중...</td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-slate-400">딜이 없습니다.</td>
+                <td colSpan={8} className="px-4 py-8 text-center text-slate-400">딜이 없습니다.</td>
               </tr>
             ) : (
               items.map((item) => (
@@ -153,6 +154,19 @@ export default function SourcingDealsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-2.5 text-slate-400">{fmtDate(item.created_at)}</td>
+                  <td className="px-4 py-2.5 text-right">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/sourcing/screening/new?startup_id=${item.id}`);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
+                      title="1차 스크리닝"
+                    >
+                      <ClipboardCheck size={16} />
+                      스크리닝
+                    </button>
+                  </td>
                 </tr>
               ))
             )}
