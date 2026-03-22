@@ -64,11 +64,19 @@ PERMISSIONS: dict[str, dict[str, str]] = {
 }
 
 
+# partner가 접근할 수 없는 리소스 (backoffice/admin 전용)
+PARTNER_RESTRICTED_RESOURCES = {"compliance", "cap_table"}
+
+
 def _has_permission(user: User, resource: str, required_level: str) -> bool:
     """사용자가 해당 리소스에 필요한 권한 레벨 이상을 가지는지 확인"""
-    # admin / partner는 모든 권한 bypass
-    if user.role in ("admin", "partner"):
+    # admin은 모든 권한 bypass
+    if user.role == "admin":
         return True
+
+    # partner는 비즈니스 리소스만 bypass (compliance, cap_table 등 제외)
+    if user.role == "partner":
+        return resource not in PARTNER_RESTRICTED_RESOURCES
 
     team_permissions = PERMISSIONS.get(resource, {})
     user_level = team_permissions.get(user.team)

@@ -55,13 +55,17 @@ async def move_stage(
     """칸반 단계 이동 → DealFlow 기록 + Startup.current_deal_stage 동기화"""
     old_stage = startup.current_deal_stage
 
-    # 단계 전환 유효성 검증
-    if old_stage and old_stage in VALID_TRANSITIONS:
-        allowed = VALID_TRANSITIONS[old_stage]
+    # 단계 전환 유효성 검증 (화이트리스트 방식)
+    if old_stage:
+        allowed = VALID_TRANSITIONS.get(old_stage)
+        if allowed is None:
+            # VALID_TRANSITIONS에 정의되지 않은 단계 = 전환 종료 상태 (PORTFOLIO 등)
+            raise invalid_deal_stage_transition(
+                old_stage.value, to_stage.value,
+            )
         if to_stage not in allowed:
             raise invalid_deal_stage_transition(
-                old_stage.value if old_stage else "none",
-                to_stage.value,
+                old_stage.value, to_stage.value,
             )
 
     # DealFlow 레코드 생성

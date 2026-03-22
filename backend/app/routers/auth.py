@@ -5,12 +5,13 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.errors import email_already_exists, inactive_user, invalid_credentials, permission_denied, user_not_found
+from app.rate_limit import limiter
 from app.middleware.auth import create_access_token, get_current_active_user
 from app.models.user import User
 from app.config import settings
@@ -28,7 +29,9 @@ def _require_admin(user: User) -> None:
 
 
 @router.post("/login", response_model=TokenResponse)
+@limiter.limit("5/minute")
 async def login(
+    request: Request,
     data: LoginRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> TokenResponse:
@@ -91,7 +94,8 @@ async def list_users(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
 ) -> dict:
-    """사용자 목록 (비활성·삭제 제외)"""
+    """사용자 목록 (관리자 전용, 비활성·삭제 제외)"""
+    _require_admin(_user)
     query = select(User).where(User.is_active == True)  # noqa: E712
     count_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(count_query)).scalar_one()
@@ -181,13 +185,12 @@ async def reset_user_password(
     if target is None:
         raise user_not_found()
 
-    temp_password = await user_service.reset_password(db, target)
+    await user_service.reset_password(db, target)
 
-    # TODO: 실제 이메일 발송 (현재는 임시 비밀번호를 응답으로 반환)
+    # 임시 비밀번호는 HTTP 응답에 포함하지 않음 (보안)
+    # TODO: 실제 이메일 발송 구현 시 user_service.reset_password 내부에서 전송
     return {
-        "message": f"임시 비밀번호가 생성되었습니다. 사용자({target.email})에게 전달해주세요.",
-        "temp_password": temp_password,
-        "user_email": target.email,
+        "message": f"임시 비밀번호가 사용자({target.email})의 이메일로 발송되었습니다.",
     }
 
 

@@ -10,8 +10,8 @@ from pydantic import BaseModel, ConfigDict
 class ContractCreate(BaseModel):
     startup_id: uuid.UUID
     ic_decision_id: uuid.UUID
-    investment_amount: int
-    pre_money_valuation: int
+    investment_amount: Decimal
+    pre_money_valuation: Decimal
     equity_pct: Decimal
     vehicle: str  # InvestmentVehicle 값
     follow_on_rights: bool = False
@@ -40,8 +40,8 @@ class ContractResponse(BaseModel):
     startup_id: uuid.UUID
     ic_decision_id: uuid.UUID
     status: str
-    investment_amount: int
-    pre_money_valuation: int
+    investment_amount: Decimal
+    pre_money_valuation: Decimal
     equity_pct: Decimal
     vehicle: str
     follow_on_rights: bool

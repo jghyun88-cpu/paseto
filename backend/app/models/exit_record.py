@@ -5,6 +5,7 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     Date,
     ForeignKey,
@@ -28,7 +29,7 @@ class ExitRecord(Base):
         ForeignKey("startups.id"), index=True,
     )
     exit_type: Mapped[ExitType] = mapped_column()
-    exit_amount: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    exit_amount: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     multiple: Mapped[Decimal | None] = mapped_column(Numeric(12, 4), nullable=True)
 
     # 회수 준비 체크리스트 7개항

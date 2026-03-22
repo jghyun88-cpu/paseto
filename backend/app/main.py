@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
+from app.rate_limit import limiter
 
 from app.routers import auth as auth_router
 from app.routers import startups as startups_router
@@ -42,6 +45,10 @@ app = FastAPI(
     description="소싱→심사→투자→보육→수요기업연결→회수 전주기 운영 API",
     version="0.1.0",
 )
+
+# Rate Limiter 등록
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS 설정 — CORS_ORIGINS 환경변수로 관리 (쉼표 구분)
 app.add_middleware(
