@@ -14,6 +14,7 @@ from app.routers import ic_decisions as ic_router
 from app.routers import contracts as contracts_router
 from app.routers import cap_table as cap_table_router
 from app.routers import funds as funds_router
+from app.routers import lps as lps_router
 from app.routers import incubations as incubations_router
 from app.routers import mentoring_sessions as mentoring_sessions_router
 from app.routers import kpi_records as kpi_records_router
@@ -34,6 +35,7 @@ from app.routers import forms as forms_router
 from app.routers import job_descriptions as jd_router
 from app.routers import ai_analysis as ai_analysis_router
 from app.routers import portfolio_issues as portfolio_issues_router
+from app.routers import ksic as ksic_router
 
 app = FastAPI(
     title="eLSA — 딥테크 액셀러레이터 운영시스템",
@@ -46,8 +48,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 # 라우터 등록
@@ -62,6 +64,7 @@ app.include_router(ic_router.router, prefix="/api/v1/ic-decisions", tags=["IC결
 app.include_router(contracts_router.router, prefix="/api/v1/contracts", tags=["계약"])
 app.include_router(cap_table_router.router, prefix="/api/v1/cap-table", tags=["CapTable"])
 app.include_router(funds_router.router, prefix="/api/v1/funds", tags=["조합"])
+app.include_router(lps_router.router, prefix="/api/v1/lps", tags=["LP"])
 app.include_router(incubations_router.router, prefix="/api/v1/incubations", tags=["보육"])
 app.include_router(mentoring_sessions_router.router, prefix="/api/v1/mentoring-sessions", tags=["멘토링"])
 app.include_router(kpi_records_router.router, prefix="/api/v1/kpi-records", tags=["KPI"])
@@ -82,6 +85,7 @@ app.include_router(forms_router.router, prefix="/api/v1/forms", tags=["양식"])
 app.include_router(jd_router.router, prefix="/api/v1/jd", tags=["직무기술서"])
 app.include_router(ai_analysis_router.router, prefix="/api/v1/ai-analysis", tags=["AI분석"])
 app.include_router(portfolio_issues_router.router, prefix="/api/v1/portfolio-issues", tags=["포트폴리오이슈"])
+app.include_router(ksic_router.router, prefix="/api/v1/ksic", tags=["표준산업분류"])
 
 
 @app.get("/health")

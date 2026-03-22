@@ -73,19 +73,19 @@ async def get_executive_dashboard(db: AsyncSession) -> ExecutiveDashboardRespons
         follow_on_rate=0.0,
     )
 
-    # 3. 위기 알림
+    # 3. 위기 알림 (JOIN으로 N+1 쿼리 방지)
     crisis_alerts: list[CrisisAlert] = []
     crisis_result = await db.execute(
-        select(Incubation).where(
+        select(Incubation, Startup)
+        .join(Startup, Incubation.startup_id == Startup.id)
+        .where(
             Incubation.is_deleted == False,  # noqa: E712
             Incubation.crisis_flags.isnot(None),
         )
     )
-    for inc in crisis_result.scalars().all():
+    for inc, startup in crisis_result.all():
         flags = inc.crisis_flags or {}
         if flags.get("cash_critical"):
-            startup_result = await db.execute(select(Startup).where(Startup.id == inc.startup_id))
-            startup = startup_result.scalar_one_or_none()
             crisis_alerts.append(CrisisAlert(
                 startup_id=inc.startup_id,
                 company_name=startup.company_name if startup else "알 수 없음",

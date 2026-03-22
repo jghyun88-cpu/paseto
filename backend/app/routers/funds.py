@@ -20,6 +20,18 @@ from app.services import fund_lp_service, fund_service
 router = APIRouter()
 
 
+# --- All LPs (전체 LP 조회 — /{fund_id}보다 먼저 등록) ---
+
+@router.get("/lps/all", response_model=list[FundLPResponse])
+async def list_all_lps(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    _user: Annotated[User, Depends(require_permission("contract", "full"))],
+    search: str | None = None,
+) -> list[FundLPResponse]:
+    items = await fund_lp_service.get_all_lps(db, search=search)
+    return [FundLPResponse.model_validate(lp) for lp in items]
+
+
 # --- Fund CRUD ---
 
 @router.get("", response_model=list[FundResponse])
@@ -77,18 +89,6 @@ async def delete_fund(
     if fund is None:
         raise fund_not_found()
     await fund_service.delete(db, fund, current_user)
-
-
-# --- All LPs (전체 LP 조회) ---
-
-@router.get("/lps/all", response_model=list[FundLPResponse])
-async def list_all_lps(
-    db: Annotated[AsyncSession, Depends(get_db)],
-    _user: Annotated[User, Depends(require_permission("contract", "full"))],
-    search: str | None = None,
-) -> list[FundLPResponse]:
-    items = await fund_lp_service.get_all_lps(db, search=search)
-    return [FundLPResponse.model_validate(lp) for lp in items]
 
 
 # --- Fund LP ---

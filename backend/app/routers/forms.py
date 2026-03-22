@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.errors import form_template_not_found, form_submission_not_found
 from app.middleware.auth import get_current_active_user
+from app.middleware.rbac import require_permission
 from app.models.user import User
 from app.schemas.form import (FormSubmissionCreate, FormSubmissionListResponse, FormSubmissionResponse,
                                FormTemplateCreate, FormTemplateListResponse, FormTemplateResponse)
@@ -41,7 +42,7 @@ async def create_template(data: FormTemplateCreate, db: Annotated[AsyncSession, 
     return FormTemplateResponse.model_validate(await form_service.create_template(db, data, user))
 
 @router.post("/templates/seed")
-async def seed_templates(db: Annotated[AsyncSession, Depends(get_db)], _user: Annotated[User, Depends(get_current_active_user)]) -> dict:
+async def seed_templates(db: Annotated[AsyncSession, Depends(get_db)], _user: Annotated[User, Depends(require_permission("compliance", "full"))]) -> dict:
     return {"seeded": await form_service.seed_templates(db)}
 
 @router.get("/submissions/", response_model=FormSubmissionListResponse)

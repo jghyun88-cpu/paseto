@@ -91,8 +91,8 @@ async def list_users(
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
 ) -> dict:
-    """사용자 목록 (soft delete 제외)"""
-    query = select(User).where(~User.email.like("deleted_%"))
+    """사용자 목록 (비활성·삭제 제외)"""
+    query = select(User).where(User.is_active == True)  # noqa: E712
     count_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(count_query)).scalar_one()
 

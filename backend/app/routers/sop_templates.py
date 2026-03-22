@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.middleware.auth import get_current_active_user
+from app.middleware.rbac import require_permission
 from app.models.user import User
 from app.schemas.sop import (SOPExecutionCreate, SOPExecutionListResponse, SOPExecutionResponse,
                               SOPStepUpdate, SOPTemplateCreate, SOPTemplateListResponse, SOPTemplateResponse)
@@ -34,7 +35,7 @@ async def create_template(data: SOPTemplateCreate, db: Annotated[AsyncSession, D
     return SOPTemplateResponse.model_validate(await sop_service.create_template(db, data, user))
 
 @router.post("/templates/seed")
-async def seed_templates(db: Annotated[AsyncSession, Depends(get_db)], user: Annotated[User, Depends(get_current_active_user)]) -> dict:
+async def seed_templates(db: Annotated[AsyncSession, Depends(get_db)], user: Annotated[User, Depends(require_permission("compliance", "full"))]) -> dict:
     return {"seeded": await sop_service.seed_templates(db, user)}
 
 @router.get("/executions/", response_model=SOPExecutionListResponse)
