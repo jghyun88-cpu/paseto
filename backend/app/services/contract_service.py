@@ -33,7 +33,7 @@ async def get_by_startup(
 ) -> list[InvestmentContract]:
     result = await db.execute(
         select(InvestmentContract)
-        .where(InvestmentContract.startup_id == startup_id)
+        .where(InvestmentContract.startup_id == startup_id, InvestmentContract.is_deleted == False)  # noqa: E712
         .order_by(InvestmentContract.created_at.desc())
     )
     return list(result.scalars().all())
@@ -43,7 +43,7 @@ async def get_by_id(
     db: AsyncSession, contract_id: uuid.UUID,
 ) -> InvestmentContract | None:
     result = await db.execute(
-        select(InvestmentContract).where(InvestmentContract.id == contract_id)
+        select(InvestmentContract).where(InvestmentContract.id == contract_id, InvestmentContract.is_deleted == False)  # noqa: E712
     )
     return result.scalar_one_or_none()
 

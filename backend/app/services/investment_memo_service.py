@@ -17,7 +17,7 @@ async def get_by_startup(
 ) -> list[InvestmentMemo]:
     result = await db.execute(
         select(InvestmentMemo)
-        .where(InvestmentMemo.startup_id == startup_id)
+        .where(InvestmentMemo.startup_id == startup_id, InvestmentMemo.is_deleted == False)  # noqa: E712
         .order_by(InvestmentMemo.version.desc())
     )
     return list(result.scalars().all())
@@ -27,7 +27,7 @@ async def get_by_id(
     db: AsyncSession, memo_id: uuid.UUID,
 ) -> InvestmentMemo | None:
     result = await db.execute(
-        select(InvestmentMemo).where(InvestmentMemo.id == memo_id)
+        select(InvestmentMemo).where(InvestmentMemo.id == memo_id, InvestmentMemo.is_deleted == False)  # noqa: E712
     )
     return result.scalar_one_or_none()
 

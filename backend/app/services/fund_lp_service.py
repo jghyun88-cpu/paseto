@@ -14,7 +14,7 @@ from app.services import activity_log_service
 async def get_all_lps(
     db: AsyncSession, search: str | None = None,
 ) -> list[FundLP]:
-    stmt = select(FundLP).order_by(FundLP.created_at.desc())
+    stmt = select(FundLP).where(FundLP.is_deleted == False).order_by(FundLP.created_at.desc())  # noqa: E712
     if search:
         from sqlalchemy import or_
         from app.utils.validators import escape_like
@@ -33,7 +33,7 @@ async def get_lps_by_fund(
     db: AsyncSession, fund_id: uuid.UUID,
 ) -> list[FundLP]:
     result = await db.execute(
-        select(FundLP).where(FundLP.fund_id == fund_id).order_by(FundLP.created_at.asc())
+        select(FundLP).where(FundLP.fund_id == fund_id, FundLP.is_deleted == False).order_by(FundLP.created_at.asc())  # noqa: E712
     )
     return list(result.scalars().all())
 
@@ -84,7 +84,7 @@ async def get_investments_by_fund(
 ) -> list[FundInvestment]:
     result = await db.execute(
         select(FundInvestment)
-        .where(FundInvestment.fund_id == fund_id)
+        .where(FundInvestment.fund_id == fund_id, FundInvestment.is_deleted == False)  # noqa: E712
         .order_by(FundInvestment.invested_at.desc())
     )
     return list(result.scalars().all())

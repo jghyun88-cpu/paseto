@@ -3,7 +3,7 @@
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import Date, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, Date, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -25,4 +25,5 @@ class Batch(Base):
     demo_day_id: Mapped[uuid.UUID | None] = mapped_column(nullable=True)  # FK는 demo_days 생성 후 추가
     status: Mapped[str] = mapped_column(String(50))  # recruiting/screening/active/demo_day/graduated/closed
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())

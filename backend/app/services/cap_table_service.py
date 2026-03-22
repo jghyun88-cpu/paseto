@@ -18,7 +18,7 @@ async def get_by_startup(
 ) -> list[CapTableEntry]:
     result = await db.execute(
         select(CapTableEntry)
-        .where(CapTableEntry.startup_id == startup_id)
+        .where(CapTableEntry.startup_id == startup_id, CapTableEntry.is_deleted == False)  # noqa: E712
         .order_by(CapTableEntry.created_at.asc())
     )
     return list(result.scalars().all())
@@ -28,7 +28,7 @@ async def get_by_id(
     db: AsyncSession, entry_id: uuid.UUID,
 ) -> CapTableEntry | None:
     result = await db.execute(
-        select(CapTableEntry).where(CapTableEntry.id == entry_id)
+        select(CapTableEntry).where(CapTableEntry.id == entry_id, CapTableEntry.is_deleted == False)  # noqa: E712
     )
     return result.scalar_one_or_none()
 

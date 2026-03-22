@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, ForeignKey, String, Text, func
+from sqlalchemy import Boolean, JSON, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.enums import ICDecisionType
@@ -26,5 +26,6 @@ class ICDecision(Base):
     program_assignee_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("users.id"), nullable=True,
     )
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     decided_at: Mapped[datetime] = mapped_column(server_default=func.now())
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)

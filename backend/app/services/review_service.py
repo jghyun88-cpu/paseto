@@ -19,7 +19,7 @@ async def get_by_startup(
     startup_id: uuid.UUID,
     review_type: str | None = None,
 ) -> list[Review]:
-    query = select(Review).where(Review.startup_id == startup_id)
+    query = select(Review).where(Review.startup_id == startup_id, Review.is_deleted == False)  # noqa: E712
     if review_type:
         query = query.where(Review.review_type == review_type)
     result = await db.execute(query.order_by(Review.started_at.desc()))
@@ -27,7 +27,7 @@ async def get_by_startup(
 
 
 async def get_by_id(db: AsyncSession, review_id: uuid.UUID) -> Review | None:
-    result = await db.execute(select(Review).where(Review.id == review_id))
+    result = await db.execute(select(Review).where(Review.id == review_id, Review.is_deleted == False))  # noqa: E712
     return result.scalar_one_or_none()
 
 

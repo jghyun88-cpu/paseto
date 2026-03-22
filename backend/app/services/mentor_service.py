@@ -19,7 +19,7 @@ async def get_list(
     page: int = 1,
     page_size: int = 20,
 ) -> tuple[list[Mentor], int]:
-    query = select(Mentor)
+    query = select(Mentor).where(Mentor.is_deleted == False)  # noqa: E712
 
     if is_active is not None:
         query = query.where(Mentor.is_active == is_active)
@@ -44,7 +44,7 @@ async def get_by_id(
     db: AsyncSession, mentor_id: uuid.UUID,
 ) -> Mentor | None:
     result = await db.execute(
-        select(Mentor).where(Mentor.id == mentor_id)
+        select(Mentor).where(Mentor.id == mentor_id, Mentor.is_deleted == False)  # noqa: E712
     )
     return result.scalar_one_or_none()
 

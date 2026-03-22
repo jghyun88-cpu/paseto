@@ -73,6 +73,7 @@ class FundLP(Base):
     contact_phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     contact_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
 
@@ -88,4 +89,5 @@ class FundInvestment(Base):
     amount: Mapped[int] = mapped_column(BigInteger)
     invested_at: Mapped[date] = mapped_column(Date)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())

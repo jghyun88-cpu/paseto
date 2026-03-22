@@ -50,7 +50,7 @@ async def get_by_startup(
 ) -> list[Screening]:
     result = await db.execute(
         select(Screening)
-        .where(Screening.startup_id == startup_id)
+        .where(Screening.startup_id == startup_id, Screening.is_deleted == False)  # noqa: E712
         .order_by(Screening.created_at.desc())
     )
     return list(result.scalars().all())
@@ -60,7 +60,7 @@ async def get_by_id(
     db: AsyncSession, screening_id: uuid.UUID,
 ) -> Screening | None:
     result = await db.execute(
-        select(Screening).where(Screening.id == screening_id)
+        select(Screening).where(Screening.id == screening_id, Screening.is_deleted == False)  # noqa: E712
     )
     return result.scalar_one_or_none()
 

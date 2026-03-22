@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, JSON, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -45,5 +45,6 @@ class Review(Base):
     certification_stage: Mapped[str | None] = mapped_column(String(100), nullable=True)
     purchase_lead_time_months: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     started_at: Mapped[datetime] = mapped_column(server_default=func.now())
     completed_at: Mapped[datetime | None] = mapped_column(nullable=True)

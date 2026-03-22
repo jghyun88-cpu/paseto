@@ -26,5 +26,6 @@ class HandoverDocument(Base):
         ForeignKey("users.id"), nullable=True,
     )
     acknowledged_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
     escalated: Mapped[bool] = mapped_column(Boolean, default=False)
     escalated_at: Mapped[datetime | None] = mapped_column(nullable=True)

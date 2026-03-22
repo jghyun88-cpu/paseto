@@ -28,7 +28,7 @@ async def get_by_startup(
 ) -> list[ICDecision]:
     result = await db.execute(
         select(ICDecision)
-        .where(ICDecision.startup_id == startup_id)
+        .where(ICDecision.startup_id == startup_id, ICDecision.is_deleted == False)  # noqa: E712
         .order_by(ICDecision.decided_at.desc())
     )
     return list(result.scalars().all())
@@ -38,7 +38,7 @@ async def get_by_id(
     db: AsyncSession, decision_id: uuid.UUID,
 ) -> ICDecision | None:
     result = await db.execute(
-        select(ICDecision).where(ICDecision.id == decision_id)
+        select(ICDecision).where(ICDecision.id == decision_id, ICDecision.is_deleted == False)  # noqa: E712
     )
     return result.scalar_one_or_none()
 

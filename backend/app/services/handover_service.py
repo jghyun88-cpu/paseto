@@ -62,7 +62,7 @@ async def get_list(
     from_team: str | None = None,
     to_team: str | None = None,
 ) -> list[HandoverDocument]:
-    query = select(HandoverDocument).order_by(HandoverDocument.created_at.desc())
+    query = select(HandoverDocument).where(HandoverDocument.is_deleted == False).order_by(HandoverDocument.created_at.desc())  # noqa: E712
     if from_team:
         query = query.where(HandoverDocument.from_team == from_team)
     if to_team:
@@ -75,7 +75,7 @@ async def get_by_id(
     db: AsyncSession, handover_id: uuid.UUID,
 ) -> HandoverDocument | None:
     result = await db.execute(
-        select(HandoverDocument).where(HandoverDocument.id == handover_id)
+        select(HandoverDocument).where(HandoverDocument.id == handover_id, HandoverDocument.is_deleted == False)  # noqa: E712
     )
     return result.scalar_one_or_none()
 
