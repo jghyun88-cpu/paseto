@@ -2,7 +2,7 @@
 
 import uuid
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import DealStage, SourcingChannel
@@ -54,11 +54,11 @@ async def get_list(
         query = query.where(Startup.assigned_manager_id == assigned_manager_id)
     if has_deal_flow is True:
         query = query.where(
-            Startup.id.in_(select(DealFlow.startup_id).distinct())
+            exists().where(DealFlow.startup_id == Startup.id)
         )
     elif has_deal_flow is False:
         query = query.where(
-            ~Startup.id.in_(select(DealFlow.startup_id).distinct())
+            ~exists().where(DealFlow.startup_id == Startup.id)
         )
 
     # 총 개수
