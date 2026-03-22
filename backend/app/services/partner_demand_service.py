@@ -66,6 +66,9 @@ async def update(db: AsyncSession, demand: PartnerDemand, data: PartnerDemandUpd
     for field, value in update_data.items():
         setattr(demand, field, value)
 
+    db.add(demand)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "partner_demand", "fields": list(update_data.keys())},
@@ -76,6 +79,9 @@ async def update(db: AsyncSession, demand: PartnerDemand, data: PartnerDemandUpd
 
 async def delete(db: AsyncSession, demand: PartnerDemand, user: User) -> None:
     demand.is_deleted = True
+    db.add(demand)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "delete", {"entity": "partner_demand", "demand_id": str(demand.id)},
     )

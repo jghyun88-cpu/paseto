@@ -62,6 +62,9 @@ async def update(db: AsyncSession, follow_on: FollowOnInvestment, data: FollowOn
     for field, value in update_data.items():
         setattr(follow_on, field, value)
 
+    db.add(follow_on)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "follow_on_investment", "fields": list(update_data.keys())},

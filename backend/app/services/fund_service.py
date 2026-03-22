@@ -71,6 +71,9 @@ async def update(
     for field, value in update_data.items():
         setattr(fund, field, value)
 
+    db.add(fund)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "fund", "fund_name": fund.fund_name},
@@ -82,6 +85,9 @@ async def update(
 
 async def delete(db: AsyncSession, fund: Fund, user: User) -> None:
     fund.is_deleted = True
+    db.add(fund)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "delete",
         {"entity": "fund", "fund_name": fund.fund_name},

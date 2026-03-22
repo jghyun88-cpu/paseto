@@ -76,6 +76,9 @@ async def update(
     for field, value in update_data.items():
         setattr(memo, field, value)
 
+    db.add(memo)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "investment_memo", "status": memo.status},

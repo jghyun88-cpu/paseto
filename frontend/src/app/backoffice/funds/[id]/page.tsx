@@ -251,6 +251,16 @@ export default function FundEditPage() {
 
       try {
         await api.patch(`/funds/${fundId}`, body);
+
+        // 출자자(LP) 벌크 동기화
+        const investorPayload = investors
+          .filter((r) => r.name.trim())
+          .map((r) => ({
+            lp_name: r.name,
+            committed_amount: r.amount ? Number(r.amount.replace(/,/g, "")) : 0,
+          }));
+        await api.put(`/funds/${fundId}/lps/sync`, { investors: investorPayload });
+
         setMessage("저장되었습니다.");
       } catch {
         setError("저장에 실패했습니다.");
@@ -258,7 +268,7 @@ export default function FundEditPage() {
         setSaving(false);
       }
     },
-    [fund, fundId, gpRows, obligations],
+    [fund, fundId, gpRows, obligations, investors],
   );
 
   // --- 삭제 ---

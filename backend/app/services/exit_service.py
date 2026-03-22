@@ -83,6 +83,9 @@ async def update(db: AsyncSession, record: ExitRecord, data: ExitRecordUpdate, u
     for field, value in update_data.items():
         setattr(record, field, value)
 
+    db.add(record)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "exit_record", "fields": list(update_data.keys())},

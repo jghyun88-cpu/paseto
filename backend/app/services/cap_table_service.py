@@ -67,6 +67,9 @@ async def update(
     for field, value in update_data.items():
         setattr(entry, field, value)
 
+    db.add(entry)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "cap_table", "shareholder": entry.shareholder_name},

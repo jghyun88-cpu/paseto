@@ -65,6 +65,9 @@ async def update(db: AsyncSession, program: GovernmentProgram, data: GovProgramU
     for field, value in update_data.items():
         setattr(program, field, value)
 
+    db.add(program)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "government_program", "fields": list(update_data.keys())},
@@ -76,6 +79,9 @@ async def update(db: AsyncSession, program: GovernmentProgram, data: GovProgramU
 
 async def delete(db: AsyncSession, program: GovernmentProgram, user: User) -> None:
     program.is_deleted = True
+    db.add(program)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "delete", {"entity": "government_program", "id": str(program.id)},
         startup_id=program.startup_id,

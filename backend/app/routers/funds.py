@@ -13,7 +13,7 @@ from app.models.user import User
 from app.schemas.fund import FundCreate, FundResponse, FundUpdate
 from app.schemas.fund_lp import (
     FundInvestmentCreate, FundInvestmentResponse,
-    FundLPCreate, FundLPResponse,
+    FundLPCreate, FundLPResponse, FundLPSyncRequest,
 )
 from app.services import fund_lp_service, fund_service
 
@@ -101,6 +101,20 @@ async def list_fund_lps(
 ) -> list[FundLPResponse]:
     items = await fund_lp_service.get_lps_by_fund(db, fund_id)
     return [FundLPResponse.model_validate(lp) for lp in items]
+
+
+@router.put("/{fund_id}/lps/sync", response_model=list[FundLPResponse])
+async def sync_fund_lps(
+    fund_id: uuid.UUID,
+    data: FundLPSyncRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_permission("contract", "full"))],
+) -> list[FundLPResponse]:
+    fund = await fund_service.get_by_id(db, fund_id)
+    if fund is None:
+        raise fund_not_found()
+    lps = await fund_lp_service.sync_lps(db, fund, data.investors, current_user)
+    return [FundLPResponse.model_validate(lp) for lp in lps]
 
 
 @router.post("/{fund_id}/lps", response_model=FundLPResponse, status_code=201)

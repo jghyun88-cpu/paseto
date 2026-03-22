@@ -87,6 +87,9 @@ async def update(
     for field, value in update_data.items():
         setattr(meeting, field, value)
 
+    db.add(meeting)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "investor_meeting", "fields": list(update_data.keys())},

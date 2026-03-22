@@ -137,6 +137,9 @@ async def update(
     for field, value in update_data.items():
         setattr(incubation, field, value)
 
+    db.add(incubation)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "incubation", "fields": list(update_data.keys())},
@@ -154,6 +157,9 @@ async def change_grade(
     """포트폴리오 등급 변경 — PM/Partner만 가능, ActivityLog 필수"""
     old_grade = incubation.portfolio_grade
     incubation.portfolio_grade = grade
+
+    db.add(incubation)
+    await db.flush()
 
     await activity_log_service.log(
         db, user.id, "grade_change",
@@ -177,6 +183,9 @@ async def update_action_plan(
     incubation.action_plan = {
         "items": [item.model_dump(mode="json") for item in data.items],
     }
+
+    db.add(incubation)
+    await db.flush()
 
     await activity_log_service.log(
         db, user.id, "update",

@@ -77,6 +77,9 @@ async def update(
     for field, value in update_data.items():
         setattr(demo_day, field, value)
 
+    db.add(demo_day)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "demo_day", "fields": list(update_data.keys())},

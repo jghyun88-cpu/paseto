@@ -58,6 +58,15 @@ class FundLPResponse(BaseModel):
     created_at: datetime
 
 
+class FundLPSyncItem(BaseModel):
+    lp_name: str
+    committed_amount: Decimal = Decimal("0")
+
+
+class FundLPSyncRequest(BaseModel):
+    investors: list[FundLPSyncItem]
+
+
 class FundInvestmentCreate(BaseModel):
     startup_id: uuid.UUID
     contract_id: uuid.UUID | None = None

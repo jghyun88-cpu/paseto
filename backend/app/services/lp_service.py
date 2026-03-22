@@ -64,6 +64,9 @@ async def update(db: AsyncSession, lp: LP, data: LPUpdate, user: User) -> LP:
     for field, value in update_data.items():
         setattr(lp, field, value)
 
+    db.add(lp)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "lp", "lp_name": lp.lp_name},
@@ -74,6 +77,9 @@ async def update(db: AsyncSession, lp: LP, data: LPUpdate, user: User) -> LP:
 
 async def soft_delete(db: AsyncSession, lp: LP, user: User) -> None:
     lp.is_deleted = True
+    db.add(lp)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "delete",
         {"entity": "lp", "lp_name": lp.lp_name},

@@ -167,6 +167,9 @@ async def update(
             changes[field] = {"old": str(old_value), "new": str(value)}
 
     if changes:
+        db.add(startup)
+        await db.flush()
+
         await activity_log_service.log(
             db, user.id, "update",
             {"entity": "startup", "changes": changes},

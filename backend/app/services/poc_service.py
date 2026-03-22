@@ -78,6 +78,7 @@ async def create(db: AsyncSession, data: PoCProjectCreate, user: User) -> PoCPro
     demand = demand_result.scalar_one_or_none()
     if demand:
         demand.status = "in_poc"
+        db.add(demand)
 
     await activity_log_service.log(
         db, user.id, "create",
@@ -92,6 +93,9 @@ async def update(db: AsyncSession, poc: PoCProject, data: PoCProjectUpdate, user
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(poc, field, value)
+
+    db.add(poc)
+    await db.flush()
 
     await activity_log_service.log(
         db, user.id, "update",
@@ -109,6 +113,9 @@ async def change_status(
     old_status = poc.status
     poc.status = PoCStatus(data.status)
 
+    db.add(poc)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "status_change",
         {"entity": "poc_project", "old_status": old_status.value, "new_status": data.status, "notes": data.notes},
@@ -125,6 +132,9 @@ async def update_progress(
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(poc, field, value)
+
+    db.add(poc)
+    await db.flush()
 
     # 자동화 #8: 전환가능성 "높음" → 심사팀 역인계
     if data.conversion_likelihood == "높음":

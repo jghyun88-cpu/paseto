@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.fund import Fund, FundInvestment, FundLP
 from app.models.user import User
-from app.schemas.fund_lp import FundInvestmentCreate, FundLPCreate
+from app.schemas.fund_lp import FundInvestmentCreate, FundLPCreate, FundLPSyncItem
 from app.services import activity_log_service
 
 
@@ -76,6 +76,48 @@ async def create_lp(
 
     await db.refresh(lp)
     return lp
+
+
+async def sync_lps(
+    db: AsyncSession, fund: Fund, items: list[FundLPSyncItem], user: User,
+) -> list[FundLP]:
+    """기존 LP를 soft delete하고 새 목록으로 교체 (벌크 동기화)"""
+    # 1. 기존 LP soft delete
+    existing = await get_lps_by_fund(db, fund.id)
+    for lp in existing:
+        lp.is_deleted = True
+        db.add(lp)
+
+    # 2. 새 LP 생성
+    new_lps: list[FundLP] = []
+    total_committed = 0
+    for item in items:
+        if not item.lp_name.strip():
+            continue
+        lp = FundLP(
+            fund_id=fund.id,
+            lp_name=item.lp_name,
+            lp_type="corporate",
+            committed_amount=int(item.committed_amount),
+            paid_in_amount=0,
+        )
+        db.add(lp)
+        new_lps.append(lp)
+        total_committed += int(item.committed_amount)
+
+    # 3. Fund committed_amount 갱신
+    fund.committed_amount = total_committed
+    db.add(fund)
+    await db.flush()
+
+    await activity_log_service.log(
+        db, user.id, "update",
+        {"entity": "fund_lps", "fund": fund.fund_name, "count": len(new_lps)},
+    )
+
+    for lp in new_lps:
+        await db.refresh(lp)
+    return new_lps
 
 
 async def get_investments_by_fund(

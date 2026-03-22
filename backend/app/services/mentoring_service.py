@@ -89,6 +89,7 @@ async def create(
         mentor = mentor_result.scalar_one_or_none()
         if mentor:
             mentor.engagement_count += 1
+            db.add(mentor)
 
     # 자동화 #6: 액션아이템 → 보육팀 알림
     for item in action_items_raw:
@@ -125,6 +126,9 @@ async def update(
     for field, value in update_data.items():
         setattr(session, field, value)
 
+    db.add(session)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "mentoring_session", "fields": list(update_data.keys())},
@@ -145,6 +149,9 @@ async def update_action_items_status(
 
     session.action_items = items
     session.action_completion_rate = calculate_completion_rate(items)
+
+    db.add(session)
+    await db.flush()
 
     await activity_log_service.log(
         db, user.id, "update",

@@ -97,6 +97,8 @@ async def update(
     for field, value in update_data.items():
         setattr(contract, field, value)
 
+    db.add(contract)
+
     # 자동화 #5: OPS-F01 10항목 전체 completed → 클로징
     if contract.closing_checklist:
         all_completed = all(
@@ -117,6 +119,8 @@ async def update(
                 db, startup, DealStage.CLOSED, user,
                 notes="OPS-F01 10항목 완료 → 계약 클로징",
             )
+
+    await db.flush()
 
     await activity_log_service.log(
         db, user.id, "update",

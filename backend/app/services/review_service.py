@@ -80,6 +80,9 @@ async def update(
     for field, value in update_data.items():
         setattr(review, field, value)
 
+    db.add(review)
+    await db.flush()
+
     # 자동화 #3: DD 10항목 전체 completed → 자동 완료
     if review.review_type == "dd" and review.dd_checklist:
         all_completed = all(

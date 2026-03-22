@@ -57,5 +57,7 @@ async def update(
 ) -> PortfolioIssue:
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(issue, field, value)
+    db.add(issue)
+    await db.flush()
     await db.refresh(issue)
     return issue

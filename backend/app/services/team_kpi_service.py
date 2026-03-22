@@ -142,6 +142,9 @@ async def update(db: AsyncSession, kpi: TeamKPI, data: TeamKPIUpdate, user: User
     kpi.achievement_rate = calculate_achievement(actual, target)
     kpi.updated_by = user.id
 
+    db.add(kpi)
+    await db.flush()
+
     await activity_log_service.log(db, user.id, "update", {"entity": "team_kpi", "fields": list(update_data.keys())})
     await db.refresh(kpi)
     return kpi

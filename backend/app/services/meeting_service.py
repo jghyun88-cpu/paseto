@@ -73,6 +73,9 @@ async def update(db: AsyncSession, meeting: Meeting, data: MeetingUpdate, user: 
     for field, value in update_data.items():
         setattr(meeting, field, value)
 
+    db.add(meeting)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "meeting", "fields": list(update_data.keys())},
@@ -83,6 +86,9 @@ async def update(db: AsyncSession, meeting: Meeting, data: MeetingUpdate, user: 
 
 async def delete(db: AsyncSession, meeting: Meeting, user: User) -> None:
     meeting.is_deleted = True
+    db.add(meeting)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "delete", {"entity": "meeting", "meeting_id": str(meeting.id)},
     )

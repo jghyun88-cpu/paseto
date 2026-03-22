@@ -83,6 +83,9 @@ async def update(
     for field, value in update_data.items():
         setattr(mentor, field, value)
 
+    db.add(mentor)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "mentor", "fields": list(update_data.keys())},

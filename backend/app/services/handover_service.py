@@ -93,6 +93,9 @@ async def acknowledge(
     handover.acknowledged_by = user.id
     handover.acknowledged_at = datetime.now(timezone.utc)
 
+    db.add(handover)
+    await db.flush()
+
     await activity_log_service.log(
         db, user.id, "update",
         {"entity": "handover", "action": "acknowledged"},
