@@ -306,12 +306,24 @@ async def create_manual(
     content: dict,
     memo: str | None = None,
 ) -> HandoverDocument:
-    """수동 인계 생성 — _create_handover() 위임으로 알림 자동 발송"""
-    from app.errors import invalid_handover_type
-    from app.schemas.handover import VALID_HANDOVER_TYPES
+    """수동 인계 생성 — Content Pydantic 검증 + _create_handover() 위임"""
+    from pydantic import ValidationError
+
+    from app.errors import handover_content_invalid, invalid_handover_type
+    from app.schemas.handover import CONTENT_MODEL_MAP, VALID_HANDOVER_TYPES
 
     if handover_type not in VALID_HANDOVER_TYPES:
         raise invalid_handover_type()
+
+    # 경로별 Content 모델로 검증
+    content_model = CONTENT_MODEL_MAP.get(handover_type)
+    if content_model:
+        try:
+            content_model.model_validate(content)
+        except ValidationError as e:
+            first_error = e.errors()[0]
+            field = ".".join(str(loc) for loc in first_error["loc"])
+            raise handover_content_invalid(field)
 
     if memo:
         content["memo"] = memo

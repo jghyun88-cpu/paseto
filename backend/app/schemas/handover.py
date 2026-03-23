@@ -72,6 +72,16 @@ VALID_HANDOVER_TYPES = {
     "backoffice_broadcast",
 }
 
+# 경로별 Content Pydantic 모델 매핑 (수동 생성 시 검증용)
+CONTENT_MODEL_MAP: dict[str, type[BaseModel]] = {
+    "sourcing_to_review": SourcingToReviewContent,
+    "review_to_backoffice": ReviewToBackofficeContent,
+    "review_to_incubation": ReviewToIncubationContent,
+    "incubation_to_oi": IncubationToOiContent,
+    "oi_to_review": OiToReviewContent,
+    "backoffice_broadcast": BackofficeBroadcastContent,
+}
+
 
 class ManualHandoverCreate(BaseModel):
     """수동 인계 생성 요청"""

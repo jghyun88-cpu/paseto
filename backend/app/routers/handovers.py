@@ -110,7 +110,7 @@ async def acknowledge_handover(
 
     # 수신팀 소속 검증: to_team이 사용자의 team과 일치해야 함
     to_team = handover.to_team
-    if to_team != "all" and hasattr(current_user, "team") and current_user.team != to_team:
+    if to_team != "all" and current_user.team != to_team:
         raise handover_team_mismatch()
 
     updated = await handover_service.acknowledge(db, handover, current_user)
