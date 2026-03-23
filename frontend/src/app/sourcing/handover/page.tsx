@@ -27,9 +27,9 @@ export default function HandoverPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get<HandoverItem[]>("/handovers/?from_team=sourcing")
-      .then((res) => setItems(res.data))
-      .catch(() => {})
+    api.get<{ data: HandoverItem[] }>("/handovers/?from_team=sourcing&page_size=100")
+      .then((res) => setItems(res.data.data))
+      .catch(() => setItems([]))
       .finally(() => setLoading(false));
   }, []);
 

@@ -41,19 +41,27 @@ async def get_handover_stats(
     return HandoverStatsResponse(**data)
 
 
-@router.get("/", response_model=list[HandoverResponse])
+@router.get("/")
 async def list_handovers(
     db: Annotated[AsyncSession, Depends(get_db)],
     _user: Annotated[User, Depends(require_permission("deal_flow", "read"))],
     from_team: str | None = None,
     to_team: str | None = None,
     handover_type: str | None = None,
-) -> list[HandoverResponse]:
-    """인계 목록 조회 (from_team / to_team / handover_type 필터)"""
-    items = await handover_service.get_list(
+    page: int = 1,
+    page_size: int = 20,
+) -> dict:
+    """인계 목록 조회 (페이지네이션 + 필터)"""
+    items, total = await handover_service.get_list(
         db, from_team=from_team, to_team=to_team, handover_type=handover_type,
+        page=page, page_size=page_size,
     )
-    return [HandoverResponse.model_validate(h) for h in items]
+    return {
+        "data": [HandoverResponse.model_validate(h) for h in items],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    }
 
 
 @router.get("/{handover_id}", response_model=HandoverResponse)

@@ -115,12 +115,14 @@ async def update(
             startup.is_portfolio = True
 
             # DealStage → CLOSED
+            # NOTE: move_stage(CLOSED) 내부에서 review_to_incubation 인계 자동 트리거 (FR-02)
+            # 중복 방지는 handover_service._create_handover()의 guard에서 처리
             await deal_flow_service.move_stage(
                 db, startup, DealStage.CLOSED, user,
                 notes="OPS-F01 10항목 완료 → 계약 클로징",
             )
 
-            # FR-05: 계약 클로징 → 백오피스 전체 브로드캐스트
+            # FR-05: 계약 클로징 → 백오피스 전체 브로드캐스트 (FR-02와 별개 경로)
             from app.services import handover_service
             await handover_service.create_backoffice_broadcast(
                 db, startup, user,

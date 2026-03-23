@@ -60,9 +60,9 @@ export default function HandoverInbox({ toTeam, title }: Props) {
 
   useEffect(() => {
     api
-      .get<HandoverItem[]>(`/handovers/?to_team=${toTeam}`)
-      .then((res) => setItems(res.data))
-      .catch(() => {})
+      .get<{ data: HandoverItem[] }>(`/handovers/?to_team=${toTeam}&page_size=100`)
+      .then((res) => setItems(res.data.data))
+      .catch(() => setItems([]))
       .finally(() => setLoading(false));
   }, [toTeam]);
 

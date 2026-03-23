@@ -209,8 +209,21 @@ async def _create_handover(
     handover_type: str,
     content: dict,
 ) -> HandoverDocument:
-    """내부 공통 — HandoverDocument 생성 + ActivityLog + 알림"""
+    """내부 공통 — HandoverDocument 생성 + ActivityLog + 알림 (중복 방지)"""
     from_team, to_team = HANDOVER_TYPE_MAP[handover_type]
+
+    # 중복 방지: 같은 startup + handover_type의 미확인 인계가 존재하면 skip
+    existing_result = await db.execute(
+        select(HandoverDocument).where(
+            HandoverDocument.startup_id == startup.id,
+            HandoverDocument.handover_type == handover_type,
+            HandoverDocument.acknowledged_at.is_(None),
+            HandoverDocument.is_deleted == False,  # noqa: E712
+        ).limit(1)
+    )
+    existing_doc = existing_result.scalar_one_or_none()
+    if existing_doc is not None:
+        return existing_doc
 
     handover = HandoverDocument(
         startup_id=startup.id,
@@ -251,16 +264,25 @@ async def get_list(
     from_team: str | None = None,
     to_team: str | None = None,
     handover_type: str | None = None,
-) -> list[HandoverDocument]:
-    query = select(HandoverDocument).where(HandoverDocument.is_deleted == False).order_by(HandoverDocument.created_at.desc())  # noqa: E712
+    page: int = 1,
+    page_size: int = 20,
+) -> tuple[list[HandoverDocument], int]:
+    """인계 목록 (페이지네이션 + 필터)"""
+    query = select(HandoverDocument).where(HandoverDocument.is_deleted == False)  # noqa: E712
     if from_team:
         query = query.where(HandoverDocument.from_team == from_team)
     if to_team:
         query = query.where(HandoverDocument.to_team == to_team)
     if handover_type:
         query = query.where(HandoverDocument.handover_type == handover_type)
-    result = await db.execute(query)
-    return list(result.scalars().all())
+
+    count_query = select(func.count()).select_from(query.subquery())
+    total = (await db.execute(count_query)).scalar_one()
+
+    offset = (page - 1) * page_size
+    items_query = query.order_by(HandoverDocument.created_at.desc()).offset(offset).limit(page_size)
+    result = await db.execute(items_query)
+    return list(result.scalars().all()), total
 
 
 async def get_by_id(
@@ -334,38 +356,56 @@ async def create_manual(
 
 
 async def get_stats(db: AsyncSession) -> dict:
-    """인계 통계 — 경로별 건수, 평균 확인 시간, 에스컬레이션 비율"""
-    query = select(HandoverDocument).where(HandoverDocument.is_deleted == False)  # noqa: E712
-    result = await db.execute(query)
-    items = list(result.scalars().all())
+    """인계 통계 — SQL 집계로 경로별 건수, 평균 확인 시간, 에스컬레이션 비율 계산"""
+    from sqlalchemy import case, extract
+
+    H = HandoverDocument
+    base = H.is_deleted == False  # noqa: E712
+
+    # 경로별 집계 (GROUP BY handover_type)
+    type_stats_q = (
+        select(
+            H.handover_type,
+            func.count().label("total"),
+            func.count(H.acknowledged_at).label("acknowledged"),
+            func.sum(case((H.escalated == True, 1), else_=0)).label("escalated"),  # noqa: E712
+        )
+        .where(base)
+        .group_by(H.handover_type)
+    )
+    type_rows = (await db.execute(type_stats_q)).all()
 
     by_type: dict[str, dict[str, int]] = {}
-    ack_hours_list: list[float] = []
-    total_count = len(items)
-    escalated_count = 0
+    grand_total = 0
+    grand_escalated = 0
+    for row in type_rows:
+        total = row.total
+        acked = row.acknowledged
+        esc = int(row.escalated or 0)
+        by_type[row.handover_type] = {
+            "total": total,
+            "acknowledged": acked,
+            "pending": total - acked - esc,
+            "escalated": esc,
+        }
+        grand_total += total
+        grand_escalated += esc
 
-    for h in items:
-        ht = h.handover_type
-        if ht not in by_type:
-            by_type[ht] = {"total": 0, "acknowledged": 0, "pending": 0, "escalated": 0}
+    # 평균 확인 시간 (SQL AVG)
+    avg_q = (
+        select(
+            func.avg(
+                extract("epoch", H.acknowledged_at - H.created_at) / 3600
+            ).label("avg_hours")
+        )
+        .where(base, H.acknowledged_at.isnot(None))
+    )
+    avg_hours = (await db.execute(avg_q)).scalar_one_or_none()
 
-        by_type[ht]["total"] += 1
-
-        if h.acknowledged_at:
-            by_type[ht]["acknowledged"] += 1
-            delta = (h.acknowledged_at - h.created_at).total_seconds() / 3600
-            ack_hours_list.append(delta)
-        elif h.escalated:
-            by_type[ht]["escalated"] += 1
-            escalated_count += 1
-        else:
-            by_type[ht]["pending"] += 1
-
-    avg_hours = sum(ack_hours_list) / len(ack_hours_list) if ack_hours_list else None
-    esc_rate = escalated_count / total_count if total_count > 0 else 0.0
+    esc_rate = grand_escalated / grand_total if grand_total > 0 else 0.0
 
     return {
         "by_type": by_type,
-        "avg_acknowledge_hours": round(avg_hours, 1) if avg_hours is not None else None,
+        "avg_acknowledge_hours": round(float(avg_hours), 1) if avg_hours is not None else None,
         "escalation_rate": round(esc_rate, 3),
     }
