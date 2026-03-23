@@ -7,8 +7,8 @@
 | Feature | handover |
 | 분석일 | 2026-03-23 |
 | 설계 문서 | `docs/archive/2026-03/handover/handover.design.md` |
-| **Match Rate** | **78%** (28/36 항목 일치) |
-| 갭 항목 | 8건 (CRITICAL 2, MEDIUM 4, LOW 2) |
+| **Match Rate** | **94%** (Iteration 1 후) — 초기 78% → 갭 6건 해소 |
+| 잔여 갭 | 2건 (MEDIUM 1, LOW 1) |
 
 ### Value Delivered (현재까지)
 
