@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.enums import NotificationType, PoCStatus
 from app.models.partner_demand import PartnerDemand
 from app.models.poc_project import PoCProject
+from app.models.startup import Startup
 from app.models.user import User
 from app.schemas.poc_project import PoCProgressUpdate, PoCProjectCreate, PoCProjectUpdate, PoCStatusChange
 from app.services import activity_log_service, notification_service
@@ -85,6 +86,20 @@ async def create(db: AsyncSession, data: PoCProjectCreate, user: User) -> PoCPro
         {"entity": "poc_project", "poc_id": str(poc.id)},
         startup_id=data.startup_id,
     )
+
+    # FR-03: PoC 생성 → 보육→OI 인계
+    from app.services import handover_service
+    startup_result = await db.execute(
+        select(Startup).where(Startup.id == data.startup_id)
+    )
+    startup = startup_result.scalar_one_or_none()
+    if startup:
+        await handover_service.create_incubation_to_oi(
+            db, startup, user,
+            tech_product_status=data.objective or "",
+            poc_areas=[data.scope or ""],
+        )
+
     await db.refresh(poc)
     return poc
 

@@ -290,3 +290,27 @@ def form_submission_not_found() -> HTTPException:
 
 def jd_not_found() -> HTTPException:
     return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="해당 직무기술서를 찾을 수 없습니다.")
+
+
+# --- 인계 패키지 (Handover) ---
+
+
+def invalid_handover_type() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="유효하지 않은 인계 경로입니다.",
+    )
+
+
+def handover_content_invalid(field: str) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"인계 필수 항목이 누락되었습니다: {field}",
+    )
+
+
+def handover_team_mismatch() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="해당 팀의 인계 문서만 확인할 수 있습니다.",
+    )

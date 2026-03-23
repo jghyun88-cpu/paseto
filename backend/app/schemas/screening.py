@@ -20,6 +20,19 @@ class ScreeningCreate(BaseModel):
     handover_to_review: bool = False
 
 
+class ScreeningUpdate(BaseModel):
+    """스크리닝 수정 — 부분 수정"""
+    fulltime_commitment: int | None = Field(None, ge=1, le=5)
+    problem_clarity: int | None = Field(None, ge=1, le=5)
+    tech_differentiation: int | None = Field(None, ge=1, le=5)
+    market_potential: int | None = Field(None, ge=1, le=5)
+    initial_validation: int | None = Field(None, ge=1, le=5)
+    legal_clear: bool | None = None
+    strategy_fit: int | None = Field(None, ge=1, le=5)
+    risk_notes: str | None = None
+    handover_memo: str | None = None
+
+
 class ScreeningResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

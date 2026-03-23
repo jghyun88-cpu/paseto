@@ -93,5 +93,17 @@ async def move_stage(
     )
 
     await db.flush()
+
+    # --- 인계 자동 트리거 ---
+    # FR-01: IC 승인 → 심사→백오피스 인계
+    if to_stage == DealStage.APPROVED:
+        from app.services import handover_service
+        await handover_service.create_review_to_backoffice(db, startup, user)
+
+    # FR-02: 계약 클로징 → 심사→보육 인계
+    if to_stage == DealStage.CLOSED:
+        from app.services import handover_service
+        await handover_service.create_review_to_incubation(db, startup, user)
+
     await db.refresh(deal_flow)
     return deal_flow

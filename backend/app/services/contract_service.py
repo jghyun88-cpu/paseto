@@ -120,6 +120,15 @@ async def update(
                 notes="OPS-F01 10항목 완료 → 계약 클로징",
             )
 
+            # FR-05: 계약 클로징 → 백오피스 전체 브로드캐스트
+            from app.services import handover_service
+            await handover_service.create_backoffice_broadcast(
+                db, startup, user,
+                contract_status="completed",
+                risk_alert=None,
+                document_updates=["계약 체결 완료", "Cap Table 자동 생성"],
+            )
+
     await db.flush()
 
     await activity_log_service.log(

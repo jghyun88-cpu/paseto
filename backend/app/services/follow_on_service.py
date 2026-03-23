@@ -53,6 +53,21 @@ async def create(db: AsyncSession, data: FollowOnCreate, user: User) -> FollowOn
         {"entity": "follow_on_investment", "id": str(follow_on.id)},
         startup_id=data.startup_id,
     )
+
+    # FR-04: 후속투자 등록 → OI→심사 역인계
+    from app.services import handover_service
+    from app.models.startup import Startup
+    startup_result = await db.execute(
+        select(Startup).where(Startup.id == data.startup_id)
+    )
+    startup = startup_result.scalar_one_or_none()
+    if startup:
+        await handover_service.create_oi_to_review(
+            db, startup, user,
+            strategic_investment_potential=getattr(data, "notes", "") or "",
+            follow_on_points=[f"후속투자 금액: {getattr(data, 'amount', 'N/A')}"],
+        )
+
     await db.refresh(follow_on)
     return follow_on
 

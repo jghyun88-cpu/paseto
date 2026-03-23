@@ -9,6 +9,7 @@ from app.enums import DealStage, NotificationType
 from app.models.screening import Screening
 from app.models.startup import Startup
 from app.models.user import User
+from app.schemas.screening import ScreeningUpdate
 from app.services import activity_log_service, deal_flow_service, notification_service
 from app.services.handover_service import create_from_screening
 
@@ -111,11 +112,18 @@ async def create(
         startup_id=startup.id,
     )
 
+    # 스크리닝 제출 시 INBOUND → FIRST_SCREENING 자동 전환
+    if startup.current_deal_stage == DealStage.INBOUND:
+        await deal_flow_service.move_stage(
+            db, startup, DealStage.FIRST_SCREENING, user,
+            notes=f"1차 스크리닝 제출 (점수 {overall_score}, 등급 {recommendation})",
+        )
+
     # 자동화 #2: pass + 인계 요청 → HandoverDocument + 심사팀 알림
     if recommendation == "pass" and handover_to_review:
         await create_from_screening(db, startup, screening, user)
 
-        # DealFlow → DEEP_REVIEW 단계 이동
+        # FIRST_SCREENING → DEEP_REVIEW 단계 이동
         await deal_flow_service.move_stage(
             db, startup, DealStage.DEEP_REVIEW, user,
             notes=f"스크리닝 Pass (점수 {overall_score}) → 심사팀 인계",
@@ -133,3 +141,56 @@ async def create(
 
     await db.refresh(screening)
     return screening
+
+
+async def update(
+    db: AsyncSession,
+    screening: Screening,
+    data: ScreeningUpdate,
+    user: User,
+) -> Screening:
+    """스크리닝 수정 + 점수 재계산"""
+    update_data = data.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(screening, field, value)
+
+    # 점수 재계산
+    score, recommendation = calculate_score_and_grade(
+        screening.fulltime_commitment,
+        screening.problem_clarity,
+        screening.tech_differentiation,
+        screening.market_potential,
+        screening.initial_validation,
+        screening.legal_clear,
+        screening.strategy_fit,
+    )
+    screening.overall_score = score
+    screening.recommendation = recommendation
+
+    db.add(screening)
+    await db.flush()
+
+    await activity_log_service.log(
+        db, user.id, "update",
+        {"entity": "screening", "score": score, "recommendation": recommendation},
+        startup_id=screening.startup_id,
+    )
+    await db.refresh(screening)
+    return screening
+
+
+async def soft_delete(
+    db: AsyncSession,
+    screening: Screening,
+    user: User,
+) -> None:
+    """스크리닝 소프트 삭제"""
+    screening.is_deleted = True
+    db.add(screening)
+    await db.flush()
+
+    await activity_log_service.log(
+        db, user.id, "delete",
+        {"entity": "screening", "screening_id": str(screening.id)},
+        startup_id=screening.startup_id,
+    )
