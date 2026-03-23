@@ -64,8 +64,8 @@ async def create(db: AsyncSession, data: FollowOnCreate, user: User) -> FollowOn
     if startup:
         await handover_service.create_oi_to_review(
             db, startup, user,
-            strategic_investment_potential=getattr(data, "notes", "") or "",
-            follow_on_points=[f"후속투자 금액: {getattr(data, 'amount', 'N/A')}"],
+            strategic_investment_potential=data.round_type or "",
+            follow_on_points=[f"후속투자 목표금액: {data.target_amount or 'N/A'}"],
         )
 
     await db.refresh(follow_on)

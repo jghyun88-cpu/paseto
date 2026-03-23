@@ -42,7 +42,7 @@ export default function HandoverNewPage() {
           setStartups(res.data.data ?? (res.data as unknown as StartupOption[]));
           setShowDropdown(true);
         })
-        .catch(() => {});
+        .catch(() => setStartups([]));
     }, 300);
     return () => clearTimeout(timer);
   }, [search]);

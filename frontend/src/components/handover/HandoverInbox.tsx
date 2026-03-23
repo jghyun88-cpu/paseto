@@ -56,13 +56,18 @@ export default function HandoverInbox({ toTeam, title }: Props) {
   const router = useRouter();
   const [items, setItems] = useState<HandoverItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [tab, setTab] = useState<TabKey>("pending");
 
   useEffect(() => {
+    setError(false);
     api
       .get<{ data: HandoverItem[] }>(`/handovers/?to_team=${toTeam}&page_size=100`)
       .then((res) => setItems(res.data.data))
-      .catch(() => setItems([]))
+      .catch(() => {
+        setItems([]);
+        setError(true);
+      })
       .finally(() => setLoading(false));
   }, [toTeam]);
 
@@ -127,6 +132,8 @@ export default function HandoverInbox({ toTeam, title }: Props) {
       <div className="bg-white rounded-lg shadow-sm border border-slate-200">
         {loading ? (
           <p className="px-4 py-8 text-center text-slate-400">로딩 중...</p>
+        ) : error ? (
+          <p className="px-4 py-8 text-center text-red-500">인계 목록을 불러올 수 없습니다. 새로고침해 주세요.</p>
         ) : filtered.length === 0 ? (
           <p className="px-4 py-8 text-center text-slate-400">해당 항목이 없습니다.</p>
         ) : (
