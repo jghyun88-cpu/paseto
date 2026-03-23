@@ -121,6 +121,14 @@ export const NAV_TABS: NavTab[] = [
         ],
       },
       {
+        id: "rev-handover",
+        label: "인계 수신함",
+        type: "folder",
+        children: [
+          { id: "rev-handover-inbox", label: "인계 수신함", type: "page", href: "/review/handover" },
+        ],
+      },
+      {
         id: "rev-ic",
         label: "투자위원회",
         type: "folder",
@@ -172,6 +180,14 @@ export const NAV_TABS: NavTab[] = [
         ],
       },
       {
+        id: "inc-handover",
+        label: "인계 수신함",
+        type: "folder",
+        children: [
+          { id: "inc-handover-inbox", label: "인계 수신함", type: "page", href: "/incubation/handover" },
+        ],
+      },
+      {
         id: "inc-demo",
         label: "IR/DemoDay",
         type: "folder",
@@ -203,6 +219,14 @@ export const NAV_TABS: NavTab[] = [
           { id: "oi-poc-list", label: "PoC 프로젝트", type: "page", href: "/oi/poc" },
           { id: "oi-poc-new", label: "PoC 등록", type: "page", href: "/oi/poc/new" },
           { id: "oi-conversion", label: "전환결과 추적", type: "page", href: "/oi/conversion" },
+        ],
+      },
+      {
+        id: "oi-handover",
+        label: "인계 수신함",
+        type: "folder",
+        children: [
+          { id: "oi-handover-inbox", label: "인계 수신함", type: "page", href: "/oi/handover" },
         ],
       },
       {
@@ -240,6 +264,14 @@ export const NAV_TABS: NavTab[] = [
           { id: "bo-fund-lp-list", label: "LP 목록", type: "page", href: "/backoffice/funds/lp" },
           { id: "bo-fund-lp-new", label: "LP 등록", type: "page", href: "/backoffice/funds/lp/new" },
           { id: "bo-fund-report", label: "LP 보고서", type: "page", href: "/backoffice/funds/report" },
+        ],
+      },
+      {
+        id: "bo-handover",
+        label: "인계 수신함",
+        type: "folder",
+        children: [
+          { id: "bo-handover-inbox", label: "인계 수신함", type: "page", href: "/backoffice/handover" },
         ],
       },
       {
