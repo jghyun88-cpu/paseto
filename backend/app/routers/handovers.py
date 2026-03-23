@@ -109,9 +109,9 @@ async def create_manual_handover(
 async def acknowledge_handover(
     handover_id: uuid.UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User, Depends(require_permission("deal_flow", "read"))],
+    current_user: Annotated[User, Depends(require_permission("deal_flow", "write"))],
 ) -> HandoverResponse:
-    """인계 수신 확인 — 수신팀(to_team) 소속만 가능"""
+    """인계 수신 확인 — 수신팀(to_team) 소속 + write 권한 필요"""
     handover = await handover_service.get_by_id(db, handover_id)
     if handover is None:
         raise handover_not_found()
