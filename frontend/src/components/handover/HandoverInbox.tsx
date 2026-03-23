@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Inbox } from "lucide-react";
 import api from "@/lib/api";
 import { fmtDate } from "@/lib/formatters";
+import { TEAM_LABEL, HANDOVER_HANDOVER_TYPE_LABEL } from "@/lib/handover-constants";
 import HandoverStatusBadge from "./HandoverStatusBadge";
 
 interface HandoverItem {
@@ -24,24 +25,6 @@ interface HandoverItem {
   acknowledged_at: string | null;
   escalated: boolean;
 }
-
-const TEAM_LABEL: Record<string, string> = {
-  sourcing: "소싱팀",
-  review: "심사팀",
-  incubation: "보육팀",
-  oi: "OI팀",
-  backoffice: "백오피스",
-  all: "전체",
-};
-
-const TYPE_LABEL: Record<string, string> = {
-  sourcing_to_review: "소싱 → 심사",
-  review_to_backoffice: "심사 → 백오피스",
-  review_to_incubation: "심사 → 보육",
-  incubation_to_oi: "보육 → OI",
-  oi_to_review: "OI → 심사",
-  backoffice_broadcast: "전체 공지",
-};
 
 type TabKey = "pending" | "acknowledged" | "escalated";
 
@@ -147,7 +130,7 @@ export default function HandoverInbox({ toTeam, title }: Props) {
                       escalated={h.escalated}
                     />
                     <span className="text-xs text-slate-400">
-                      {TYPE_LABEL[h.handover_type] ?? h.handover_type}
+                      {HANDOVER_TYPE_LABEL[h.handover_type] ?? h.handover_type}
                     </span>
                   </div>
                   <p

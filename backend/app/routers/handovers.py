@@ -11,6 +11,7 @@ from app.errors import handover_not_found, handover_team_mismatch, startup_not_f
 from app.middleware.rbac import require_permission
 from app.models.user import User
 from app.schemas.handover import (
+    HandoverListResponse,
     HandoverResponse,
     HandoverStatsResponse,
     ManualHandoverCreate,
@@ -18,17 +19,6 @@ from app.schemas.handover import (
 from app.services import handover_service
 
 router = APIRouter()
-
-
-# --- 팀별 acknowledge 권한 매핑 ---
-
-_TEAM_PERMISSIONS: dict[str, tuple[str, str]] = {
-    "review":     ("review_dd_memo", "write"),
-    "backoffice": ("deal_flow", "write"),
-    "incubation": ("deal_flow", "write"),
-    "oi":         ("deal_flow", "write"),
-    "all":        ("deal_flow", "write"),
-}
 
 
 @router.get("/stats", response_model=HandoverStatsResponse)
@@ -41,7 +31,7 @@ async def get_handover_stats(
     return HandoverStatsResponse(**data)
 
 
-@router.get("/")
+@router.get("/", response_model=HandoverListResponse)
 async def list_handovers(
     db: Annotated[AsyncSession, Depends(get_db)],
     _user: Annotated[User, Depends(require_permission("deal_flow", "read"))],
@@ -50,7 +40,7 @@ async def list_handovers(
     handover_type: str | None = None,
     page: int = 1,
     page_size: int = 20,
-) -> dict:
+) -> HandoverListResponse:
     """인계 목록 조회 (페이지네이션 + 필터)"""
     items, total = await handover_service.get_list(
         db, from_team=from_team, to_team=to_team, handover_type=handover_type,

@@ -124,3 +124,10 @@ class HandoverResponse(BaseModel):
     acknowledged_at: datetime | None
     escalated: bool
     escalated_at: datetime | None
+
+
+class HandoverListResponse(BaseModel):
+    data: list[HandoverResponse]
+    total: int
+    page: int
+    page_size: int

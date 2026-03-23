@@ -3,15 +3,21 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import func, select
+from pydantic import ValidationError
+from sqlalchemy import case, extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.enums import NotificationType
+from app.errors import handover_already_acknowledged, handover_content_invalid, invalid_handover_type
 from app.models.handover import HandoverDocument
 from app.models.screening import Screening
 from app.models.startup import Startup
 from app.models.user import User
-from app.services import activity_log_service
+from app.schemas.handover import CONTENT_MODEL_MAP, VALID_HANDOVER_TYPES
+from app.services import activity_log_service, notification_service
 
+
+ALL_TEAMS = ["sourcing", "review", "incubation", "oi", "backoffice"]
 
 # --- 경로별 from/to 매핑 ---
 
@@ -220,9 +226,7 @@ async def _create_handover(
     )
 
     # 수신팀 알림
-    from app.enums import NotificationType
-    from app.services import notification_service
-    notify_teams = ["sourcing", "review", "incubation", "oi", "backoffice"] if to_team == "all" else [to_team]
+    notify_teams = ALL_TEAMS if to_team == "all" else [to_team]
     for team in notify_teams:
         await notification_service.notify_team(
             db, team,
@@ -278,7 +282,6 @@ async def acknowledge(
 ) -> HandoverDocument:
     """인계 수신 확인 — 이중 확인 방지"""
     if handover.acknowledged_at is not None:
-        from app.errors import handover_already_acknowledged
         raise handover_already_acknowledged()
 
     handover.acknowledged_by = user.id
@@ -306,11 +309,6 @@ async def create_manual(
     memo: str | None = None,
 ) -> HandoverDocument:
     """수동 인계 생성 — Content Pydantic 검증 + _create_handover() 위임"""
-    from pydantic import ValidationError
-
-    from app.errors import handover_content_invalid, invalid_handover_type
-    from app.schemas.handover import CONTENT_MODEL_MAP, VALID_HANDOVER_TYPES
-
     if handover_type not in VALID_HANDOVER_TYPES:
         raise invalid_handover_type()
 
@@ -334,8 +332,6 @@ async def create_manual(
 
 async def get_stats(db: AsyncSession) -> dict:
     """인계 통계 — SQL 집계로 경로별 건수, 평균 확인 시간, 에스컬레이션 비율 계산"""
-    from sqlalchemy import case, extract
-
     H = HandoverDocument
     base = H.is_deleted == False  # noqa: E712
 

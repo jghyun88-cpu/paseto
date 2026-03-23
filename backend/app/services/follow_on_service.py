@@ -6,6 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.follow_on_investment import FollowOnInvestment
+from app.models.startup import Startup
 from app.models.user import User
 from app.schemas.follow_on_investment import FollowOnCreate, FollowOnUpdate
 from app.services import activity_log_service
@@ -56,7 +57,6 @@ async def create(db: AsyncSession, data: FollowOnCreate, user: User) -> FollowOn
 
     # FR-04: 후속투자 등록 → OI→심사 역인계
     from app.services import handover_service
-    from app.models.startup import Startup
     startup_result = await db.execute(
         select(Startup).where(Startup.id == data.startup_id)
     )

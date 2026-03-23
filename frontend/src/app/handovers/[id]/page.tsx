@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import api from "@/lib/api";
 import { fmtDate } from "@/lib/formatters";
+import { TEAM_LABEL, HANDOVER_HANDOVER_TYPE_LABEL } from "@/lib/handover-constants";
 import HandoverStatusBadge from "@/components/handover/HandoverStatusBadge";
 import HandoverContentCard from "@/components/handover/HandoverContentCard";
 
@@ -22,24 +23,6 @@ interface HandoverDetail {
   escalated: boolean;
   escalated_at: string | null;
 }
-
-const TEAM_LABEL: Record<string, string> = {
-  sourcing: "소싱팀",
-  review: "심사팀",
-  incubation: "보육팀",
-  oi: "OI팀",
-  backoffice: "백오피스",
-  all: "전체",
-};
-
-const TYPE_LABEL: Record<string, string> = {
-  sourcing_to_review: "소싱 → 심사",
-  review_to_backoffice: "심사 → 백오피스",
-  review_to_incubation: "심사 → 보육",
-  incubation_to_oi: "보육 → OI",
-  oi_to_review: "OI → 심사",
-  backoffice_broadcast: "전체 공지",
-};
 
 export default function HandoverDetailPage() {
   const params = useParams();
@@ -87,7 +70,7 @@ export default function HandoverDetailPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-bold text-slate-800">
-              인계 상세 — {TYPE_LABEL[data.handover_type] ?? data.handover_type}
+              인계 상세 — {HANDOVER_TYPE_LABEL[data.handover_type] ?? data.handover_type}
             </h2>
             <p className="text-sm text-slate-500 mt-1">
               {TEAM_LABEL[data.from_team]} → {TEAM_LABEL[data.to_team]}
