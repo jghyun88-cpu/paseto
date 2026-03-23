@@ -119,6 +119,7 @@ class HandoverResponse(BaseModel):
     content: dict
     created_by: uuid.UUID
     created_at: datetime
+    updated_at: datetime
     acknowledged_by: uuid.UUID | None
     acknowledged_at: datetime | None
     escalated: bool

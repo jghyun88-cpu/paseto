@@ -43,41 +43,18 @@ async def create_from_screening(
     user: User,
 ) -> HandoverDocument:
     """스크리닝 결과 기반 인계 문서 자동 생성 (sourcing → review)"""
+    risk_lines = [r.strip() for r in (screening.risk_notes or "").split("\n") if r.strip()]
     content = {
         "screening_results": {
             "grade": screening.recommendation,
             "overall_score": screening.overall_score,
             "risk_notes": screening.risk_notes,
         },
-        "company_overview": {
-            "name": startup.company_name,
-            "ceo": startup.ceo_name,
-            "industry": startup.industry,
-            "stage": startup.stage,
-            "one_liner": startup.one_liner,
-        },
+        "company_overview": _build_company_overview(startup),
         "handover_memo": screening.handover_memo,
-        "key_risks": (screening.risk_notes or "").split("\n")[:3],
+        "key_risks": risk_lines[:3],
     }
-
-    handover = HandoverDocument(
-        startup_id=startup.id,
-        from_team="sourcing",
-        to_team="review",
-        handover_type="sourcing_to_review",
-        content=content,
-        created_by=user.id,
-    )
-    db.add(handover)
-    await db.flush()
-
-    await activity_log_service.log(
-        db, user.id, "handover",
-        {"entity": "handover", "from": "sourcing", "to": "review"},
-        startup_id=startup.id,
-    )
-
-    return handover
+    return await _create_handover(db, startup, user, "sourcing_to_review", content)
 
 
 # --- FR-01: review → backoffice (IC 승인 시) ---

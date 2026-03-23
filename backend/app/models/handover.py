@@ -3,16 +3,15 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, Boolean, ForeignKey, String, func
+from sqlalchemy import JSON, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base
+from app.models.base import Base, BaseMixin, SoftDeleteMixin
 
 
-class HandoverDocument(Base):
+class HandoverDocument(BaseMixin, SoftDeleteMixin, Base):
     __tablename__ = "handover_documents"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     startup_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("startups.id"), index=True,
     )
@@ -21,11 +20,9 @@ class HandoverDocument(Base):
     handover_type: Mapped[str] = mapped_column(String(50))
     content: Mapped[dict] = mapped_column(JSON, default=dict)
     created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     acknowledged_by: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("users.id"), nullable=True,
     )
     acknowledged_at: Mapped[datetime | None] = mapped_column(nullable=True)
-    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
-    escalated: Mapped[bool] = mapped_column(Boolean, default=False)
+    escalated: Mapped[bool] = mapped_column(default=False)
     escalated_at: Mapped[datetime | None] = mapped_column(nullable=True)
