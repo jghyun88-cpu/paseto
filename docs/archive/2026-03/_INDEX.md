@@ -21,3 +21,4 @@
 | compliance-server-storage | 100% | 2026-03-22 | plan, design, analysis, report (M2: localStorage→서버 저장 전환) |
 | db-session-safety | 100% | 2026-03-22 | plan, design, report (M1: UoW 패턴, 34파일 commit 제거) |
 | csp-nonce | 100% | 2026-03-22 | plan, design, analysis, report (M10: unsafe-inline→nonce 전환) |
+| handover | 94% | 2026-03-23 | plan, design, analysis, report (6경로 자동 인계 + 수신함 UI + 에스컬레이션) |
