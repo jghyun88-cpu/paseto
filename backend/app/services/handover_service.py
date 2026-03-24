@@ -31,6 +31,17 @@ HANDOVER_TYPE_MAP: dict[str, tuple[str, str]] = {
 }
 
 
+async def _get_latest_screening(db: AsyncSession, startup_id: uuid.UUID) -> Screening | None:
+    """해당 기업의 최신 스크리닝 조회"""
+    result = await db.execute(
+        select(Screening)
+        .where(Screening.startup_id == startup_id, Screening.is_deleted == False)  # noqa: E712
+        .order_by(Screening.created_at.desc())
+        .limit(1)
+    )
+    return result.scalar_one_or_none()
+
+
 def _build_company_overview(startup: Startup) -> dict:
     """모든 경로에서 재사용하는 기업 개요 구성"""
     return {
@@ -275,6 +286,23 @@ async def get_by_id(
     return result.scalar_one_or_none()
 
 
+async def soft_delete(
+    db: AsyncSession,
+    handover: HandoverDocument,
+    user: User,
+) -> None:
+    """인계 문서 soft delete"""
+    handover.is_deleted = True
+    db.add(handover)
+    await db.flush()
+
+    await activity_log_service.log(
+        db, user.id, "delete",
+        {"entity": "handover", "action": "soft_deleted"},
+        startup_id=handover.startup_id,
+    )
+
+
 async def acknowledge(
     db: AsyncSession,
     handover: HandoverDocument,
@@ -315,6 +343,19 @@ async def create_manual(
     # company_overview 자동 채움
     if "company_overview" not in content:
         content["company_overview"] = _build_company_overview(startup)
+
+    # sourcing_to_review: screening_results 자동 채움
+    if handover_type == "sourcing_to_review" and not content.get("screening_results"):
+        latest_screening = await _get_latest_screening(db, startup.id)
+        if latest_screening:
+            risk_lines = [r.strip() for r in (latest_screening.risk_notes or "").split("\n") if r.strip()]
+            content["screening_results"] = {
+                "grade": latest_screening.recommendation,
+                "overall_score": latest_screening.overall_score,
+                "risk_notes": latest_screening.risk_notes,
+            }
+            if not content.get("key_risks"):
+                content["key_risks"] = risk_lines[:3]
 
     # 경로별 Content 모델로 기본값 채움 후 검증
     content_model = CONTENT_MODEL_MAP.get(handover_type)

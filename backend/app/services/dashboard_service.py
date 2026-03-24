@@ -1,9 +1,9 @@
 """통합 대시보드 서비스 — 8대 KPI + 위기 감지"""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
-from sqlalchemy import case, func, select
+from sqlalchemy import case, extract, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.enums import DealStage
@@ -46,6 +46,16 @@ async def get_executive_dashboard(db: AsyncSession) -> ExecutiveDashboardRespons
         portfolio=startup_row.portfolio or 0,
     )
 
+    # 1-b. 이번 달 신규 소싱 (current_deal_stage=INBOUND, 이번 달 생성)
+    now_utc = datetime.utcnow()
+    monthly_sourcing = (await db.execute(
+        select(func.count()).where(
+            Startup.is_deleted == False,  # noqa: E712
+            extract("year", Startup.created_at) == now_utc.year,
+            extract("month", Startup.created_at) == now_utc.month,
+        )
+    )).scalar_one()
+
     # 2. 포트폴리오 메트릭스 — 2개 count를 단일 쿼리로 통합
     incubation_row = (await db.execute(
         select(
@@ -86,12 +96,13 @@ async def get_executive_dashboard(db: AsyncSession) -> ExecutiveDashboardRespons
     # 4. 미확인 인계
     unack = (await db.execute(
         select(func.count()).where(
+            HandoverDocument.is_deleted == False,  # noqa: E712
             HandoverDocument.acknowledged_by.is_(None),
         )
     )).scalar_one()
 
     # 5. 예정 회의 (향후 7일)
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     meetings_result = await db.execute(
         select(Meeting)
         .where(Meeting.scheduled_at >= now, Meeting.is_deleted == False)  # noqa: E712
@@ -103,6 +114,7 @@ async def get_executive_dashboard(db: AsyncSession) -> ExecutiveDashboardRespons
     # 6. 최근 인계
     handovers_result = await db.execute(
         select(HandoverDocument)
+        .where(HandoverDocument.is_deleted == False)  # noqa: E712
         .order_by(HandoverDocument.created_at.desc())
         .limit(5)
     )
@@ -111,6 +123,7 @@ async def get_executive_dashboard(db: AsyncSession) -> ExecutiveDashboardRespons
     return ExecutiveDashboardResponse(
         deal_pipeline=deal_pipeline,
         portfolio_metrics=portfolio_metrics,
+        monthly_sourcing=monthly_sourcing,
         crisis_alerts=crisis_alerts,
         unacknowledged_handovers=unack,
         upcoming_meetings=upcoming,

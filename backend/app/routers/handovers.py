@@ -31,7 +31,7 @@ async def get_handover_stats(
     return HandoverStatsResponse(**data)
 
 
-@router.get("/", response_model=HandoverListResponse)
+@router.get("", response_model=HandoverListResponse)
 async def list_handovers(
     db: Annotated[AsyncSession, Depends(get_db)],
     _user: Annotated[User, Depends(require_permission("deal_flow", "read"))],
@@ -65,6 +65,19 @@ async def get_handover(
     if handover is None:
         raise handover_not_found()
     return HandoverResponse.model_validate(handover)
+
+
+@router.delete("/{handover_id}", status_code=204)
+async def delete_handover(
+    handover_id: uuid.UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_permission("deal_flow", "write"))],
+) -> None:
+    """인계 문서 삭제 (soft delete)"""
+    handover = await handover_service.get_by_id(db, handover_id)
+    if handover is None:
+        raise handover_not_found()
+    await handover_service.soft_delete(db, handover, current_user)
 
 
 @router.post("/manual", response_model=HandoverResponse, status_code=201)

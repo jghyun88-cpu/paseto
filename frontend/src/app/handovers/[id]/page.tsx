@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import api from "@/lib/api";
 import { fmtDate } from "@/lib/formatters";
-import { TEAM_LABEL, HANDOVER_HANDOVER_TYPE_LABEL } from "@/lib/handover-constants";
+import { TEAM_LABEL, HANDOVER_TYPE_LABEL } from "@/lib/handover-constants";
 import HandoverStatusBadge from "@/components/handover/HandoverStatusBadge";
 import HandoverContentCard from "@/components/handover/HandoverContentCard";
 

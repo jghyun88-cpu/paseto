@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { showError } from "@/lib/toast";
 
+// 파이프라인 순서 (이전 단계를 통과해야 다음 단계로 이동)
+const STAGE_ORDER = [
+  "inbound", "first_screening", "deep_review", "interview",
+  "due_diligence", "ic_pending", "ic_review", "approved",
+  "conditional", "contract", "closed", "portfolio",
+];
+
 const FUNNEL_STAGES = [
   { key: "inbound", label: "유입", color: "bg-gray-400" },
   { key: "first_screening", label: "1차 스크리닝", color: "bg-blue-400" },
@@ -23,12 +30,19 @@ export default function FunnelAnalysisPage() {
     (async () => {
       try {
         const res = await api.get<{ data: Array<{ current_deal_stage: string }> }>("/startups/?page_size=500");
-        const stages: Record<string, number> = {};
+        // 누적 카운트: 각 단계를 통과한 딜 수 (현재 단계 이상이면 이전 단계 모두 통과)
+        const cumulative: Record<string, number> = {};
         for (const s of res.data.data) {
-          const st = s.current_deal_stage || "inbound";
-          stages[st] = (stages[st] || 0) + 1;
+          const st = (s.current_deal_stage || "INBOUND").toLowerCase();
+          const stageIdx = STAGE_ORDER.indexOf(st);
+          for (const funnelStage of FUNNEL_STAGES) {
+            const funnelIdx = STAGE_ORDER.indexOf(funnelStage.key);
+            if (funnelIdx >= 0 && stageIdx >= funnelIdx) {
+              cumulative[funnelStage.key] = (cumulative[funnelStage.key] || 0) + 1;
+            }
+          }
         }
-        setCounts(stages);
+        setCounts(cumulative);
       } catch {
         showError("데이터를 불러오는 데 실패했습니다.");
         setCounts({});

@@ -118,7 +118,7 @@ export default function DealDetailPage() {
           <h2 className="text-xl font-bold text-slate-800 ml-2">{s.company_name}</h2>
         </div>
         <div className="flex gap-2">
-          <Button
+<Button
             variant="outline"
             size="sm"
             onClick={() => router.push(`/sourcing/deals/${s.id}/edit`)}

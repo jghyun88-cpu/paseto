@@ -21,6 +21,12 @@ interface HandoverItem {
   escalated: boolean;
 }
 
+const GRADE_BADGE: Record<string, { label: string; cls: string }> = {
+  pass: { label: "Pass (A)", cls: "bg-green-100 text-green-700" },
+  review: { label: "Review (B)", cls: "bg-amber-100 text-amber-700" },
+  reject: { label: "Reject (C/D)", cls: "bg-red-100 text-red-700" },
+};
+
 export default function HandoverPage() {
   const router = useRouter();
   const [items, setItems] = useState<HandoverItem[]>([]);
@@ -59,15 +65,23 @@ export default function HandoverPage() {
                 <tr key={h.id} className="border-b border-slate-100 hover:bg-blue-50/50">
                   <td
                     className="px-4 py-2.5 font-medium text-blue-700 cursor-pointer"
-                    onClick={() => router.push(`/startup/${h.startup_id}`)}
+                    onClick={() => router.push(`/sourcing/handover/${h.id}`)}
                   >
                     {h.content.company_overview?.name ?? h.startup_id.slice(0, 8)}
                   </td>
                   <td className="px-4 py-2.5 text-slate-500">{fmtDate(h.created_at)}</td>
                   <td className="px-4 py-2.5">
-                    <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700">
-                      {h.content.screening_results?.grade ?? "-"}
-                    </span>
+                    {(() => {
+                      const grade = h.content.screening_results?.grade;
+                      const badge = grade ? GRADE_BADGE[grade] : null;
+                      return badge ? (
+                        <span className={`inline-block px-2 py-0.5 text-xs rounded-full ${badge.cls}`}>
+                          {badge.label}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400">-</span>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-2.5 font-bold">{h.content.screening_results?.overall_score ?? "-"}</td>
                   <td className="px-4 py-2.5 text-slate-500">{h.to_team}</td>

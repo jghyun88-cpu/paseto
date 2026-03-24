@@ -80,7 +80,7 @@ export default function ReviewPipelinePage() {
                     ceoName={s.ceo_name}
                     industry={s.industry}
                     stage={s.stage}
-                    onClick={() => router.push(`/startup/${s.id}`)}
+                    onClick={() => router.push(`/review/pipeline/${s.id}`)}
                   />
                 ))}
                 {items.length === 0 && (

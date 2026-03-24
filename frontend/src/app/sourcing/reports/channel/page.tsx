@@ -10,13 +10,15 @@ interface ChannelStat {
 }
 
 const CHANNEL_LABELS: Record<string, string> = {
-  university: "대학/연구소",
-  corporate: "대기업 OI",
-  competition: "경진대회",
-  referral: "포트폴리오 추천",
-  vc_network: "VC/CVC",
-  online: "온라인 모집",
-  direct: "직접 발굴",
+  university_lab: "대학/연구소",
+  corporate_oi: "대기업 OI",
+  competition_forum: "경진대회/포럼",
+  portfolio_referral: "포트폴리오 추천",
+  vc_cvc_angel: "VC/CVC/엔젤",
+  online_application: "온라인 모집",
+  direct_outreach: "직접 발굴",
+  public_program: "공공 프로그램",
+  tech_expo: "기술 박람회",
   other: "기타",
 };
 
@@ -30,7 +32,7 @@ export default function ChannelAnalysisPage() {
         const res = await api.get<{ data: Array<{ sourcing_channel: string }> }>("/startups/?page_size=200");
         const channels: Record<string, number> = {};
         for (const s of res.data.data) {
-          const ch = s.sourcing_channel || "other";
+          const ch = (s.sourcing_channel || "other").toLowerCase();
           channels[ch] = (channels[ch] || 0) + 1;
         }
         setStats(

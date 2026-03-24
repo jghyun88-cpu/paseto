@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Inbox } from "lucide-react";
 import api from "@/lib/api";
 import { fmtDate } from "@/lib/formatters";
-import { TEAM_LABEL, HANDOVER_HANDOVER_TYPE_LABEL } from "@/lib/handover-constants";
+import { TEAM_LABEL, HANDOVER_TYPE_LABEL } from "@/lib/handover-constants";
 import HandoverStatusBadge from "./HandoverStatusBadge";
 
 interface HandoverItem {

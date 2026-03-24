@@ -31,6 +31,7 @@ class CrisisAlert(BaseModel):
 class ExecutiveDashboardResponse(BaseModel):
     deal_pipeline: DealPipelineMetrics
     portfolio_metrics: PortfolioMetrics
+    monthly_sourcing: int = 0
     crisis_alerts: list[CrisisAlert]
     unacknowledged_handovers: int
     upcoming_meetings: list[MeetingResponse]
