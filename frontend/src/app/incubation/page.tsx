@@ -2,8 +2,12 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, AlertTriangle, TrendingUp, TrendingDown } from "lucide-react";
+import { Plus, AlertTriangle, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { FilterChips } from "@/components/ui/filter-chips";
+import { EmptyState } from "@/components/ui/empty-state";
+import { LoadingSpinner } from "@/components/ui/loading-skeleton";
 import api from "@/lib/api";
 import { showError } from "@/lib/toast";
 
@@ -42,6 +46,8 @@ const STATUS_LABELS: Record<string, string> = {
   graduated: "졸업",
   paused: "일시중지",
 };
+
+const STATUS_OPTIONS = Object.entries(STATUS_LABELS).map(([key, label]) => ({ key, label }));
 
 export default function IncubationPage() {
   const router = useRouter();
@@ -94,19 +100,21 @@ export default function IncubationPage() {
   const crisisCount = items.filter((i) => hasCrisis(i.crisis_flags)).length;
 
   if (loading) {
-    return <div className="p-8 text-center text-slate-400">로딩 중...</div>;
+    return <LoadingSpinner message="포트폴리오를 불러오는 중..." />;
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-slate-800">포트폴리오 대시보드</h2>
-        <Button size="sm" onClick={() => router.push("/incubation/onboarding/new")}>
-          <Plus size={16} className="mr-1" /> 온보딩
-        </Button>
-      </div>
+      <PageHeader
+        title="포트폴리오 대시보드"
+        actions={
+          <Button size="sm" onClick={() => router.push("/incubation/onboarding/new")}>
+            <Plus size={16} className="mr-1" /> 온보딩
+          </Button>
+        }
+      />
 
-      {/* 요약 */}
+      {/* 등급 요약 */}
       <div className="flex gap-2 mb-4 flex-wrap">
         <SummaryBadge label="전체" count={items.length} active={!filterGrade} onClick={() => setFilterGrade(null)} />
         {["A", "B", "C", "D"].map((g) => (
@@ -116,55 +124,50 @@ export default function IncubationPage() {
       </div>
 
       {/* 상태 필터 */}
-      <div className="flex gap-1 mb-5">
-        {Object.entries(STATUS_LABELS).map(([key, label]) => (
-          <button
-            key={key}
-            className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-              filterStatus === key
-                ? "bg-slate-800 text-white border-slate-800"
-                : "bg-white text-slate-600 border-slate-300 hover:bg-slate-50"
-            }`}
-            onClick={() => setFilterStatus(key === filterStatus ? null : key)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <FilterChips
+        options={STATUS_OPTIONS}
+        value={filterStatus}
+        onChange={setFilterStatus}
+        allLabel="전체 상태"
+      />
 
       {/* 카드 그리드 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => router.push(`/incubation/${item.id}`)}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span className={`inline-block px-2 py-0.5 text-xs font-bold rounded-full ${GRADE_COLORS[item.portfolio_grade]?.bg ?? "bg-slate-100"} ${GRADE_COLORS[item.portfolio_grade]?.text ?? "text-slate-700"}`}>
-                  {item.portfolio_grade}
-                </span>
-                <span className="text-sm font-bold text-slate-800">{item.company_name}</span>
+      {items.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => router.push(`/incubation/${item.id}`)}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className={`inline-block px-2 py-0.5 text-xs font-bold rounded-full ${GRADE_COLORS[item.portfolio_grade]?.bg ?? "bg-slate-100"} ${GRADE_COLORS[item.portfolio_grade]?.text ?? "text-slate-700"}`}>
+                    {item.portfolio_grade}
+                  </span>
+                  <span className="text-sm font-bold text-slate-800">{item.company_name}</span>
+                </div>
+                {hasCrisis(item.crisis_flags) && (
+                  <AlertTriangle size={16} className="text-red-500" />
+                )}
               </div>
-              {hasCrisis(item.crisis_flags) && (
-                <AlertTriangle size={16} className="text-red-500" />
+              {item.industry && (
+                <p className="text-xs text-slate-500 mb-2">{item.industry}</p>
               )}
+              <div className="flex items-center justify-between text-xs text-slate-500">
+                <span>{STATUS_LABELS[item.status] ?? item.status}</span>
+              </div>
             </div>
-            {item.industry && (
-              <p className="text-xs text-slate-500 mb-2">{item.industry}</p>
-            )}
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              <span>{STATUS_LABELS[item.status] ?? item.status}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {items.length === 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center text-slate-400">
-          <p className="text-sm">포트폴리오 기업이 없습니다.</p>
+          ))}
         </div>
+      ) : (
+        <EmptyState
+          icon={<Building2 size={24} />}
+          title="포트폴리오 기업이 없습니다"
+          description="투자 완료 후 온보딩을 통해 보육 기업을 등록하세요."
+          actionLabel="첫 온보딩 시작"
+          onAction={() => router.push("/incubation/onboarding/new")}
+        />
       )}
     </div>
   );

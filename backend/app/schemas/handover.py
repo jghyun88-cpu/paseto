@@ -10,8 +10,8 @@ from pydantic import BaseModel, ConfigDict
 
 class SourcingToReviewContent(BaseModel):
     """sourcing_to_review — 스크리닝 Pass 시 자동 생성"""
-    screening_results: dict
-    company_overview: dict
+    screening_results: dict = {}
+    company_overview: dict = {}
     handover_memo: str | None = None
     key_risks: list[str] = []
 

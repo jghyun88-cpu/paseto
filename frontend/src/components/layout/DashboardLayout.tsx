@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import TopNav from "./TopNav";
 import LeftToolbar, { type SidebarMode } from "./LeftToolbar";
 import TreeMenu from "./TreeMenu";
@@ -50,6 +50,7 @@ function detectActiveTab(pathname: string): string {
  */
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState(() => detectActiveTab(pathname));
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("menu");
   const [panelOpen, setPanelOpen] = useState(true);
@@ -77,11 +78,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }, []);
 
   const handleNavigate = useCallback((href: string) => {
-    window.location.href = href;
-  }, []);
+    router.push(href);
+  }, [router]);
 
-  const handleSearch = useCallback((query: string) => {
-    alert(`메뉴 검색: ${query}`);
+  const handleSearch = useCallback((_query: string) => {
+    // TODO: 메뉴 검색 기능 구현 예정
   }, []);
 
   return (

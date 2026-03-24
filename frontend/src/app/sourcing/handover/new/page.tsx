@@ -9,6 +9,8 @@ interface StartupOption {
   id: string;
   company_name: string;
   industry: string;
+  stage: string;
+  current_deal_stage: string;
 }
 
 const HANDOVER_TYPES = [
@@ -103,7 +105,8 @@ export default function HandoverNewPage() {
                     className="px-3 py-2 text-sm cursor-pointer hover:bg-blue-50"
                   >
                     <span className="font-medium">{s.company_name}</span>
-                    <span className="text-slate-400 ml-2">{s.industry}</span>
+                    <span className="text-blue-500 ml-2">{s.stage}</span>
+                    <span className="text-slate-400 ml-1">· {s.industry}</span>
                   </li>
                 ))}
               </ul>
@@ -111,7 +114,7 @@ export default function HandoverNewPage() {
           </div>
           {selectedStartup && (
             <p className="text-xs text-green-600 mt-1">
-              선택됨: {selectedStartup.company_name} ({selectedStartup.industry})
+              선택됨: {selectedStartup.company_name} · {selectedStartup.stage} ({selectedStartup.industry})
             </p>
           )}
         </div>

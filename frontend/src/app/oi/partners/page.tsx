@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Handshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { FilterChips } from "@/components/ui/filter-chips";
+import { EmptyState } from "@/components/ui/empty-state";
+import { LoadingSpinner } from "@/components/ui/loading-skeleton";
 import api from "@/lib/api";
 import { showError } from "@/lib/toast";
 
@@ -22,6 +26,8 @@ const TYPE_LABELS: Record<string, string> = {
   tech_adoption: "기술도입", joint_dev: "공동개발", vendor: "벤더발굴",
   new_biz: "신규사업", strategic_invest: "전략투자",
 };
+
+const TYPE_OPTIONS = Object.entries(TYPE_LABELS).map(([key, label]) => ({ key, label }));
 
 const STATUS_LABELS: Record<string, string> = {
   open: "오픈", matched: "매칭완료", in_poc: "PoC 진행", contracted: "계약", closed: "종료",
@@ -64,21 +70,24 @@ export default function PartnersPage() {
     } catch { setError("등록에 실패했습니다."); } finally { setSaving(false); }
   }, [company, department, demandType, description, fetchData]);
 
-  if (loading) return <div className="p-8 text-center text-slate-400">로딩 중...</div>;
+  if (loading) return <LoadingSpinner message="파트너 수요를 불러오는 중..." />;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-slate-800">파트너 수요맵</h2>
-        <Button size="sm" onClick={() => setShowForm(!showForm)}><Plus size={16} className="mr-1" /> 수요 등록</Button>
-      </div>
+      <PageHeader
+        title="파트너 수요맵"
+        actions={
+          <Button size="sm" onClick={() => setShowForm(!showForm)}>
+            <Plus size={16} className="mr-1" /> 수요 등록
+          </Button>
+        }
+      />
 
-      <div className="flex gap-1 mb-4">
-        <button className={`px-3 py-1 text-xs rounded-full border ${!filterType ? "bg-slate-800 text-white" : "bg-white text-slate-600 border-slate-300"}`} onClick={() => setFilterType(null)}>전체</button>
-        {Object.entries(TYPE_LABELS).map(([k, v]) => (
-          <button key={k} className={`px-3 py-1 text-xs rounded-full border ${filterType === k ? "bg-slate-800 text-white" : "bg-white text-slate-600 border-slate-300"}`} onClick={() => setFilterType(k === filterType ? null : k)}>{v}</button>
-        ))}
-      </div>
+      <FilterChips
+        options={TYPE_OPTIONS}
+        value={filterType}
+        onChange={setFilterType}
+      />
 
       {showForm && (
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5 mb-5 space-y-4">
@@ -93,23 +102,32 @@ export default function PartnersPage() {
         </div>
       )}
 
-      <div className="space-y-3">
-        {items.map((d) => (
-          <div key={d.id} className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-slate-800">{d.partner_company}</h3>
-                {d.department && <span className="text-xs text-slate-500">{d.department}</span>}
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{TYPE_LABELS[d.demand_type] ?? d.demand_type}</span>
+      {items.length > 0 ? (
+        <div className="space-y-3">
+          {items.map((d) => (
+            <div key={d.id} className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-slate-800">{d.partner_company}</h3>
+                  {d.department && <span className="text-xs text-slate-500">{d.department}</span>}
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{TYPE_LABELS[d.demand_type] ?? d.demand_type}</span>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">{STATUS_LABELS[d.status] ?? d.status}</span>
               </div>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">{STATUS_LABELS[d.status] ?? d.status}</span>
+              <p className="text-sm text-slate-600 line-clamp-2">{d.description}</p>
+              {d.nda_required && <span className="inline-block mt-1 text-xs text-red-600">NDA 필요</span>}
             </div>
-            <p className="text-sm text-slate-600 line-clamp-2">{d.description}</p>
-            {d.nda_required && <span className="inline-block mt-1 text-xs text-red-600">NDA 필요</span>}
-          </div>
-        ))}
-        {items.length === 0 && <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center text-slate-400 text-sm">파트너 수요가 없습니다.</div>}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          icon={<Handshake size={24} />}
+          title="파트너 수요가 없습니다"
+          description="수요기업의 기술 니즈를 등록하여 스타트업 매칭을 시작하세요."
+          actionLabel="첫 수요 등록"
+          onAction={() => setShowForm(true)}
+        />
+      )}
     </div>
   );
 }

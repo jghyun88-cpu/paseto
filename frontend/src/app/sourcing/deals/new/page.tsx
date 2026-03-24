@@ -33,6 +33,7 @@ export default function NewDealPage() {
   const [startupResults, setStartupResults] = useState<StartupItem[]>([]);
   const [selectedStartup, setSelectedStartup] = useState<StartupItem | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [existingDeal, setExistingDeal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -83,11 +84,25 @@ export default function NewDealPage() {
     [searchStartups],
   );
 
-  const selectStartup = useCallback((item: StartupItem) => {
+  const selectStartup = useCallback(async (item: StartupItem) => {
     setSelectedStartup(item);
+    setExistingDeal(false);
+    setError("");
     const corp = item.corporate_number ? ` (${item.corporate_number})` : "";
     setStartupQuery(`${item.company_name}${corp}`);
     setShowDropdown(false);
+
+    // 기존 딜 존재 여부 확인
+    try {
+      const res = await api.get(`/deal-flows/?startup_id=${item.id}`);
+      const flows = res.data?.data ?? res.data ?? [];
+      if (flows.length > 0) {
+        setExistingDeal(true);
+        setError(`${item.company_name}은(는) 이미 딜이 등록된 기업입니다. 딜 목록에서 확인해주세요.`);
+      }
+    } catch {
+      // 조회 실패 시 무시 — 제출 시 백엔드에서 검증
+    }
   }, []);
 
   const handleSubmit = useCallback(
@@ -97,6 +112,11 @@ export default function NewDealPage() {
 
       if (!selectedStartup) {
         setError("스타트업 목록에서 기업을 선택해주세요.");
+        return;
+      }
+
+      if (existingDeal) {
+        setError(`${selectedStartup.company_name}은(는) 이미 딜이 등록된 기업입니다. 딜 목록에서 확인해주세요.`);
         return;
       }
 
@@ -117,13 +137,14 @@ export default function NewDealPage() {
           ].filter(Boolean).join("\n") || undefined,
         });
         router.push("/sourcing/deals");
-      } catch {
-        setError("딜 등록에 실패했습니다.");
+      } catch (err: unknown) {
+        const axiosErr = err as { response?: { data?: { detail?: string } } };
+        setError(axiosErr.response?.data?.detail ?? "딜 등록에 실패했습니다.");
       } finally {
         setLoading(false);
       }
     },
-    [router, selectedStartup],
+    [router, selectedStartup, existingDeal],
   );
 
   return (
@@ -243,7 +264,7 @@ export default function NewDealPage() {
           <Button type="button" variant="outline" className="w-40" onClick={() => router.push("/sourcing/deals")}>
             취소
           </Button>
-          <Button type="submit" disabled={loading || !selectedStartup} className="w-40">
+          <Button type="submit" disabled={loading || !selectedStartup || existingDeal} className="w-40">
             {loading ? "등록 중..." : "등록"}
           </Button>
         </div>

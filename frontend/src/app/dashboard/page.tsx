@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { AlertTriangle, Calendar, ArrowRightLeft, BarChart3 } from "lucide-react";
 import api from "@/lib/api";
 import { showError } from "@/lib/toast";
+import { PageHeader } from "@/components/ui/page-header";
+import { DataCard } from "@/components/ui/data-card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { LoadingSpinner } from "@/components/ui/loading-skeleton";
 
 interface DashboardData {
   deal_pipeline: { total: number; in_screening: number; in_contract: number; portfolio: number };
@@ -29,19 +33,52 @@ export default function DashboardPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  if (loading) return <div className="p-8 text-center text-slate-400">로딩 중...</div>;
-  if (!data) return <div className="p-8 text-center text-slate-400">대시보드를 불러올 수 없습니다.</div>;
+  if (loading) return <LoadingSpinner message="대시보드를 불러오는 중..." />;
+  if (!data) return (
+    <EmptyState
+      icon={<AlertTriangle size={24} />}
+      title="대시보드를 불러올 수 없습니다"
+      description="네트워크 연결을 확인하고 다시 시도해주세요."
+      actionLabel="다시 시도"
+      onAction={fetchData}
+    />
+  );
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-slate-800 mb-4">eLSA 전사 대시보드</h2>
+      <PageHeader title="eLSA 전사 대시보드" />
 
       {/* KPI 카드 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
-        <KPICard icon={<BarChart3 size={18} />} label="파이프라인" value={data.deal_pipeline.total} sub={`심사중 ${data.deal_pipeline.in_screening}`} />
-        <KPICard icon={<BarChart3 size={18} />} label="포트폴리오" value={data.portfolio_metrics.total_startups} sub={`A등급 ${Math.round(data.portfolio_metrics.grade_a_ratio * 100)}%`} />
-        <KPICard icon={<ArrowRightLeft size={18} />} label="미확인 인계" value={data.unacknowledged_handovers} sub="24h 내 확인 필요" variant={data.unacknowledged_handovers > 0 ? "warning" : "default"} />
-        <KPICard icon={<AlertTriangle size={18} />} label="위기 기업" value={data.crisis_alerts.length} sub="즉시 대응 필요" variant={data.crisis_alerts.length > 0 ? "danger" : "default"} />
+        <DataCard
+          icon={<BarChart3 size={18} />}
+          label="파이프라인"
+          value={data.deal_pipeline.total}
+          sub={`심사중 ${data.deal_pipeline.in_screening}`}
+          onClick={() => router.push("/sourcing/pipeline")}
+        />
+        <DataCard
+          icon={<BarChart3 size={18} />}
+          label="포트폴리오"
+          value={data.portfolio_metrics.total_startups}
+          sub={`A등급 ${Math.round(data.portfolio_metrics.grade_a_ratio * 100)}%`}
+          onClick={() => router.push("/incubation")}
+        />
+        <DataCard
+          icon={<ArrowRightLeft size={18} />}
+          label="미확인 인계"
+          value={data.unacknowledged_handovers}
+          sub="24h 내 확인 필요"
+          variant={data.unacknowledged_handovers > 0 ? "warning" : "default"}
+          onClick={() => router.push("/handovers")}
+        />
+        <DataCard
+          icon={<AlertTriangle size={18} />}
+          label="위기 기업"
+          value={data.crisis_alerts.length}
+          sub="즉시 대응 필요"
+          variant={data.crisis_alerts.length > 0 ? "danger" : "default"}
+        />
       </div>
 
       {/* 위기 알림 */}
@@ -74,7 +111,11 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-400">예정된 회의가 없습니다.</p>
+            <EmptyState
+              icon={<Calendar size={20} />}
+              title="예정된 회의가 없습니다"
+              className="py-8"
+            />
           )}
         </div>
 
@@ -96,23 +137,14 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-400">최근 인계가 없습니다.</p>
+            <EmptyState
+              icon={<ArrowRightLeft size={20} />}
+              title="최근 인계가 없습니다"
+              className="py-8"
+            />
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function KPICard({ icon, label, value, sub, variant }: {
-  icon: React.ReactNode; label: string; value: number; sub: string; variant?: string;
-}) {
-  const bg = variant === "danger" ? "bg-red-50 border-red-200" : variant === "warning" ? "bg-amber-50 border-amber-200" : "bg-white border-slate-200";
-  return (
-    <div className={`rounded-lg shadow-sm border p-4 ${bg}`}>
-      <div className="flex items-center gap-2 mb-1 text-slate-500">{icon}<span className="text-xs font-semibold">{label}</span></div>
-      <div className="text-2xl font-bold text-slate-800">{value}</div>
-      <div className="text-xs text-slate-500">{sub}</div>
     </div>
   );
 }

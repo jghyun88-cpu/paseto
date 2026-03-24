@@ -308,15 +308,20 @@ async def create_manual(
     content: dict,
     memo: str | None = None,
 ) -> HandoverDocument:
-    """수동 인계 생성 — Content Pydantic 검증 + _create_handover() 위임"""
+    """수동 인계 생성 — 기본값 자동 채움 + Content Pydantic 검증 + _create_handover() 위임"""
     if handover_type not in VALID_HANDOVER_TYPES:
         raise invalid_handover_type()
 
-    # 경로별 Content 모델로 검증
+    # company_overview 자동 채움
+    if "company_overview" not in content:
+        content["company_overview"] = _build_company_overview(startup)
+
+    # 경로별 Content 모델로 기본값 채움 후 검증
     content_model = CONTENT_MODEL_MAP.get(handover_type)
     if content_model:
         try:
-            content_model.model_validate(content)
+            validated = content_model.model_validate(content)
+            content = validated.model_dump()
         except ValidationError as e:
             first_error = e.errors()[0]
             field = ".".join(str(loc) for loc in first_error["loc"])
@@ -324,8 +329,6 @@ async def create_manual(
 
     if memo:
         content["memo"] = memo
-    if "company_overview" not in content:
-        content["company_overview"] = _build_company_overview(startup)
 
     return await _create_handover(db, startup, user, handover_type, content)
 
