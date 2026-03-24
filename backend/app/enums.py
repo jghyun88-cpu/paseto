@@ -37,14 +37,20 @@ class ICDecisionType(str, Enum):
 
 # --- 투자 구조 ---
 class InvestmentVehicle(str, Enum):
-    COMMON_STOCK = "common_stock"
-    PREFERRED_STOCK = "preferred_stock"
-    RCPS = "rcps"
-    CONVERTIBLE_NOTE = "convertible_note"
-    SAFE = "safe"
-    DIRECT = "direct"
-    INDIVIDUAL_UNION = "individual_union"
-    VENTURE_FUND = "venture_fund"
+    COMMON_STOCK = "common_stock"          # 보통주
+    PREFERRED_STOCK = "preferred_stock"    # 우선주
+    RCPS = "rcps"                          # RCPS (상환전환우선주)
+    CPS = "cps"                            # CPS (전환우선주)
+    CONVERTIBLE_BOND = "convertible_bond"  # CB (전환사채)
+    BOND_WITH_WARRANT = "bond_with_warrant"  # BW (신주인수권부사채)
+    SAFE = "safe"                          # SAFE
+    CONVERTIBLE_NOTE = "convertible_note"  # CN (전환사채권)
+
+
+# --- 신주/구주 구분 ---
+class ShareAcquisitionType(str, Enum):
+    NEW_SHARES = "new_shares"  # 신주
+    OLD_SHARES = "old_shares"  # 구주
 
 
 # --- 딜소싱 채널 ---

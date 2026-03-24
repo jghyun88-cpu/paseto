@@ -7,14 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import MemoEditor from "@/components/forms/MemoEditor";
 import api from "@/lib/api";
 import type { MemoItem } from "@/lib/types";
-
-const VEHICLE_OPTIONS = [
-  { value: "common_stock", label: "보통주" },
-  { value: "preferred_stock", label: "우선주" },
-  { value: "rcps", label: "RCPS" },
-  { value: "convertible_note", label: "CB" },
-  { value: "safe", label: "SAFE" },
-] as const;
+import { INVESTMENT_VEHICLE_OPTIONS, SHARE_ACQUISITION_OPTIONS } from "@/lib/constants";
 
 const EMPTY_SECTIONS: Record<string, string> = {
   overview: "",
@@ -37,6 +30,7 @@ export default function NewMemoPage() {
     amount: "",
     valuation: "",
     vehicle: "rcps",
+    share_acquisition_type: "new_shares",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -61,6 +55,7 @@ export default function NewMemoPage() {
             amount: terms.amount ? Number(terms.amount) : null,
             valuation: terms.valuation ? Number(terms.valuation) : null,
             vehicle: terms.vehicle,
+            share_acquisition_type: terms.share_acquisition_type,
           },
         });
         // 상태를 submitted로 변경하려면 PATCH
@@ -93,7 +88,7 @@ export default function NewMemoPage() {
         {/* 투자 조건 */}
         <div className="border-t pt-4">
           <h3 className="text-sm font-semibold text-slate-700 mb-3">투자 조건 (Proposed Terms)</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-slate-500 mb-1">투자금액 (원)</label>
               <input
@@ -121,7 +116,19 @@ export default function NewMemoPage() {
                 onChange={(e) => setTerms((p) => ({ ...p, vehicle: e.target.value }))}
                 className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
               >
-                {VEHICLE_OPTIONS.map((v) => (
+                {INVESTMENT_VEHICLE_OPTIONS.map((v) => (
+                  <option key={v.value} value={v.value}>{v.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-slate-500 mb-1">신주/구주</label>
+              <select
+                value={terms.share_acquisition_type}
+                onChange={(e) => setTerms((p) => ({ ...p, share_acquisition_type: e.target.value }))}
+                className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm"
+              >
+                {SHARE_ACQUISITION_OPTIONS.map((v) => (
                   <option key={v.value} value={v.value}>{v.label}</option>
                 ))}
               </select>

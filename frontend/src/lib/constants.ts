@@ -102,6 +102,40 @@ export const SOURCING_CHANNEL_OPTIONS: SelectOption[] = [
   { value: "Referral", label: "레퍼럴" },
 ];
 
+/** 투자 수단 (backend InvestmentVehicle enum 동기화 필수) */
+export const INVESTMENT_VEHICLE_OPTIONS: SelectOption[] = [
+  { value: "common_stock", label: "보통주" },
+  { value: "preferred_stock", label: "우선주" },
+  { value: "rcps", label: "RCPS" },
+  { value: "cps", label: "CPS" },
+  { value: "convertible_bond", label: "CB (전환사채)" },
+  { value: "bond_with_warrant", label: "BW (신주인수권부사채)" },
+  { value: "safe", label: "SAFE" },
+  { value: "convertible_note", label: "CN (전환사채권)" },
+];
+
+export const INVESTMENT_VEHICLE_LABEL: Record<string, string> = {
+  common_stock: "보통주",
+  preferred_stock: "우선주",
+  rcps: "RCPS",
+  cps: "CPS",
+  convertible_bond: "CB",
+  bond_with_warrant: "BW",
+  safe: "SAFE",
+  convertible_note: "CN",
+};
+
+/** 신주/구주 구분 (backend ShareAcquisitionType enum 동기화 필수) */
+export const SHARE_ACQUISITION_OPTIONS: SelectOption[] = [
+  { value: "new_shares", label: "신주" },
+  { value: "old_shares", label: "구주" },
+];
+
+export const SHARE_ACQUISITION_LABEL: Record<string, string> = {
+  new_shares: "신주",
+  old_shares: "구주",
+};
+
 /** 문서 카테고리 라벨 (backend DocumentCategory enum 동기화) */
 export const DOCUMENT_CATEGORY_LABEL: Record<string, string> = {
   dd: "DD 자료",

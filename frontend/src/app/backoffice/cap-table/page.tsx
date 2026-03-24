@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import api from "@/lib/api";
 import { showError } from "@/lib/toast";
 import { fmtDate, fmtAmount } from "@/lib/formatters";
+import { INVESTMENT_VEHICLE_LABEL } from "@/lib/constants";
 
 interface CapTableEntry {
   id: string;
@@ -18,11 +19,13 @@ interface CapTableEntry {
   investment_date: string | null;
 }
 
+/** 레거시 share_type → 통합 라벨 매핑 (기존 데이터 호환) */
 const SHARE_TYPE_LABELS: Record<string, string> = {
+  ...INVESTMENT_VEHICLE_LABEL,
+  // 레거시 값 호환
   common: "보통주",
   preferred: "우선주",
   convertible: "전환사채",
-  safe: "SAFE",
   warrant: "신주인수권",
 };
 
