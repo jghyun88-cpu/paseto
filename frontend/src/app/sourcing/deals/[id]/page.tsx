@@ -8,6 +8,7 @@ import api from "@/lib/api";
 import { fmtCorporateNumberFull, fmtBRN, fmtMillions, fmtDate } from "@/lib/formatters";
 import { DEAL_STAGE_LABEL, CHANNEL_LABEL } from "@/lib/constants";
 import DocumentsTab from "@/components/DocumentsTab";
+import MeetingsTab from "@/components/MeetingsTab";
 
 interface StartupDetail {
   id: string;
@@ -164,9 +165,7 @@ export default function DealDetailPage() {
         <DocumentsTab startupId={s.id} allowedCategories={["ir", "other"]} />
       )}
       {activeTab === "meetings" && (
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center text-slate-400">
-          미팅 관리 기능은 준비 중입니다.
-        </div>
+        <MeetingsTab startupId={s.id} startupName={s.company_name} />
       )}
     </div>
   );

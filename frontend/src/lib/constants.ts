@@ -136,6 +136,29 @@ export const SHARE_ACQUISITION_LABEL: Record<string, string> = {
   old_shares: "구주",
 };
 
+/** 회의 유형 라벨 (backend MeetingType enum 동기화 필수) */
+export const MEETING_TYPE_LABEL: Record<string, string> = {
+  weekly_deal: "주간 딜검토",
+  weekly_portfolio: "주간 포트폴리오",
+  monthly_ops: "월간 운영",
+  ic: "투자위원회",
+  mentoring: "멘토링",
+  partner_review: "파트너 리뷰",
+  risk_review: "리스크 리뷰",
+  program_ops: "프로그램 운영",
+};
+
+export const MEETING_TYPE_OPTIONS: SelectOption[] = [
+  { value: "weekly_deal", label: "주간 딜검토" },
+  { value: "weekly_portfolio", label: "주간 포트폴리오" },
+  { value: "monthly_ops", label: "월간 운영" },
+  { value: "ic", label: "투자위원회" },
+  { value: "mentoring", label: "멘토링" },
+  { value: "partner_review", label: "파트너 리뷰" },
+  { value: "risk_review", label: "리스크 리뷰" },
+  { value: "program_ops", label: "프로그램 운영" },
+];
+
 /** 문서 카테고리 라벨 (backend DocumentCategory enum 동기화) */
 export const DOCUMENT_CATEGORY_LABEL: Record<string, string> = {
   dd: "DD 자료",

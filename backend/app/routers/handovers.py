@@ -119,9 +119,9 @@ async def acknowledge_handover(
     if handover is None:
         raise handover_not_found()
 
-    # 수신팀 소속 검증: to_team이 사용자의 team과 일치해야 함
+    # 수신팀 소속 검증: to_team이 사용자의 team과 일치해야 함 (admin/partner는 예외)
     to_team = handover.to_team
-    if to_team != "all" and current_user.team != to_team:
+    if to_team != "all" and current_user.team != to_team and current_user.role not in ("admin", "partner"):
         raise handover_team_mismatch()
 
     updated = await handover_service.acknowledge(db, handover, current_user)

@@ -135,6 +135,7 @@ class NotificationType(str, Enum):
     CRISIS_ALERT = "crisis_alert"
     ESCALATION = "escalation"
     CONTRACT_OVERDUE = "contract_overdue"
+    SYSTEM = "system"
 
 
 # --- AI 분석 유형 ---

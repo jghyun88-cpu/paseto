@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     SERVICE_KEY: str | None = None
     SERVICE_TOKEN_EXPIRATION_HOURS: int = 720  # 30일
 
+    # LLM (Claude) — 미설정 시 기존 규칙 기반 스크리닝으로 폴백
+    ANTHROPIC_API_KEY: str | None = None
+
+    # 웹 리서치 (Tavily) — 미설정 시 웹 검색 없이 문서만 분석
+    TAVILY_API_KEY: str | None = None
+
     model_config = {"env_file": ".env", "extra": "ignore"}
 
 

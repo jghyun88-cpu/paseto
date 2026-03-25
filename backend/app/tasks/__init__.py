@@ -14,6 +14,13 @@ celery_app.conf.enable_utc = False
 # Task 모듈 자동 검색
 celery_app.autodiscover_tasks(["app.tasks"])
 
+# autodiscover 보완 — 명시적 import
+from app.tasks import ai_screening  # noqa: F401, E402
+from app.tasks import escalation  # noqa: F401, E402
+from app.tasks import crisis_scan  # noqa: F401, E402
+from app.tasks import report_reminders  # noqa: F401, E402
+from app.tasks import kpi_aggregation  # noqa: F401, E402
+
 # Beat 스케줄 (§20)
 from celery.schedules import crontab
 

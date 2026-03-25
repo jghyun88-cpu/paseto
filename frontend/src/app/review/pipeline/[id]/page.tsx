@@ -7,6 +7,11 @@ import { ArrowLeft, ClipboardCheck, Users, Search, FileText } from "lucide-react
 import api from "@/lib/api";
 import { fmtDate } from "@/lib/formatters";
 import { DEAL_STAGE_LABEL } from "@/lib/constants";
+import AIAnalysisPanel from "@/components/AIAnalysisPanel";
+import DocumentsTab from "@/components/DocumentsTab";
+import MeetingsTab from "@/components/MeetingsTab";
+
+type TabKey = "review" | "docs" | "meetings";
 
 interface StartupInfo {
   id: string;
@@ -84,6 +89,7 @@ export default function ReviewDetailPage() {
   const [handover, setHandover] = useState<HandoverInfo | null>(null);
   const [reviews, setReviews] = useState<ReviewRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<TabKey>("review");
 
   useEffect(() => {
     if (!startupId) return;
@@ -111,6 +117,7 @@ export default function ReviewDetailPage() {
   const currentIdx = STAGE_ORDER.indexOf(s.current_deal_stage);
   const screening = handover?.content?.screening_results;
   const gradeBadge = screening?.grade ? GRADE_BADGE[screening.grade] : null;
+  const isAcknowledged = !handover || !!handover.acknowledged_at;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -129,6 +136,42 @@ export default function ReviewDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* 탭 */}
+      <div className="border-b border-slate-200 mb-6">
+        <div className="flex gap-6">
+          {([
+            { key: "review" as TabKey, label: "심사현황" },
+            { key: "docs" as TabKey, label: "문서" },
+            { key: "meetings" as TabKey, label: "미팅" },
+          ]).map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === tab.key
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 문서 탭 */}
+      {activeTab === "docs" && (
+        <DocumentsTab startupId={s.id} allowedCategories={["dd", "ir", "legal", "other"]} />
+      )}
+
+      {/* 미팅 탭 */}
+      {activeTab === "meetings" && (
+        <MeetingsTab startupId={s.id} startupName={s.company_name} />
+      )}
+
+      {/* 심사현황 탭 */}
+      {activeTab === "review" && (<>
 
       {/* 인계 패키지 요약 */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5 mb-4">
@@ -189,15 +232,36 @@ export default function ReviewDetailPage() {
         )}
       </div>
 
+      {/* 인계 미확인 경고 */}
+      {!isAcknowledged && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-bold text-amber-800">인계 수신확인이 필요합니다</p>
+            <p className="text-xs text-amber-600 mt-0.5">
+              인계 수신함에서 수신확인을 완료해야 평가를 진행할 수 있습니다.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-amber-300 text-amber-700 hover:bg-amber-100"
+            onClick={() => router.push("/review/handover")}
+          >
+            인계 수신함 이동
+          </Button>
+        </div>
+      )}
+
       {/* 심사 진행 현황 */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5 mb-4">
+      <div className={`bg-white rounded-lg shadow-sm border border-slate-200 p-5 mb-4 ${!isAcknowledged ? "opacity-50 pointer-events-none" : ""}`}>
         <h3 className="text-sm font-bold text-slate-700 mb-3 pb-2 border-b border-slate-100">
           심사 진행
+          {!isAcknowledged && <span className="text-xs text-amber-500 font-normal ml-2">(수신확인 후 진행 가능)</span>}
         </h3>
         <div className="space-y-2">
           {REVIEW_STAGES.map((rs) => {
             const stageIdx = STAGE_ORDER.indexOf(rs.stage);
-            const isAccessible = currentIdx >= stageIdx;
+            const isAccessible = isAcknowledged && currentIdx >= stageIdx;
             const existingReview = reviews.find((r) => r.review_type === rs.key);
             const routePath = REVIEW_ROUTES[rs.key];
 
@@ -226,7 +290,7 @@ export default function ReviewDetailPage() {
                       시작
                     </Button>
                   ) : (
-                    <span className="text-xs text-slate-300">미도달</span>
+                    <span className="text-xs text-slate-300">{!isAcknowledged ? "수신확인 필요" : "미도달"}</span>
                   )}
                 </div>
               </div>
@@ -234,6 +298,18 @@ export default function ReviewDetailPage() {
           })}
         </div>
       </div>
+
+      {/* AI 분석 — 수신확인 후에만 사용 가능 */}
+      {isAcknowledged ? (
+        <AIAnalysisPanel startupId={s.id} startupName={s.company_name} />
+      ) : (
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5 mb-4 opacity-50">
+          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
+            <span className="text-purple-500">🤖</span> AI 분석
+            <span className="text-xs text-amber-500 font-normal">(수신확인 후 사용 가능)</span>
+          </h3>
+        </div>
+      )}
 
       {/* 기업 기본정보 */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-5">
@@ -269,6 +345,8 @@ export default function ReviewDetailPage() {
           )}
         </div>
       </div>
+
+      </>)}
     </div>
   );
 }

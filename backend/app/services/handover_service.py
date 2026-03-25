@@ -308,12 +308,12 @@ async def acknowledge(
     handover: HandoverDocument,
     user: User,
 ) -> HandoverDocument:
-    """인계 수신 확인 — 이중 확인 방지"""
+    """인계 수신 확인 — 이중 확인 방지 + 자동 단계 전환"""
     if handover.acknowledged_at is not None:
         raise handover_already_acknowledged()
 
     handover.acknowledged_by = user.id
-    handover.acknowledged_at = datetime.now(timezone.utc)
+    handover.acknowledged_at = datetime.now()
 
     db.add(handover)
     await db.flush()
@@ -324,8 +324,46 @@ async def acknowledge(
         startup_id=handover.startup_id,
     )
 
+    # 인계 유형별 자동 단계 전환
+    await _auto_stage_transition_on_acknowledge(db, handover, user)
+
     await db.refresh(handover)
     return handover
+
+
+async def _auto_stage_transition_on_acknowledge(
+    db: AsyncSession,
+    handover: HandoverDocument,
+    user: User,
+) -> None:
+    """인계 수신확인 시 DealStage 자동 전환"""
+    from app.enums import DealStage
+    from app.services import deal_flow_service
+
+    stage_map = {
+        "sourcing_to_review": DealStage.DEEP_REVIEW,
+        "review_to_incubation": DealStage.PORTFOLIO,
+    }
+
+    target_stage = stage_map.get(handover.handover_type)
+    if target_stage is None:
+        return
+
+    startup = await db.get(Startup, handover.startup_id)
+    if startup is None:
+        return
+
+    # 이미 해당 단계 이상이면 전환 불필요
+    if startup.current_deal_stage == target_stage:
+        return
+
+    try:
+        await deal_flow_service.move_stage(
+            db, startup, target_stage, user,
+            notes=f"인계 수신확인 → {target_stage.value} 자동 전환",
+        )
+    except Exception:
+        pass  # 전환 실패 시 수신확인 자체는 유지
 
 
 async def create_manual(

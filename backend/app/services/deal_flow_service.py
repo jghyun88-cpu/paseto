@@ -56,7 +56,8 @@ async def move_stage(
     old_stage = startup.current_deal_stage
 
     # 단계 전환 유효성 검증 (화이트리스트 방식)
-    if old_stage:
+    # 같은 단계로의 재등록은 허용 (딜 등록 시 이미 inbound인 기업)
+    if old_stage and old_stage != to_stage:
         allowed = VALID_TRANSITIONS.get(old_stage)
         if allowed is None:
             # VALID_TRANSITIONS에 정의되지 않은 단계 = 전환 종료 상태 (PORTFOLIO 등)

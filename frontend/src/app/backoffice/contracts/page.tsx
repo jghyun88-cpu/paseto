@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { Search } from "lucide-react";
+import React, { useEffect, useState, useCallback } from "react";
+import { Search, ChevronDown, ChevronUp } from "lucide-react";
 import api from "@/lib/api";
 import { showError } from "@/lib/toast";
 import { fmtDate, fmtAmount } from "@/lib/formatters";
+import DocumentsTab from "@/components/DocumentsTab";
 
 interface ContractItem {
   id: string;
@@ -50,6 +51,7 @@ export default function ContractsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -123,20 +125,35 @@ export default function ContractsPage() {
           </thead>
           <tbody>
             {items.map((c) => (
-              <tr key={c.id} className="border-t border-slate-100 hover:bg-slate-50">
-                <td className="py-2 px-3 font-medium text-slate-800">
-                  {c.startup_name ?? c.startup_id?.slice(0, 8) ?? "-"}
-                </td>
-                <td className="py-2 px-3">{TYPE_LABELS[c.contract_type] ?? c.contract_type}</td>
-                <td className="py-2 px-3">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status] ?? "bg-slate-100 text-slate-600"}`}>
-                    {STATUS_LABELS[c.status] ?? c.status}
-                  </span>
-                </td>
-                <td className="py-2 px-3">{fmtAmount(c.amount)}</td>
-                <td className="py-2 px-3">{fmtDate(c.signed_at)}</td>
-                <td className="py-2 px-3">{fmtDate(c.created_at)}</td>
-              </tr>
+              <React.Fragment key={c.id}>
+                <tr
+                  className="border-t border-slate-100 hover:bg-slate-50 cursor-pointer"
+                  onClick={() => setExpandedId(expandedId === c.id ? null : c.id)}
+                >
+                  <td className="py-2 px-3 font-medium text-slate-800">
+                    <div className="flex items-center gap-1.5">
+                      {expandedId === c.id ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
+                      {c.startup_name ?? c.startup_id?.slice(0, 8) ?? "-"}
+                    </div>
+                  </td>
+                  <td className="py-2 px-3">{TYPE_LABELS[c.contract_type] ?? c.contract_type}</td>
+                  <td className="py-2 px-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[c.status] ?? "bg-slate-100 text-slate-600"}`}>
+                      {STATUS_LABELS[c.status] ?? c.status}
+                    </span>
+                  </td>
+                  <td className="py-2 px-3">{fmtAmount(c.amount)}</td>
+                  <td className="py-2 px-3">{fmtDate(c.signed_at)}</td>
+                  <td className="py-2 px-3">{fmtDate(c.created_at)}</td>
+                </tr>
+                {expandedId === c.id && c.startup_id && (
+                  <tr>
+                    <td colSpan={6} className="bg-slate-50 p-4">
+                      <DocumentsTab startupId={c.startup_id} allowedCategories={["contract", "legal"]} />
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>

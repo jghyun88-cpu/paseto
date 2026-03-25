@@ -18,6 +18,7 @@ async def get_list(
     page: int = 1,
     page_size: int = 20,
     meeting_type: str | None = None,
+    startup_id: uuid.UUID | None = None,
     from_date: datetime | None = None,
     to_date: datetime | None = None,
 ) -> tuple[list[Meeting], int]:
@@ -29,6 +30,19 @@ async def get_list(
         query = query.where(Meeting.scheduled_at >= from_date)
     if to_date:
         query = query.where(Meeting.scheduled_at <= to_date)
+
+    # startup_id 필터: JSON 배열 related_startup_ids에 포함된 미팅만
+    if startup_id:
+        sid = str(startup_id)
+        all_q = query.order_by(Meeting.scheduled_at.desc())
+        result = await db.execute(all_q)
+        all_meetings = [
+            m for m in result.scalars().all()
+            if m.related_startup_ids and sid in [str(s) for s in m.related_startup_ids]
+        ]
+        total = len(all_meetings)
+        offset = (page - 1) * page_size
+        return all_meetings[offset:offset + page_size], total
 
     count_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(count_query)).scalar_one()

@@ -124,16 +124,33 @@ export default function NewDealPage() {
       const fd = new FormData(e.currentTarget);
 
       try {
-        // DealFlow만 생성 — 스타트업 마스터 데이터는 절대 수정하지 않음
+        // 스타트업 마스터 데이터 업데이트 (한줄소개, 상세설명, 섹터 등)
+        const patchData: Record<string, unknown> = {};
+        const oneLiner = fd.get("one_liner") as string | null;
+        const desc = fd.get("description") as string | null;
+        const sectorVal = fd.get("sector") as string | null;
+        const stageVal = fd.get("stage") as string | null;
+        const channelVal = fd.get("sourcing_channel") as string | null;
+        const discovererVal = fd.get("discoverer") as string | null;
+
+        if (oneLiner) patchData.one_liner = oneLiner;
+        if (desc) patchData.problem_definition = desc;
+        if (sectorVal) patchData.industry = sectorVal;
+        if (stageVal) patchData.stage = stageVal;
+        if (channelVal) patchData.sourcing_channel = channelVal;
+        if (discovererVal) patchData.assigned_manager_id = discovererVal;
+
+        if (Object.keys(patchData).length > 0) {
+          await api.patch(`/startups/${selectedStartup.id}`, patchData);
+        }
+
+        // DealFlow 생성
         await api.post("/deal-flows/move", {
           startup_id: selectedStartup.id,
           to_stage: "inbound",
           notes: [
-            fd.get("one_liner") && `한줄소개: ${fd.get("one_liner")}`,
-            fd.get("description") && `설명: ${fd.get("description")}`,
-            fd.get("sector") && `섹터: ${fd.get("sector")}`,
-            fd.get("stage") && `단계: ${fd.get("stage")}`,
-            fd.get("sourcing_channel") && `발굴경로: ${fd.get("sourcing_channel")}`,
+            oneLiner && `한줄소개: ${oneLiner}`,
+            desc && `설명: ${desc}`,
           ].filter(Boolean).join("\n") || undefined,
         });
         router.push("/sourcing/deals");

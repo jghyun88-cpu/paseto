@@ -120,14 +120,9 @@ async def create(
         )
 
     # 자동화 #2: pass + 인계 요청 → HandoverDocument + 심사팀 알림
+    # DEEP_REVIEW 전환은 심사팀 수신확인 시점에 자동 실행 (handover_service.acknowledge)
     if recommendation == "pass" and handover_to_review:
         await create_from_screening(db, startup, screening, user)
-
-        # FIRST_SCREENING → DEEP_REVIEW 단계 이동
-        await deal_flow_service.move_stage(
-            db, startup, DealStage.DEEP_REVIEW, user,
-            notes=f"스크리닝 Pass (점수 {overall_score}) → 심사팀 인계",
-        )
 
         # 심사팀에 알림
         await notification_service.notify_team(

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import DocumentsTab from "@/components/DocumentsTab";
 
 interface PoCDetail {
   id: string; project_name: string; startup_id: string; partner_demand_id: string;
@@ -127,6 +128,12 @@ export default function PoCDetailPage() {
         {error && <p className="text-sm text-red-600">{error}</p>}
         {success && <p className="text-sm text-green-600">{success}</p>}
         <Button onClick={handleProgressSave} disabled={saving}>{saving ? "저장 중..." : "진행 상황 저장"}</Button>
+      </div>
+
+      {/* 관련 문서 */}
+      <div className="mt-5">
+        <h3 className="text-sm font-bold text-slate-700 mb-3">관련 문서</h3>
+        <DocumentsTab startupId={poc.startup_id} allowedCategories={["poc", "report"]} />
       </div>
     </div>
   );

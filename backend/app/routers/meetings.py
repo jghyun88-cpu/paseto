@@ -22,11 +22,13 @@ from app.services import meeting_service
 router = APIRouter()
 
 
-@router.get("/", response_model=MeetingListResponse)
+@router.get("", response_model=MeetingListResponse)
+@router.get("/", response_model=MeetingListResponse, include_in_schema=False)
 async def list_meetings(
     db: Annotated[AsyncSession, Depends(get_db)],
     _user: Annotated[User, Depends(require_permission("deal_flow", "read"))],
     meeting_type: str | None = None,
+    startup_id: uuid.UUID | None = None,
     from_date: datetime | None = None,
     to_date: datetime | None = None,
     page: int = Query(1, ge=1),
@@ -34,7 +36,8 @@ async def list_meetings(
 ) -> MeetingListResponse:
     items, total = await meeting_service.get_list(
         db, page=page, page_size=page_size,
-        meeting_type=meeting_type, from_date=from_date, to_date=to_date,
+        meeting_type=meeting_type, startup_id=startup_id,
+        from_date=from_date, to_date=to_date,
     )
     return MeetingListResponse(
         data=[MeetingResponse.model_validate(m) for m in items],
@@ -54,7 +57,8 @@ async def get_meeting(
     return MeetingResponse.model_validate(meeting)
 
 
-@router.post("/", response_model=MeetingResponse, status_code=201)
+@router.post("", response_model=MeetingResponse, status_code=201)
+@router.post("/", response_model=MeetingResponse, status_code=201, include_in_schema=False)
 async def create_meeting(
     data: MeetingCreate,
     db: Annotated[AsyncSession, Depends(get_db)],

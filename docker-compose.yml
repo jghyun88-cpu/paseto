@@ -39,6 +39,8 @@ services:
       UPLOAD_DIR: ${UPLOAD_DIR}
       MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
     ports:
       - "8000:8000"
     depends_on:
@@ -56,9 +58,13 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
+      JWT_SECRET: ${JWT_SECRET}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
       TZ: ${TZ}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      UPLOAD_DIR: ${UPLOAD_DIR}
     depends_on:
       db:
         condition: service_healthy
@@ -66,6 +72,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - uploads:/app/uploads
 
   celery_beat:
     build: ./backend

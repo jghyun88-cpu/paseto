@@ -148,21 +148,21 @@ export default function DocumentsTab({ startupId, allowedCategories }: Documents
           <div>
             <input
               ref={fileRef}
+              id={`doc-upload-${startupId}`}
               type="file"
               onChange={handleUpload}
-              className="hidden"
+              className="sr-only"
               disabled={uploading}
             />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fileRef.current?.click()}
-              disabled={uploading}
-              className="gap-1.5"
+            <label
+              htmlFor={`doc-upload-${startupId}`}
+              className={`inline-flex items-center gap-1.5 h-8 px-3 text-sm font-medium border border-slate-300 rounded-md cursor-pointer bg-white hover:bg-slate-50 transition-colors ${
+                uploading ? "opacity-50 pointer-events-none" : ""
+              }`}
             >
               <Upload className="w-4 h-4" />
               {uploading ? "업로드 중..." : "파일 첨부"}
-            </Button>
+            </label>
           </div>
         </div>
       </div>
