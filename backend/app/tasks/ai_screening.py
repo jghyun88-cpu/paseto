@@ -60,7 +60,9 @@ def run_ai_screening(self, startup_id: str, analysis_type: str, user_id: str | N
         try:
             from app.services.web_research_service import research_market
 
-            web_research_text = research_market(startup.company_name, startup.industry)
+            web_research_text = research_market(
+                startup.company_name, startup.industry, analysis_type=analysis_type,
+            )
             if web_research_text:
                 startup_info += f"\n\n## 외부 시장 조사 결과 (웹 검색)\n{web_research_text}"
                 web_research_used = True
