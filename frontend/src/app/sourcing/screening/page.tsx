@@ -86,7 +86,11 @@ export default function ScreeningListPage() {
             {loading ? (
               <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">로딩 중...</td></tr>
             ) : items.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-400">스크리닝 이력이 없습니다.</td></tr>
+              <tr><td colSpan={6} className="px-4 py-16 text-center">
+                <div className="text-4xl mb-3">🔍</div>
+                <p className="text-lg font-semibold text-gray-900 mb-1">스크리닝 이력이 없습니다</p>
+                <p className="text-sm text-gray-500">딜 상세에서 스크리닝을 시작할 수 있습니다.</p>
+              </td></tr>
             ) : (
               items.map((sc) => {
                 const badge = REC_BADGE[sc.recommendation] ?? REC_BADGE.review;

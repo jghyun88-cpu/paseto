@@ -682,3 +682,71 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   border-color: #3b82f6;
 }
+
+/* ============================================
+   모바일 반응형 — 375px (iPhone SE) 이상
+   ============================================ */
+@media (max-width: 768px) {
+  /* 사이드바 + 좌측 툴바 숨기기 */
+  .dashboard-panel,
+  .left-toolbar {
+    display: none;
+  }
+
+  /* 좌측 툴바 → 하단 고정 네비게이션으로 변환 */
+  .dashboard-body {
+    flex-direction: column;
+  }
+
+  /* 컨텐츠 영역 전체 너비 */
+  .dashboard-content {
+    padding: 16px 12px;
+  }
+
+  /* GNB 탭 스크롤 허용 */
+  .topnav-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .topnav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 칸반보드 가로 스크롤 */
+  .kanban-board {
+    height: auto;
+    min-height: calc(100vh - 160px);
+  }
+
+  .kanban-column {
+    min-width: 260px;
+  }
+
+  /* 로그인 카드 모바일 대응 */
+  .login-card {
+    width: 100%;
+    max-width: 400px;
+    margin: 16px;
+    padding: 32px 24px;
+  }
+
+  /* 테이블 → 카드 전환 */
+  .mobile-card-view {
+    display: block;
+  }
+
+  .mobile-table-view {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-card-view {
+    display: none;
+  }
+
+  .mobile-table-view {
+    display: block;
+  }
+}

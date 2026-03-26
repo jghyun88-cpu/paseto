@@ -1,6 +1,9 @@
 """인계 서비스 — HandoverDocument 생성 + 수신 확인 + 수동 생성 + 통계"""
 
+import logging
 import uuid
+
+logger = logging.getLogger(__name__)
 from datetime import datetime, timezone
 
 from pydantic import ValidationError
@@ -363,7 +366,12 @@ async def _auto_stage_transition_on_acknowledge(
             notes=f"인계 수신확인 → {target_stage.value} 자동 전환",
         )
     except Exception:
-        pass  # 전환 실패 시 수신확인 자체는 유지
+        logger.error(
+            "인계 수신확인 후 단계 전환 실패: handover_id=%s, target=%s, startup_id=%s",
+            handover.id, target_stage.value, handover.startup_id,
+            exc_info=True,
+        )
+        # 전환 실패 시에도 수신확인 자체는 유지 (rollback하지 않음)
 
 
 async def create_manual(

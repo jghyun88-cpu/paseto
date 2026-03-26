@@ -6,6 +6,9 @@
 .env.test.local
 .env.production.local
 
+# DB 백업
+backups/
+
 # Python
 __pycache__/
 *.py[cod]

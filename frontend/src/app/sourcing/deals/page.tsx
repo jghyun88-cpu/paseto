@@ -138,7 +138,12 @@ export default function SourcingDealsPage() {
               </tr>
             ) : items.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-slate-400">딜이 없습니다.</td>
+                <td colSpan={8} className="px-4 py-16 text-center">
+                  <div className="text-4xl mb-3">📋</div>
+                  <p className="text-lg font-semibold text-gray-900 mb-1">등록된 딜이 없습니다</p>
+                  <p className="text-sm text-gray-500 mb-4">새 딜을 등록하여 파이프라인을 시작하세요.</p>
+                  <button onClick={() => router.push("/sourcing/deals/new")} className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700">새 딜 등록</button>
+                </td>
               </tr>
             ) : (
               items.map((item) => (

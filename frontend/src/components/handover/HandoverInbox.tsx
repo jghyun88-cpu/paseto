@@ -118,7 +118,11 @@ export default function HandoverInbox({ toTeam, title }: Props) {
         ) : error ? (
           <p className="px-4 py-8 text-center text-red-500">인계 목록을 불러올 수 없습니다. 새로고침해 주세요.</p>
         ) : filtered.length === 0 ? (
-          <p className="px-4 py-8 text-center text-slate-400">해당 항목이 없습니다.</p>
+          <div className="px-4 py-16 text-center">
+            <div className="text-4xl mb-3">📨</div>
+            <p className="text-lg font-semibold text-gray-900 mb-1">인계 항목이 없습니다</p>
+            <p className="text-sm text-gray-500">새로운 인계가 도착하면 여기에 표시됩니다.</p>
+          </div>
         ) : (
           <div className="divide-y divide-slate-100">
             {filtered.map((h) => (

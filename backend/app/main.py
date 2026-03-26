@@ -4,6 +4,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
+from app.middleware.error_monitor import ErrorMonitorMiddleware
 from app.rate_limit import limiter
 
 from app.routers import auth as auth_router
@@ -41,12 +42,17 @@ from app.routers import portfolio_issues as portfolio_issues_router
 from app.routers import ksic as ksic_router
 from app.routers import compliance as compliance_router
 from app.routers import documents as documents_router
+from app.routers import health as health_router
+from app.routers import imports as imports_router
 
 app = FastAPI(
     title="eLSA — 딥테크 액셀러레이터 운영시스템",
     description="소싱→심사→투자→보육→수요기업연결→회수 전주기 운영 API",
     version="0.1.0",
 )
+
+# 에러 모니터링 미들웨어 (가장 바깥에 위치)
+app.add_middleware(ErrorMonitorMiddleware)
 
 # Rate Limiter 등록
 app.state.limiter = limiter
@@ -97,12 +103,8 @@ app.include_router(portfolio_issues_router.router, prefix="/api/v1/portfolio-iss
 app.include_router(ksic_router.router, prefix="/api/v1/ksic", tags=["표준산업분류"])
 app.include_router(compliance_router.router, prefix="/api/v1/compliance", tags=["컴플라이언스"])
 app.include_router(documents_router.router, prefix="/api/v1/documents", tags=["문서"])
-
-
-@app.get("/health")
-async def health_check():
-    """헬스 체크 엔드포인트"""
-    return {"status": "healthy", "service": "eLSA Backend"}
+app.include_router(health_router.router, prefix="/api/v1", tags=["시스템"])
+app.include_router(imports_router.router, prefix="/api/v1/import", tags=["임포트"])
 
 
 @app.get("/api/v1")
