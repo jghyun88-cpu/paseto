@@ -34,7 +34,7 @@ async def test_move_stage_invalid_transition(db: AsyncSession):
     from fastapi import HTTPException
     with pytest.raises(HTTPException) as exc_info:
         await deal_flow_service.move_stage(db, startup, DealStage.IC_REVIEW, user)
-    assert exc_info.value.status_code == 400
+    assert exc_info.value.status_code == 422
 
 
 @pytest.mark.asyncio

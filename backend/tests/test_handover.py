@@ -17,10 +17,14 @@ async def _create_handover(
     handover_type: str = "sourcing_to_review",
 ) -> HandoverDocument:
     """테스트용 인계 문서 직접 생성"""
+    from app.services.handover_service import HANDOVER_TYPE_MAP
+    from_team, to_team = HANDOVER_TYPE_MAP.get(handover_type, ("sourcing", "review"))
     doc = HandoverDocument(
         startup_id=startup_id,
         created_by=user_id,
         handover_type=handover_type,
+        from_team=from_team,
+        to_team=to_team,
         content={
             "company_overview": {"name": "테스트 기업"},
             "screening_results": {"grade": "pass", "overall_score": 80},
