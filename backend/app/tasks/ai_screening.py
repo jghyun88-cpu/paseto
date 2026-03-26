@@ -70,6 +70,27 @@ def run_ai_screening(self, startup_id: str, analysis_type: str, user_id: str | N
         except Exception:
             logger.warning("웹 리서치 실패 — 문서 분석만 진행", exc_info=True)
 
+        # 기업 웹사이트 직접 크롤링
+        website_crawl_meta: dict = {}
+        try:
+            from app.services.website_crawler import crawl_company_website
+
+            website_crawl_result = crawl_company_website(
+                startup.website, startup.company_name,
+            )
+            if website_crawl_result and website_crawl_result.get("crawl_text"):
+                startup_info += f"\n\n{website_crawl_result['crawl_text']}"
+                website_crawl_meta = {
+                    k: v for k, v in website_crawl_result.items() if k != "crawl_text"
+                }
+                logger.info(
+                    "웹사이트 크롤링 완료: %s (%d페이지)",
+                    startup.company_name,
+                    website_crawl_result.get("pages_crawled", 0),
+                )
+        except Exception:
+            logger.warning("웹사이트 크롤링 실패 — 기존 분석만 진행", exc_info=True)
+
         # LLM 문서 분석 시도
         llm_result = None
         if documents:
@@ -103,6 +124,10 @@ def run_ai_screening(self, startup_id: str, analysis_type: str, user_id: str | N
         # 웹 리서치 원본을 scores에 저장 (보고서 생성용)
         if web_research_text and result.get("scores"):
             result["scores"]["_web_research"] = web_research_text
+
+        # 웹사이트 크롤링 메타데이터를 scores에 저장
+        if website_crawl_meta and result.get("scores"):
+            result["scores"]["_website_analysis"] = website_crawl_meta
 
         # AI 분석 결과 저장
         analysis = AIAnalysis(
