@@ -9,7 +9,7 @@
 import asyncio
 import sys
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -25,8 +25,7 @@ from app.models.screening import Screening
 from app.models.startup import Startup
 from app.models.user import User
 
-KST = timezone(timedelta(hours=9))
-NOW = datetime.now(KST)
+NOW = datetime.utcnow()
 
 
 # --- 데모 스타트업 5개 (각 다른 파이프라인 단계) ---
@@ -151,6 +150,7 @@ async def seed_demo() -> None:
                 location=data.get("location"),
             )
             db.add(startup)
+            await db.flush()
             created_startups += 1
 
             # DealFlow 이력 생성 — 현재 stage까지의 경로
@@ -170,12 +170,20 @@ async def seed_demo() -> None:
 
             # FIRST_SCREENING 이상이면 스크리닝 생성
             if _stage_index(data["current_deal_stage"]) >= 1:
+                is_pass = _stage_index(data["current_deal_stage"]) >= 2
                 screening = Screening(
                     id=uuid.uuid4(),
                     startup_id=startup_id,
                     screener_id=sourcing_user.id,
-                    recommendation="pass" if _stage_index(data["current_deal_stage"]) >= 2 else "review",
-                    overall_score=75.0 if _stage_index(data["current_deal_stage"]) >= 2 else 45.0,
+                    fulltime_commitment=5 if is_pass else 3,
+                    problem_clarity=5 if is_pass else 3,
+                    tech_differentiation=5 if is_pass else 3,
+                    market_potential=4 if is_pass else 2,
+                    initial_validation=4 if is_pass else 2,
+                    legal_clear=True,
+                    strategy_fit=4 if is_pass else 2,
+                    recommendation="pass" if is_pass else "review",
+                    overall_score=32.0 if is_pass else 20.0,
                     risk_notes=f"{data['company_name']} — 기술 리스크: 중간, 시장 리스크: 낮음",
                     handover_memo=f"{data['company_name']} 심사팀 인계 메모: {data['one_liner']}",
                 )
@@ -219,14 +227,12 @@ async def seed_demo() -> None:
                     startup_id=startup_id,
                     reviewer_id=review_user.id,
                     review_type="document",
-                    tech_score=4,
-                    market_score=3,
                     team_score=4,
-                    bm_score=3,
+                    problem_score=4,
+                    solution_score=3,
+                    market_score=3,
                     traction_score=3,
-                    overall_score=3.4,
-                    verdict="positive",
-                    comment=f"{data['company_name']} 서류심사 — 기술력 우수, 시장 검증 필요",
+                    overall_verdict="proceed",
                 )
                 db.add(review)
                 created_reviews += 1
