@@ -317,8 +317,18 @@ export default function AIAnalysisPanel({ startupId, startupName }: AIAnalysisPa
         loadAnalyses();
         setTriggering(null);
       }, 3000);
-    } catch {
-      alert("AI 분석 요청에 실패했습니다.");
+    } catch (err) {
+      const isTimeout = err instanceof Error && (err.message.includes("timeout") || err.message.includes("network"));
+      const msg = isTimeout
+        ? "AI 분석 서버 응답 지연 — 잠시 후 다시 시도해 주세요."
+        : "AI 분석 요청에 실패했습니다. 수동 입력으로 진행할 수 있습니다.";
+      if (typeof window !== "undefined" && "sonner" in window) {
+        // sonner toast가 있으면 사용
+        const { toast } = await import("sonner");
+        toast.error(msg, { duration: 5000 });
+      } else {
+        alert(msg);
+      }
       setTriggering(null);
     }
   };

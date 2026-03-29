@@ -8,6 +8,8 @@ export interface MenuNode {
   type: "folder" | "page";
   href?: string;
   children?: MenuNode[];
+  /** 배포 단계 — 1: 1차 배포 포함, 2: 2차 이후. 미지정 시 1로 간주 */
+  phase?: 1 | 2;
 }
 
 /** 상단 GNB 탭 */
@@ -15,6 +17,8 @@ export interface NavTab {
   id: string;
   label: string;
   menu: MenuNode[];
+  /** 탭 전체의 배포 단계 — 2이면 탭 자체가 disabled */
+  phase?: 1 | 2;
 }
 
 /** 사용자 역할 */

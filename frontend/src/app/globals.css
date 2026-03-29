@@ -178,6 +178,12 @@
   opacity: 0.9;
 }
 
+.topnav-tab--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .topnav-tab-dot {
   display: none;
 }

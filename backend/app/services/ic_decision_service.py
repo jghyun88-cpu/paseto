@@ -15,7 +15,7 @@ from app.services import activity_log_service, deal_flow_service
 
 # ICDecisionType → DealStage 매핑
 _DECISION_TO_STAGE: dict[ICDecisionType, DealStage] = {
-    ICDecisionType.APPROVED: DealStage.CONTRACT,
+    ICDecisionType.APPROVED: DealStage.APPROVED,
     ICDecisionType.CONDITIONAL: DealStage.CONDITIONAL,
     ICDecisionType.ON_HOLD: DealStage.ON_HOLD,
     ICDecisionType.INCUBATION_FIRST: DealStage.INCUBATION_FIRST,

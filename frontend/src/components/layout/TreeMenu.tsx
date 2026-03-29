@@ -30,7 +30,7 @@ export default function TreeMenu({ rootLabel, nodes, onNavigate }: TreeMenuProps
         <Star size={14} className="tree-root-star" />
       </div>
       <div className="tree-children">
-        {nodes.map((node) => (
+        {nodes.filter((node) => node.phase !== 2).map((node) => (
           <TreeNode key={node.id} node={node} depth={1} onNavigate={onNavigate} />
         ))}
       </div>
@@ -90,7 +90,7 @@ function TreeNode({ node, depth, onNavigate }: TreeNodeProps) {
         </button>
         {expanded && node.children && (
           <div className="tree-children">
-            {node.children.map((child) => (
+            {node.children.filter((child) => child.phase !== 2).map((child) => (
               <TreeNode
                 key={child.id}
                 node={child}

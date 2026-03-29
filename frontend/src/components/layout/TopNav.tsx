@@ -59,12 +59,15 @@ export default function TopNav({ tabs, activeTab, onTabChange }: TopNavProps) {
       <nav className="topnav-tabs">
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab;
+          const isPhase2 = tab.phase === 2;
           return (
             <Button
               key={tab.id}
               variant="ghost"
-              className={`topnav-tab ${isActive ? "topnav-tab--active" : ""}`}
-              onClick={() => onTabChange(tab.id)}
+              className={`topnav-tab ${isActive ? "topnav-tab--active" : ""} ${isPhase2 ? "topnav-tab--disabled" : ""}`}
+              onClick={() => !isPhase2 && onTabChange(tab.id)}
+              disabled={isPhase2}
+              title={isPhase2 ? "2차 배포 예정" : undefined}
             >
               {tab.label}
               {isActive && <span className="topnav-tab-dot" />}

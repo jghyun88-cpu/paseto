@@ -82,9 +82,10 @@ export const NAV_TABS: NavTab[] = [
         id: "src-report",
         label: "소싱분석",
         type: "folder",
+        phase: 2,
         children: [
-          { id: "src-report-channel", label: "채널별 분석", type: "page", href: "/sourcing/reports/channel" },
-          { id: "src-report-funnel", label: "전환율 분석", type: "page", href: "/sourcing/reports/funnel" },
+          { id: "src-report-channel", label: "채널별 분석", type: "page", href: "/sourcing/reports/channel", phase: 2 },
+          { id: "src-report-funnel", label: "전환율 분석", type: "page", href: "/sourcing/reports/funnel", phase: 2 },
         ],
       },
     ],
@@ -108,7 +109,7 @@ export const NAV_TABS: NavTab[] = [
         children: [
           { id: "rev-doc", label: "서류심사 (5축)", type: "page", href: "/review/document" },
           { id: "rev-interview", label: "구조화 인터뷰", type: "page", href: "/review/interview" },
-          { id: "rev-dd", label: "DD 체크리스트", type: "page", href: "/review/dd" },
+          { id: "rev-dd", label: "DD 체크리스트", type: "page", href: "/review/dd", phase: 2 },
         ],
       },
       {
@@ -142,6 +143,7 @@ export const NAV_TABS: NavTab[] = [
   {
     id: "incubation",
     label: "보육관리",
+    phase: 2,
     menu: [
       {
         id: "inc-portfolio",
@@ -201,6 +203,7 @@ export const NAV_TABS: NavTab[] = [
   {
     id: "oi",
     label: "OI관리",
+    phase: 2,
     menu: [
       {
         id: "oi-partner",
@@ -243,6 +246,7 @@ export const NAV_TABS: NavTab[] = [
   {
     id: "backoffice",
     label: "백오피스",
+    phase: 2,
     menu: [
       {
         id: "bo-contract",
@@ -296,6 +300,7 @@ export const NAV_TABS: NavTab[] = [
   {
     id: "kpi",
     label: "KPI",
+    phase: 2,
     menu: [
       {
         id: "kpi-team",
@@ -335,34 +340,38 @@ export const NAV_TABS: NavTab[] = [
         id: "adm-sop",
         label: "SOP관리",
         type: "folder",
+        phase: 2,
         children: [
-          { id: "adm-sop-list", label: "SOP 템플릿", type: "page", href: "/admin/sop" },
-          { id: "adm-sop-exec", label: "SOP 실행 이력", type: "page", href: "/admin/sop/executions" },
+          { id: "adm-sop-list", label: "SOP 템플릿", type: "page", href: "/admin/sop", phase: 2 },
+          { id: "adm-sop-exec", label: "SOP 실행 이력", type: "page", href: "/admin/sop/executions", phase: 2 },
         ],
       },
       {
         id: "adm-form",
         label: "양식관리",
         type: "folder",
+        phase: 2,
         children: [
-          { id: "adm-form-list", label: "양식 템플릿", type: "page", href: "/admin/forms" },
-          { id: "adm-form-submit", label: "양식 제출 이력", type: "page", href: "/admin/forms/submissions" },
+          { id: "adm-form-list", label: "양식 템플릿", type: "page", href: "/admin/forms", phase: 2 },
+          { id: "adm-form-submit", label: "양식 제출 이력", type: "page", href: "/admin/forms/submissions", phase: 2 },
         ],
       },
       {
         id: "adm-kpi-target",
         label: "KPI목표설정",
         type: "folder",
+        phase: 2,
         children: [
-          { id: "adm-kpi-set", label: "KPI 목표 관리", type: "page", href: "/admin/kpi-targets" },
+          { id: "adm-kpi-set", label: "KPI 목표 관리", type: "page", href: "/admin/kpi-targets", phase: 2 },
         ],
       },
       {
         id: "adm-jd",
         label: "JD관리",
         type: "folder",
+        phase: 2,
         children: [
-          { id: "adm-jd-list", label: "직무기술서", type: "page", href: "/admin/jd" },
+          { id: "adm-jd-list", label: "직무기술서", type: "page", href: "/admin/jd", phase: 2 },
         ],
       },
       {
@@ -372,10 +381,34 @@ export const NAV_TABS: NavTab[] = [
         children: [
           { id: "adm-org", label: "조직/배치 설정", type: "page", href: "/admin/settings" },
           { id: "adm-thesis", label: "투자 Thesis", type: "page", href: "/admin/settings/thesis" },
-          { id: "adm-mentor-pool", label: "멘토 풀 관리", type: "page", href: "/admin/mentors" },
+          { id: "adm-mentor-pool", label: "멘토 풀 관리", type: "page", href: "/admin/mentors", phase: 2 },
           { id: "adm-users", label: "사용자 관리", type: "page", href: "/admin/users" },
         ],
       },
     ],
   },
 ];
+
+/** phase:2 라우트의 URL 프리픽스 목록 — 미들웨어 리다이렉트에 사용 */
+function collectPhase2Hrefs(nodes: import("./types").MenuNode[]): string[] {
+  const result: string[] = [];
+  for (const node of nodes) {
+    if (node.phase === 2 && node.href) result.push(node.href);
+    if (node.children) result.push(...collectPhase2Hrefs(node.children));
+  }
+  return result;
+}
+
+export const PHASE2_ROUTES: string[] = NAV_TABS.flatMap((tab) => {
+  if (tab.phase === 2) {
+    return collectPhase2Hrefs(tab.menu).length > 0
+      ? collectPhase2Hrefs(tab.menu)
+      : [`/${tab.id}`];
+  }
+  return collectPhase2Hrefs(tab.menu);
+});
+
+/** phase:2 탭의 전체 URL 프리픽스 — 탭 단위 리다이렉트용 */
+export const PHASE2_TAB_PREFIXES: string[] = NAV_TABS
+  .filter((tab) => tab.phase === 2)
+  .map((tab) => `/${tab.id}`);
