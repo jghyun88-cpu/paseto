@@ -1,5 +1,3 @@
-# LP 보고서 작성 에이전트
-
 ---
 name: lp-report-writer
 description: LP(유한책임파트너) 정기 보고서를 작성합니다. LP 보고서 작성 요청 시 자동으로 호출됩니다.

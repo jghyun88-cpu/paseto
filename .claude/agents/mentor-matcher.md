@@ -1,5 +1,3 @@
-# 멘토 매칭 에이전트
-
 ---
 name: mentor-matcher
 description: 스타트업과 적합한 멘토를 매칭합니다. 멘토 매칭 요청 시 자동으로 호출됩니다.
