@@ -251,6 +251,28 @@ export default function DocumentReviewPage() {
   const [aiResult, setAiResult] = useState<any>(null);
   const [startupName, setStartupName] = useState("");
 
+  // 수동 모드 상태 (훅은 조건부 return 전에 선언)
+  const [scores, setScores] = useState<Record<string, number>>({
+    team_score: 3,
+    problem_score: 3,
+    solution_score: 3,
+    market_score: 3,
+    traction_score: 3,
+  });
+  const [verdict, setVerdict] = useState("proceed");
+  const [showDeeptech, setShowDeeptech] = useState(false);
+  const [deeptech, setDeeptech] = useState({
+    tech_type: "",
+    scalability_score: 3,
+    process_compatibility: 3,
+    sample_test_status: "",
+    certification_stage: "",
+    purchase_lead_time_months: 0,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [guideOpen, setGuideOpen] = useState(false);
+
   // 스타트업 이름 로드
   useEffect(() => {
     if (!startupId) return;
@@ -293,28 +315,6 @@ export default function DocumentReviewPage() {
       </div>
     );
   }
-
-  // 수동 모드 (기존 코드)
-  const [scores, setScores] = useState<Record<string, number>>({
-    team_score: 3,
-    problem_score: 3,
-    solution_score: 3,
-    market_score: 3,
-    traction_score: 3,
-  });
-  const [verdict, setVerdict] = useState("proceed");
-  const [showDeeptech, setShowDeeptech] = useState(false);
-  const [deeptech, setDeeptech] = useState({
-    tech_type: "",
-    scalability_score: 3,
-    process_compatibility: 3,
-    sample_test_status: "",
-    certification_stage: "",
-    purchase_lead_time_months: 0,
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [guideOpen, setGuideOpen] = useState(false);
 
   const radarData = useMemo(
     () => AXES.map((a) => ({ axis: a.label, score: scores[a.key] })),

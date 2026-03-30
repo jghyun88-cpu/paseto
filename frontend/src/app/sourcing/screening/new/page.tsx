@@ -259,6 +259,23 @@ export default function NewScreeningPage() {
   const [aiResult, setAiResult] = useState<any>(null);
   const [startupName, setStartupName] = useState("");
 
+  // 수동 모드 상태 (훅은 조건부 return 전에 선언)
+  const [scores, setScores] = useState<Record<string, number>>({
+    fulltime_commitment: 3,
+    problem_clarity: 3,
+    tech_differentiation: 3,
+    market_potential: 3,
+    initial_validation: 3,
+    strategy_fit: 3,
+  });
+  const [legalClear, setLegalClear] = useState(true);
+  const [riskNotes, setRiskNotes] = useState("");
+  const [handoverMemo, setHandoverMemo] = useState("");
+  const [handoverToReview, setHandoverToReview] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [guideOpen, setGuideOpen] = useState(false);
+
   // 스타트업 이름 로드
   useEffect(() => {
     if (!startupId) return;
@@ -301,23 +318,6 @@ export default function NewScreeningPage() {
       </div>
     );
   }
-
-  // 수동 모드 (기존 코드)
-  const [scores, setScores] = useState<Record<string, number>>({
-    fulltime_commitment: 3,
-    problem_clarity: 3,
-    tech_differentiation: 3,
-    market_potential: 3,
-    initial_validation: 3,
-    strategy_fit: 3,
-  });
-  const [legalClear, setLegalClear] = useState(true);
-  const [riskNotes, setRiskNotes] = useState("");
-  const [handoverMemo, setHandoverMemo] = useState("");
-  const [handoverToReview, setHandoverToReview] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [guideOpen, setGuideOpen] = useState(false);
 
   const totalScore = useMemo(() => {
     const sum = Object.values(scores).reduce((a, b) => a + b, 0);
