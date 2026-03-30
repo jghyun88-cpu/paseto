@@ -21,3 +21,6 @@ class AIAnalysis(Base, BaseMixin, SoftDeleteMixin):
     risk_level: Mapped[str | None] = mapped_column(String(20), nullable=True)
     recommendation: Mapped[str | None] = mapped_column(String(30), nullable=True)
     investment_attractiveness: Mapped[int | None] = mapped_column(nullable=True)
+    source: Mapped[str] = mapped_column(
+        String(50), default="lsa_report", server_default="lsa_report",
+    )

@@ -15,7 +15,7 @@ celery_app.conf.enable_utc = False
 celery_app.autodiscover_tasks(["app.tasks"])
 
 # autodiscover 보완 — 명시적 import
-from app.tasks import ai_screening  # noqa: F401, E402
+from app.tasks import ai_evaluation  # noqa: F401, E402
 from app.tasks import escalation  # noqa: F401, E402
 from app.tasks import crisis_scan  # noqa: F401, E402
 from app.tasks import report_reminders  # noqa: F401, E402
