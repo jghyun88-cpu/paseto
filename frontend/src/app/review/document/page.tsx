@@ -281,41 +281,6 @@ export default function DocumentReviewPage() {
     }).catch(() => {});
   }, [startupId]);
 
-  // AI 모드
-  if (mode === "ai") {
-    return (
-      <div className="max-w-3xl mx-auto py-6 px-4">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <button onClick={() => router.back()} className="text-slate-400 hover:text-slate-600">
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <h1 className="text-xl font-bold text-slate-900">AI 서류심사 평가</h1>
-          </div>
-          <button
-            onClick={() => setMode("manual")}
-            className="text-sm text-blue-600 hover:underline"
-          >
-            수동 심사로 전환
-          </button>
-        </div>
-
-        {!aiResult ? (
-          <ReportUploader
-            startupId={startupId}
-            onComplete={(result) => setAiResult(result)}
-          />
-        ) : (
-          <EvaluationReview
-            evaluationId={aiResult.evaluation_id}
-            startupName={startupName || startupId}
-            initialData={aiResult.status === "completed" ? aiResult : undefined}
-          />
-        )}
-      </div>
-    );
-  }
-
   const radarData = useMemo(
     () => AXES.map((a) => ({ axis: a.label, score: scores[a.key] })),
     [scores],
@@ -356,6 +321,41 @@ export default function DocumentReviewPage() {
     },
     [startupId, scores, verdict, showDeeptech, deeptech, router],
   );
+
+  // AI 모드
+  if (mode === "ai") {
+    return (
+      <div className="max-w-3xl mx-auto py-6 px-4">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <button onClick={() => router.back()} className="text-slate-400 hover:text-slate-600">
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <h1 className="text-xl font-bold text-slate-900">AI 서류심사 평가</h1>
+          </div>
+          <button
+            onClick={() => setMode("manual")}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            수동 심사로 전환
+          </button>
+        </div>
+
+        {!aiResult ? (
+          <ReportUploader
+            startupId={startupId}
+            onComplete={(result) => setAiResult(result)}
+          />
+        ) : (
+          <EvaluationReview
+            evaluationId={aiResult.evaluation_id}
+            startupName={startupName || startupId}
+            initialData={aiResult.status === "completed" ? aiResult : undefined}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl">
