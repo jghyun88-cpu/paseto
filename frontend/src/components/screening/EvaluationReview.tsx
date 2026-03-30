@@ -185,44 +185,10 @@ export default function EvaluationReview({
     [data, comment, overrides, hasFailCheck, showDeclineConfirm, router],
   );
 
-  // --- 렌더링 ---
-
-  // 로딩 (비동기 대기 중)
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 text-slate-500">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span>AI 분석 중...</span>
-        </div>
-        {/* 스켈레톤 테이블 */}
-        <div className="space-y-3">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-10 rounded bg-slate-100 animate-pulse" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // 에러
-  if (data?.status === "error") {
-    return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-        <AlertTriangle className="mx-auto h-8 w-8 text-red-500 mb-2" />
-        <p className="text-sm text-red-700">{data.summary || "AI 평가에 실패했습니다."}</p>
-        <p className="text-xs text-slate-500 mt-2">수동 평가로 전환해주세요.</p>
-      </div>
-    );
-  }
-
-  if (!data?.scores) {
-    return (
-      <div className="text-center text-slate-500 py-8">평가 데이터가 없습니다.</div>
-    );
-  }
-
-  const { items, total, is_deeptech } = data.scores;
+  // 데이터 추출 (훅 이후, 조건부 return 이전에 안전하게 추출)
+  const items = data?.scores?.items ?? {};
+  const total = data?.scores?.total ?? null;
+  const is_deeptech = data?.scores?.is_deeptech ?? false;
   const itemEntries = Object.entries(items);
 
   const handlePrint = useCallback(() => {
@@ -376,6 +342,40 @@ export default function EvaluationReview({
       setTimeout(() => document.body.removeChild(iframe), 1000);
     }, 300);
   }, [items, itemEntries, total, is_deeptech, overrides, comment, failChecks, hasFailCheck, data, startupName]);
+
+  // --- 조건부 렌더링 (모든 훅 선언 이후) ---
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 text-slate-500">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span>AI 분석 중...</span>
+        </div>
+        <div className="space-y-3">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-10 rounded bg-slate-100 animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (data?.status === "error") {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+        <AlertTriangle className="mx-auto h-8 w-8 text-red-500 mb-2" />
+        <p className="text-sm text-red-700">{data.summary || "AI 평가에 실패했습니다."}</p>
+        <p className="text-xs text-slate-500 mt-2">수동 평가로 전환해주세요.</p>
+      </div>
+    );
+  }
+
+  if (!data?.scores) {
+    return (
+      <div className="text-center text-slate-500 py-8">평가 데이터가 없습니다.</div>
+    );
+  }
 
   return (
     <div className="space-y-6">
