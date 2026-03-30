@@ -24,3 +24,4 @@
 | handover | 94% | 2026-03-23 | plan, design, analysis, report (6경로 자동 인계 + 수신함 UI + 에스컬레이션) |
 | pipeline-optimization | 100% | 2026-03-23 | plan, report (칸반 has_deal_flow 필터 + 스크리닝 UX) |
 | deployment-prep | 100% | 2026-03-26 | analysis, report, demo-guide (1차 배포 준비: CEO+Eng Review → 에러모니터링/헬스체크/임포트/백업/프로덕션빌드/모바일/빈상태/웹서치강화) |
+| ai-evaluation | 97% | 2026-03-30 | analysis, report (하이브리드 lsa 보고서 파싱+Claude fallback, 43 tests, +2372/-1773줄) |
