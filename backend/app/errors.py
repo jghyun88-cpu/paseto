@@ -309,6 +309,16 @@ def handover_content_invalid(field: str) -> HTTPException:
     )
 
 
+# --- 컴플라이언스 ---
+
+
+def checklist_not_found() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="해당 컴플라이언스 체크리스트를 찾을 수 없습니다.",
+    )
+
+
 def handover_team_mismatch() -> HTTPException:
     return HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,

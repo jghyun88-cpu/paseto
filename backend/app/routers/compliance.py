@@ -17,11 +17,11 @@ router = APIRouter()
 @router.get("/checklists/", response_model=ComplianceChecklistResponse | None)
 async def get_checklist(
     db: Annotated[AsyncSession, Depends(get_db)],
-    _user: Annotated[User, Depends(require_permission("compliance", "full"))],
+    user: Annotated[User, Depends(require_permission("compliance", "read"))],
     checklist_type: str = "default",
 ) -> ComplianceChecklistResponse | None:
     """최신 컴플라이언스 체크리스트 조회"""
-    result = await compliance_service.get_latest(db, checklist_type)
+    result = await compliance_service.get_latest(db, user.id, checklist_type)
     if result is None:
         return None
     return ComplianceChecklistResponse.model_validate(result)

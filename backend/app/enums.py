@@ -177,6 +177,17 @@ class DocumentCategory(str, Enum):
     OTHER = "other"
 
 
+# --- 컴플라이언스 체크리스트 유형 ---
+class ChecklistType(str, Enum):
+    DEFAULT = "default"
+    LEGAL = "legal"               # 법적 검토
+    FINANCIAL = "financial"       # 금융규제
+    PRIVACY = "privacy"           # 개인정보보호
+    FAIR_TRADE = "fair_trade"     # 공정거래
+    AI_ETHICS = "ai_ethics"       # AI 윤리
+    CONFLICT = "conflict"         # 이해충돌
+
+
 class IssueType(str, Enum):
     CASH_RUNWAY = "cash_runway"
     KEY_PERSON = "key_person"

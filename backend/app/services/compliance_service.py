@@ -1,5 +1,7 @@
 """컴플라이언스 체크리스트 서비스 — upsert + ActivityLog"""
 
+import uuid
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,12 +12,13 @@ from app.services import activity_log_service
 
 
 async def get_latest(
-    db: AsyncSession, checklist_type: str = "default",
+    db: AsyncSession, user_id: uuid.UUID, checklist_type: str = "default",
 ) -> ComplianceChecklist | None:
-    """최신 체크리스트 1건 조회"""
+    """최신 체크리스트 1건 조회 (user_id 기반 필터)"""
     result = await db.execute(
         select(ComplianceChecklist)
         .where(
+            ComplianceChecklist.user_id == user_id,
             ComplianceChecklist.checklist_type == checklist_type,
             ComplianceChecklist.is_deleted == False,  # noqa: E712
         )
@@ -29,7 +32,7 @@ async def upsert(
     db: AsyncSession, data: ComplianceChecklistUpdate, user: User,
 ) -> ComplianceChecklist:
     """체크리스트 upsert — 없으면 생성, 있으면 수정"""
-    existing = await get_latest(db, data.checklist_type)
+    existing = await get_latest(db, user.id, data.checklist_type)
 
     if existing:
         existing.items = data.items

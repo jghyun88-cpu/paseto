@@ -52,7 +52,7 @@ PERMISSIONS: dict[str, dict[str, str]] = {
         "review": "read", "backoffice": "full",
     },
     "compliance": {
-        "backoffice": "full",
+        "review": "read", "backoffice": "full",
     },
     "startup": {
         "sourcing": "full", "review": "read", "incubation": "read",

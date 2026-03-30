@@ -1,6 +1,7 @@
 """컴플라이언스 체크리스트 모델 — 서버 저장 + 감사 추적"""
 
 import uuid
+from typing import Any
 
 from sqlalchemy import ForeignKey, JSON, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -13,4 +14,4 @@ class ComplianceChecklist(BaseMixin, SoftDeleteMixin, Base):
 
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), index=True)
     checklist_type: Mapped[str] = mapped_column(String(50), default="default")
-    items: Mapped[dict] = mapped_column(JSON, default=list)
+    items: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
