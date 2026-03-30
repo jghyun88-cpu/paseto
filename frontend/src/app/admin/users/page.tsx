@@ -34,8 +34,15 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 function extractApiError(err: unknown): string {
-  const resp = (err as { response?: { data?: { detail?: string } } })?.response;
-  return resp?.data?.detail ?? "요청에 실패했습니다.";
+  const resp = (err as { response?: { data?: { detail?: unknown } } })?.response;
+  const detail = resp?.data?.detail;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) {
+    return detail.map((d: { msg?: string; loc?: string[] }) =>
+      d.msg ?? JSON.stringify(d)
+    ).join(", ");
+  }
+  return "요청에 실패했습니다.";
 }
 
 export default function UsersPage() {
