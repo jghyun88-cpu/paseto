@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Info, X, ClipboardList } from "lucide-react";
 import FiveAxisRadar from "@/components/charts/RadarChart";
+import ReportUploader from "@/components/screening/ReportUploader";
+import EvaluationReview from "@/components/screening/EvaluationReview";
 import api from "@/lib/api";
 
 /* ─── 가이드라인 데이터 (서류심사 5축) ─── */
@@ -242,7 +244,57 @@ export default function DocumentReviewPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const startupId = searchParams.get("startup_id") ?? "";
+  const initialMode = searchParams.get("mode") === "ai" ? "ai" : "manual";
 
+  const [mode, setMode] = useState<"manual" | "ai">(initialMode);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [aiResult, setAiResult] = useState<any>(null);
+  const [startupName, setStartupName] = useState("");
+
+  // 스타트업 이름 로드
+  useEffect(() => {
+    if (!startupId) return;
+    api.get(`/startups/${startupId}`).then(({ data }) => {
+      setStartupName(data.company_name || "");
+    }).catch(() => {});
+  }, [startupId]);
+
+  // AI 모드
+  if (mode === "ai") {
+    return (
+      <div className="max-w-3xl mx-auto py-6 px-4">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <button onClick={() => router.back()} className="text-slate-400 hover:text-slate-600">
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <h1 className="text-xl font-bold text-slate-900">AI 서류심사 평가</h1>
+          </div>
+          <button
+            onClick={() => setMode("manual")}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            수동 심사로 전환
+          </button>
+        </div>
+
+        {!aiResult ? (
+          <ReportUploader
+            startupId={startupId}
+            onComplete={(result) => setAiResult(result)}
+          />
+        ) : (
+          <EvaluationReview
+            evaluationId={aiResult.evaluation_id}
+            startupName={startupName || startupId}
+            initialData={aiResult.status === "completed" ? aiResult : undefined}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // 수동 모드 (기존 코드)
   const [scores, setScores] = useState<Record<string, number>>({
     team_score: 3,
     problem_score: 3,
@@ -314,15 +366,23 @@ export default function DocumentReviewPage() {
           </Button>
           <h2 className="text-lg font-bold text-slate-800">서류심사 (5축 평가)</h2>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setGuideOpen(true)}
-          className="gap-1.5 text-slate-600"
-        >
-          <ClipboardList size={15} />
-          평가 가이드
-        </Button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setMode("ai")}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            AI 서류심사로 전환
+          </button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setGuideOpen(true)}
+            className="gap-1.5 text-slate-600"
+          >
+            <ClipboardList size={15} />
+            평가 가이드
+          </Button>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 space-y-6">
