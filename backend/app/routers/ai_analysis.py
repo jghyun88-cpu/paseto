@@ -189,9 +189,13 @@ async def upload_evaluation_reports(
     from app.tasks.ai_evaluation import run_ai_evaluation
     run_ai_evaluation.delay(str(analysis.id))
 
-    return EvaluationUploadResponse(
-        evaluation_id=analysis.id,
-        status="pending",
+    return Response(
+        content=EvaluationUploadResponse(
+            evaluation_id=analysis.id,
+            status="pending",
+        ).model_dump_json(),
+        status_code=status.HTTP_202_ACCEPTED,
+        media_type="application/json",
     )
 
 

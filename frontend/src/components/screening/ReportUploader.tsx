@@ -6,6 +6,32 @@ import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import { showError, showSuccess } from "@/lib/toast";
 
+/** 6종 보고서 유형 배지 */
+const TYPE_BADGE: Record<string, { label: string; className: string }> = {
+  screening: { label: "스크리닝", className: "bg-purple-50 text-purple-700" },
+  ir_analysis: { label: "IR분석", className: "bg-purple-50 text-purple-700" },
+  risk_alert: { label: "리스크", className: "bg-purple-50 text-purple-700" },
+  market_scan: { label: "시장분석", className: "bg-purple-50 text-purple-700" },
+  investment_memo: { label: "투자검토", className: "bg-purple-50 text-purple-700" },
+  portfolio_report: { label: "포트폴리오", className: "bg-purple-50 text-purple-700" },
+};
+
+const FILENAME_TYPE_PATTERNS: [RegExp, string][] = [
+  [/screening|스크리닝/i, "screening"],
+  [/ir[_-]?analysis|IR|심층분석/i, "ir_analysis"],
+  [/risk|리스크/i, "risk_alert"],
+  [/market|시장/i, "market_scan"],
+  [/memo|투자.*검토/i, "investment_memo"],
+  [/portfolio|포트폴리오/i, "portfolio_report"],
+];
+
+function guessReportType(filename: string): string | null {
+  for (const [pattern, type] of FILENAME_TYPE_PATTERNS) {
+    if (pattern.test(filename)) return type;
+  }
+  return null;
+}
+
 interface UploadedFile {
   file: File;
   status: "pending" | "uploading" | "done" | "error";
@@ -85,6 +111,11 @@ export default function ReportUploader({
     if (files.length === 0) return;
     setUploading(true);
 
+    // 모든 파일을 "uploading"으로 전환
+    setFiles((prev) =>
+      prev.map((f) => ({ ...f, status: "uploading" as const })),
+    );
+
     const fd = new FormData();
     for (const { file } of files) {
       fd.append("files", file);
@@ -102,6 +133,11 @@ export default function ReportUploader({
         { headers: { "Content-Type": "multipart/form-data" } },
       );
 
+      // 성공 → 모든 파일을 "done"으로
+      setFiles((prev) =>
+        prev.map((f) => ({ ...f, status: "done" as const })),
+      );
+
       showSuccess(
         data.status === "completed"
           ? "평가 완료! 결과를 확인하세요."
@@ -110,6 +146,10 @@ export default function ReportUploader({
 
       onComplete(data);
     } catch (err) {
+      // 실패 → 모든 파일을 "error"로
+      setFiles((prev) =>
+        prev.map((f) => ({ ...f, status: "error" as const })),
+      );
       showError("보고서 업로드에 실패했습니다.", err);
     } finally {
       setUploading(false);
@@ -177,7 +217,20 @@ export default function ReportUploader({
             >
               <FileText className="h-4 w-4 shrink-0 text-slate-500" />
               <span className="flex-1 truncate">{file.name}</span>
+              {(() => {
+                const type = guessReportType(file.name);
+                if (!type || !TYPE_BADGE[type]) return null;
+                const badge = TYPE_BADGE[type];
+                return (
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${badge.className}`}>
+                    {badge.label}
+                  </span>
+                );
+              })()}
 
+              {status === "uploading" && (
+                <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+              )}
               {status === "done" && (
                 <Check className="h-4 w-4 text-green-600" />
               )}

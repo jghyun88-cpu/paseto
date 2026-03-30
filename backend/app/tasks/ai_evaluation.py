@@ -113,6 +113,29 @@ def run_ai_evaluation(self, evaluation_id: str) -> dict:
         else:
             analysis.recommendation = None
 
+        # 7. 알림 발송 (심사팀)
+        try:
+            from app.models.notification import Notification
+            from app.models.user import User
+            reviewers = db.execute(
+                select(User).where(User.team == "review", User.is_active == True)  # noqa: E712
+            ).scalars().all()
+            verdict_label = {
+                "pass": "통과", "conditional": "조건부 통과",
+                "hold": "보류", "decline": "탈락",
+            }.get(analysis.recommendation or "", "미정")
+            for reviewer in reviewers:
+                db.add(Notification(
+                    user_id=reviewer.id,
+                    title="AI 평가 완료",
+                    message=f"AI 보고서 평가가 완료되었습니다. (총점: {total}, 판정: {verdict_label})",
+                    notification_type="system",
+                    related_entity_type="ai_analysis",
+                    related_entity_id=analysis.id,
+                ))
+        except Exception as notify_exc:
+            logger.warning("알림 발송 실패: %s", notify_exc)
+
         db.commit()
         logger.info(
             "AI 평가 완료: %s (총점: %s, 판정: %s)",
