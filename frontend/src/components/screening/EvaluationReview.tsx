@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 import { showError, showSuccess } from "@/lib/toast";
@@ -225,25 +225,183 @@ export default function EvaluationReview({
   const { items, total, is_deeptech } = data.scores;
   const itemEntries = Object.entries(items);
 
+  const handlePrint = useCallback(() => {
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}.${String(now.getDate()).padStart(2, "0")}`;
+
+    // 수정된 점수 반영
+    const finalItems = { ...items };
+    for (const [key, val] of Object.entries(overrides)) {
+      if (finalItems[key] && val !== "") {
+        finalItems[key] = { ...finalItems[key], score: Number(val) };
+      }
+    }
+    const finalTotal = Object.values(finalItems).reduce(
+      (sum: number, item: unknown) => sum + (item as ScoreItem).score, 0,
+    );
+
+    const verdictLabel = hasFailCheck
+      ? "탈락 (결격사유)"
+      : VERDICT_LABEL[data.recommendation || ""] || data.recommendation || "미정";
+
+    const failItems = FAIL_CHECKS
+      .filter(({ key }) => failChecks[key])
+      .map(({ label }) => label);
+
+    const verdictClass = hasFailCheck || data.recommendation === "decline" ? "verdict-decline"
+      : data.recommendation === "pass" ? "verdict-pass"
+      : data.recommendation === "conditional" ? "verdict-cond" : "verdict-hold";
+
+    // 안전한 텍스트 이스케이프
+    const esc = (s: string) => {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    };
+
+    // iframe 기반 인쇄 (document.write 미사용)
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.left = "-9999px";
+    iframe.style.width = "800px";
+    iframe.style.height = "900px";
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentDocument;
+    if (!doc) { document.body.removeChild(iframe); return; }
+
+    const style = doc.createElement("style");
+    style.textContent = `
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: 'Malgun Gothic', sans-serif; padding: 40px; color: #1e293b; font-size: 13px; line-height: 1.6; }
+      h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+      .meta { color: #64748b; font-size: 12px; margin-bottom: 24px; }
+      .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+      .badge-dt { background: #ede9fe; color: #6d28d9; }
+      .badge-gen { background: #f1f5f9; color: #475569; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+      th, td { border: 1px solid #e2e8f0; padding: 8px 12px; text-align: left; }
+      th { background: #f8fafc; font-weight: 600; color: #475569; }
+      td.num { text-align: center; font-family: monospace; }
+      .total-row { background: #f8fafc; font-weight: 700; }
+      .section { margin-bottom: 20px; }
+      .section-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 2px solid #e2e8f0; }
+      .verdict { font-size: 16px; font-weight: 700; margin: 8px 0; }
+      .verdict-pass { color: #16a34a; } .verdict-cond { color: #d97706; }
+      .verdict-hold { color: #64748b; } .verdict-decline { color: #dc2626; }
+      .fail-box { border: 1px solid #fca5a5; background: #fef2f2; padding: 12px; border-radius: 8px; margin-bottom: 20px; }
+      .fail-box p { color: #991b1b; font-weight: 600; }
+      .comment { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; min-height: 60px; white-space: pre-wrap; }
+      .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 11px; display: flex; justify-content: space-between; }
+    `;
+    doc.head.appendChild(style);
+
+    // 본문 구성 (DOM 조작)
+    const h1 = doc.createElement("h1");
+    h1.textContent = `${startupName} AI 심사 평가`;
+    doc.body.appendChild(h1);
+
+    const meta = doc.createElement("div");
+    meta.className = "meta";
+    meta.innerHTML = `보고서: ${itemEntries.length}개 항목 &nbsp;<span class="badge ${is_deeptech ? "badge-dt" : "badge-gen"}">${is_deeptech ? "딥테크" : "일반"}</span>&nbsp;&nbsp; 출력일: ${esc(dateStr)}`;
+    doc.body.appendChild(meta);
+
+    if (failItems.length > 0) {
+      const failBox = doc.createElement("div");
+      failBox.className = "fail-box";
+      const failP = doc.createElement("p");
+      failP.textContent = `결격사유: ${failItems.join(", ")}`;
+      failBox.appendChild(failP);
+      doc.body.appendChild(failBox);
+    }
+
+    // 점수 테이블
+    const section = doc.createElement("div");
+    section.className = "section";
+    const sTitle = doc.createElement("div");
+    sTitle.className = "section-title";
+    sTitle.textContent = "평가 점수";
+    section.appendChild(sTitle);
+
+    const table = doc.createElement("table");
+    const thead = doc.createElement("thead");
+    thead.innerHTML = `<tr><th style="width:30px">#</th><th>항목</th><th style="width:70px">AI 점수</th><th style="width:70px">수정 점수</th><th>근거</th></tr>`;
+    table.appendChild(thead);
+
+    const tbody = doc.createElement("tbody");
+    itemEntries.forEach(([key, item], idx) => {
+      const overridden = overrides[key] && overrides[key] !== "" ? Number(overrides[key]) : null;
+      const tr = doc.createElement("tr");
+      tr.innerHTML = `<td class="num">${idx + 1}</td><td>${esc(ITEM_LABELS[key] || key)}</td><td class="num">${item.score}/${item.max}</td><td class="num">${overridden !== null ? `${overridden}/${item.max}` : "-"}</td><td>${esc(item.rationale || "-")}</td>`;
+      tbody.appendChild(tr);
+    });
+    const totalRow = doc.createElement("tr");
+    totalRow.className = "total-row";
+    totalRow.innerHTML = `<td colspan="2">종합</td><td class="num">${total ?? "-"}/100</td><td class="num">${Object.keys(overrides).length > 0 ? `${finalTotal}/100` : "-"}</td><td></td>`;
+    tbody.appendChild(totalRow);
+    table.appendChild(tbody);
+    section.appendChild(table);
+    doc.body.appendChild(section);
+
+    // 판정
+    const verdictSec = doc.createElement("div");
+    verdictSec.className = "section";
+    verdictSec.innerHTML = `<div class="section-title">종합 판정</div><div class="verdict ${verdictClass}">${esc(verdictLabel)}</div>`;
+    doc.body.appendChild(verdictSec);
+
+    // 심사자 의견
+    if (comment) {
+      const commentSec = doc.createElement("div");
+      commentSec.className = "section";
+      const cTitle = doc.createElement("div");
+      cTitle.className = "section-title";
+      cTitle.textContent = "심사자 의견";
+      commentSec.appendChild(cTitle);
+      const cBox = doc.createElement("div");
+      cBox.className = "comment";
+      cBox.textContent = comment;
+      commentSec.appendChild(cBox);
+      doc.body.appendChild(commentSec);
+    }
+
+    // 푸터
+    const footer = doc.createElement("div");
+    footer.className = "footer";
+    footer.innerHTML = `<span>NEXA 딥테크 액셀러레이터 — AI 심사 평가 보고서</span><span>${esc(dateStr)}</span>`;
+    doc.body.appendChild(footer);
+
+    // 인쇄
+    setTimeout(() => {
+      iframe.contentWindow?.print();
+      setTimeout(() => document.body.removeChild(iframe), 1000);
+    }, 300);
+  }, [items, itemEntries, total, is_deeptech, overrides, comment, failChecks, hasFailCheck, data, startupName]);
+
   return (
     <div className="space-y-6">
       {/* 헤더 */}
-      <div>
-        <h2 className="text-lg font-semibold text-slate-900">
-          {startupName} AI 심사 평가
-        </h2>
-        <div className="flex items-center gap-2 mt-1 text-sm text-slate-500">
-          <span>보고서: {itemEntries.length}개 항목</span>
-          <span
-            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-              is_deeptech
-                ? "bg-violet-100 text-violet-700"
-                : "bg-slate-100 text-slate-700"
-            }`}
-          >
-            {is_deeptech ? "딥테크" : "일반"}
-          </span>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900">
+            {startupName} AI 심사 평가
+          </h2>
+          <div className="flex items-center gap-2 mt-1 text-sm text-slate-500">
+            <span>보고서: {itemEntries.length}개 항목</span>
+            <span
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                is_deeptech
+                  ? "bg-violet-100 text-violet-700"
+                  : "bg-slate-100 text-slate-700"
+              }`}
+            >
+              {is_deeptech ? "딥테크" : "일반"}
+            </span>
+          </div>
         </div>
+        <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1.5">
+          <Printer size={15} />
+          출력
+        </Button>
       </div>
 
       {/* Pass/Fail 체크 (점수 테이블 위) */}
