@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { showError } from "@/lib/toast";
 
 export default function SettingsPage() {
-  const [orgName, setOrgName] = useState("eLSA 딥테크 액셀러레이터");
+  const [orgName, setOrgName] = useState("NEXA 딥테크 액셀러레이터");
   const [orgDescription, setOrgDescription] = useState(
     "딥테크 스타트업 전주기 투자 및 보육 운영 플랫폼"
   );

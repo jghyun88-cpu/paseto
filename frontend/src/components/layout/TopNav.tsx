@@ -52,7 +52,7 @@ export default function TopNav({ tabs, activeTab, onTabChange }: TopNavProps) {
     <header className="topnav">
       <div className="topnav-logo">
         <span className="topnav-logo-icon">◆</span>
-        <span className="topnav-logo-text">eLSA</span>
+        <span className="topnav-logo-text">NEXA</span>
         <span className="topnav-logo-sub">딥테크 액셀러레이터</span>
       </div>
 

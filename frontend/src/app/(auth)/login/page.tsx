@@ -36,7 +36,7 @@ export default function LoginPage() {
       <div className="login-card">
         <div className="login-header">
           <span className="login-logo">◆</span>
-          <h1 className="login-title">eLSA</h1>
+          <h1 className="login-title">NEXA</h1>
           <p className="login-subtitle">딥테크 액셀러레이터 운영시스템</p>
         </div>
 

@@ -46,7 +46,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <PageHeader title="eLSA 전사 대시보드" />
+      <PageHeader title="NEXA 전사 대시보드" />
 
       {/* KPI 카드 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
