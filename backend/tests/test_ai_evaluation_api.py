@@ -132,33 +132,35 @@ async def test_upload_too_many_files(client: AsyncClient, db: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_get_status_completed(client: AsyncClient, db: AsyncSession):
-    """완료된 평가 조회 → completed"""
+    """완료된 평가 조회 → completed (DB 직접 생성)"""
+    from app.models.ai_analysis import AIAnalysis
+
     user = await create_test_user(db, role="analyst", team="sourcing")
     startup = await create_test_startup(db, manager_id=user.id)
     headers = make_auth_header(user.id)
 
-    # 먼저 평가 생성 (동기 파싱)
-    md_content = """총점 | **85 / 100점**
-판정 | 통과
-팀 역량 (만점: 15점) → **14점**
-시장 규모 (만점: 15점) → **13점**
-트랙션 (만점: 15점) → **12점**
-비즈니스 모델 (만점: 15점) → **11점**
-"""
-    upload_resp = await client.post(
-        f"/api/v1/ai-analysis/evaluation/upload?startup_id={startup.id}",
-        headers=headers,
-        files={"files": ("report.md", io.BytesIO(md_content.encode()), "text/markdown")},
+    # DB에 직접 completed 상태 레코드 생성
+    analysis = AIAnalysis(
+        id=uuid.uuid4(),
+        startup_id=startup.id,
+        analysis_type="screening",
+        scores={"items": {"team": {"score": 14, "max": 15, "rationale": ""}}, "total": 85, "is_deeptech": False},
+        summary="테스트 완료",
+        recommendation="pass",
+        source="lsa_report",
     )
-    eval_id = upload_resp.json()["evaluation_id"]
+    db.add(analysis)
+    await db.commit()
+    await db.refresh(analysis)
 
     resp = await client.get(
-        f"/api/v1/ai-analysis/evaluation/{eval_id}/status",
+        f"/api/v1/ai-analysis/evaluation/{analysis.id}/status",
         headers=headers,
     )
     assert resp.status_code == 200
     data = resp.json()
     assert data["status"] == "completed"
+    assert data["recommendation"] == "pass"
 
 
 @pytest.mark.asyncio

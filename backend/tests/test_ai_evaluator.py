@@ -159,11 +159,21 @@ def test_evaluate_success(mock_settings):
         )
     ]
 
-    with patch("app.services.ai_evaluator.anthropic") as mock_anthropic:
-        mock_client = MagicMock()
-        mock_client.messages.create.return_value = mock_response
-        mock_anthropic.Anthropic.return_value = mock_client
+    mock_client = MagicMock()
+    mock_client.messages.create.return_value = mock_response
 
+    # anthropic은 함수 내부에서 지연 import되므로 builtins.__import__ mock
+    import builtins
+    real_import = builtins.__import__
+
+    def patched_import(name, *args, **kwargs):
+        if name == "anthropic":
+            mod = MagicMock()
+            mod.Anthropic.return_value = mock_client
+            return mod
+        return real_import(name, *args, **kwargs)
+
+    with patch.object(builtins, "__import__", side_effect=patched_import):
         result = evaluate_reports(["보고서"], is_deeptech=False)
         assert result["total"] == 78
         assert result["source"] == "claude_evaluation"
@@ -173,11 +183,20 @@ def test_evaluate_success(mock_settings):
 def test_evaluate_retry_on_failure(mock_settings):
     mock_settings.ANTHROPIC_API_KEY = "test-key"
 
-    with patch("app.services.ai_evaluator.anthropic") as mock_anthropic:
-        mock_client = MagicMock()
-        mock_client.messages.create.side_effect = Exception("API Error")
-        mock_anthropic.Anthropic.return_value = mock_client
+    mock_client = MagicMock()
+    mock_client.messages.create.side_effect = Exception("API Error")
 
+    import builtins
+    real_import = builtins.__import__
+
+    def patched_import(name, *args, **kwargs):
+        if name == "anthropic":
+            mod = MagicMock()
+            mod.Anthropic.return_value = mock_client
+            return mod
+        return real_import(name, *args, **kwargs)
+
+    with patch.object(builtins, "__import__", side_effect=patched_import):
         with pytest.raises(RuntimeError, match="평가 실패"):
             evaluate_reports(["보고서"], is_deeptech=False)
 
